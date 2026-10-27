@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fbefda">
+  <meta name="description" content="一段清新可爱的赶海时光。在涨潮前，凭记忆收集成对的扇贝、螃蟹、小虾和八爪鱼。">
+  <title>赶海配对 · 试玩版</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23e9a68c' d='M32 55C15 49 1 28 9 17c5-7 12-3 14-8 4-6 14-6 18 0 2 5 9 1 14 8 8 11-6 32-23 38Z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="levels.js" defer></script>
+  <script src="core.js" defer></script>
+  <script src="art.js" defer></script>
+  <script src="game.js" defer></script>
+</head>
+<body>
+  <main class="game-shell" id="app">
+    <div class="landscape" aria-hidden="true">
+      <div class="sky"></div><div class="sun"></div>
+      <div class="island island-far"></div><div class="island island-near"></div>
+      <div class="ocean"></div><div class="shore shore-back"></div><div class="shore"></div>
+      <div class="sand-texture"></div>
+      <svg class="beach-grass grass-left" viewBox="0 0 100 200"><path d="M41 200Q60 68 8 13Q62 68 54 200M40 200Q43 94 90 73Q49 117 52 200M38 200Q40 148 7 115Q49 140 51 200"/></svg>
+      <svg class="beach-grass grass-right" viewBox="0 0 100 200"><path d="M41 200Q60 68 8 13Q62 68 54 200M40 200Q43 94 90 73Q49 117 52 200M38 200Q40 148 7 115Q49 140 51 200"/></svg>
+      <span class="sand-mark mark-one"></span><span class="sand-mark mark-two"></span><span class="sand-mark mark-three"></span>
+    </div>
+
+    <section class="screen menu-screen" id="menu-screen" aria-labelledby="menu-heading">
+      <div class="edition"><span></span> 一段海边时光 <span></span></div>
+      <div class="menu-art" id="menu-art" aria-hidden="true"></div>
+      <div class="menu-copy"><p class="eyebrow">听，潮水正在靠近</p>
+        <h1 id="menu-heading">潮来之前，<br>拾起小小惊喜。</h1>
+        <p class="menu-description">记住每一枚，带走每一对。<br>把片刻的专注，留给这一片海。</p>
+      </div>
+      <nav class="menu-actions" aria-label="主菜单">
+        <button class="button button-primary" id="start-button"><span>开始游戏</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+        <div class="menu-secondary"><button class="button button-quiet" id="settings-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 3-.7 2.2-2 .9-2.1-.6L3.3 9l1.6 1.6v2.8L3.3 15l1.9 3.5 2.1-.6 2 .9.7 2.2h4l.7-2.2 2-.9 2.1.6 1.9-3.5-1.6-1.6v-2.8L20.7 9l-1.9-3.5-2.1.6-2-.9L14 3Z"/><circle cx="12" cy="12" r="3"/></svg>设置</button>
+        <span class="menu-divider"></span><button class="button button-quiet" id="exit-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5m4-12 4 4-4 4m-5-4h12"/></svg>退出游戏</button></div>
+      </nav>
+      <p class="menu-footnote">无需下载 · 点开即玩</p>
+    </section>
+
+    <section class="screen level-screen" id="level-screen" hidden aria-labelledby="level-heading">
+      <header class="screen-header"><button class="icon-button" data-menu aria-label="返回主菜单"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button><span>选择关卡</span><span class="header-spacer"></span></header>
+      <div class="level-content"><p class="eyebrow">从这一片浅湾开始</p><h1 id="level-heading">今天，去赶海。</h1><p class="section-description">在潮水漫过沙滩前，找到所有成对的赶海收获。</p>
+        <button class="level-card" id="level-one"><span class="level-card-top"><span class="level-label">第一关</span><span class="level-number">01</span></span><span class="level-art" id="level-art" aria-hidden="true"></span><span class="level-name">初见浅湾</span><span class="level-detail">6 × 6 沙格 <span>·</span> 4 种赶海收获</span><span class="level-enter">进入沙滩 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span></button>
+        <p class="level-note" id="level-note">找到相同的一对，就把它们收入收藏。</p>
+      </div>
+    </section>
+
+    <section class="screen settings-screen" id="settings-screen" hidden aria-labelledby="settings-heading">
+      <header class="screen-header"><button class="icon-button" data-menu aria-label="返回主菜单"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button><span>设置</span><span class="header-spacer"></span></header>
+      <div class="placeholder-content"><div class="placeholder-icon" aria-hidden="true">☼</div><p class="eyebrow">先听一会儿海风</p><h1 id="settings-heading">设置即将开放</h1><p class="section-description">这一版先去海边走走。<br>更多设置，之后在这里见。</p><button class="button button-primary" data-menu>返回主菜单</button></div>
+    </section>
+
+    <section class="screen play-screen" id="play-screen" hidden aria-label="第一关，初见浅湾">
+      <header class="play-header"><button class="icon-button" id="back-button" aria-label="暂停并返回"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button><div class="play-location"><span class="location-dot"></span>初见浅湾<span class="small-separator">/</span><span class="level-mini">01</span></div><button class="icon-button" id="pause-button" aria-label="暂停游戏"><svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg></button></header>
+      <div class="play-intro"><p class="eyebrow">趁潮水还未漫过沙滩</p><p>翻开沙层，记住海的礼物。</p></div>
+      <div class="board-wrap"><div class="board" id="board" aria-label="6行6列赶海配对棋盘"></div><div class="board-caption"><span class="caption-dot"></span>水下的沙格也可以继续翻开</div></div>
+      <footer class="collection"><div class="collection-heading"><span>今日拾得</span><strong><span id="pairs-count">0</span><span class="count-total"> / 18 对</span></strong></div><div class="collection-track" id="collection-track" aria-label="赶海收集进度"></div><p class="play-hint" id="play-hint">翻开两格，寻找相同的赶海收获</p></footer>
+    </section>
+
+    <section class="screen exit-screen" id="exit-screen" hidden aria-labelledby="exit-heading"><div class="placeholder-content"><div id="exit-art" class="exit-art" aria-hidden="true"></div><p class="eyebrow">下次，再来听海</p><h1 id="exit-heading">这一程，先到这里。</h1><p class="section-description">你可以关闭这个页面，<br>也可以随时回到海边。</p><button class="button button-primary" data-menu>重新进入</button></div></section>
+
+    <canvas id="tide-canvas" aria-hidden="true"></canvas>
+    <div class="tide-warning" id="tide-warning" hidden role="status">潮水快要漫过沙滩了</div>
+    <div class="modal-layer" id="modal-layer" hidden><section class="modal-card" id="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-heading" tabindex="-1"><div class="modal-art" id="modal-art" aria-hidden="true"></div><p class="eyebrow" id="modal-eyebrow"></p><h2 id="modal-heading"></h2><p class="modal-description" id="modal-description"></p><div class="modal-actions" id="modal-actions"></div></section></div>
+    <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+    <noscript><div class="noscript">请启用浏览器 JavaScript 后试玩游戏。</div></noscript>
+  </main>
+</body>
+</html>
