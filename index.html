@@ -5,12 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fbefda">
   <meta name="description" content="一段清新可爱的赶海时光。在涨潮前，凭记忆收集成对的扇贝、螃蟹、小虾和八爪鱼。">
-  <title>赶海配对 · 试玩版</title>
+  <title>游戏名称 · 试玩版</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23e9a68c' d='M32 55C15 49 1 28 9 17c5-7 12-3 14-8 4-6 14-6 18 0 2 5 9 1 14 8 8 11-6 32-23 38Z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="harvest.css">
+  <link rel="stylesheet" href="menu.css">
+  <link rel="stylesheet" href="tutorial.css">
+  <link rel="stylesheet" href="puzzle.css">
   <script src="levels.js" defer></script>
   <script src="core.js" defer></script>
+  <script src="puzzle.js" defer></script>
   <script src="art.js" defer></script>
+  <script src="tutorial.js" defer></script>
   <script src="game.js" defer></script>
 </head>
 <body>
@@ -25,46 +31,98 @@
       <span class="sand-mark mark-one"></span><span class="sand-mark mark-two"></span><span class="sand-mark mark-three"></span>
     </div>
 
-    <section class="screen menu-screen" id="menu-screen" aria-labelledby="menu-heading">
-      <div class="edition"><span></span> 一段海边时光 <span></span></div>
-      <div class="menu-art" id="menu-art" aria-hidden="true"></div>
-      <div class="menu-copy"><p class="eyebrow">听，潮水正在靠近</p>
-        <h1 id="menu-heading">潮来之前，<br>拾起小小惊喜。</h1>
-        <p class="menu-description">记住每一枚，带走每一对。<br>把片刻的专注，留给这一片海。</p>
-      </div>
-      <nav class="menu-actions" aria-label="主菜单">
+    <section class="screen menu-screen" id="menu-screen" aria-label="主菜单">
+      <div class="menu-pattern" aria-hidden="true"><div class="menu-pattern-scroll" id="menu-pattern-scroll"></div></div>
+      <h1 class="menu-title" id="menu-title">游戏名称</h1>
+      <div class="menu-panel"><nav class="menu-actions" aria-label="主菜单">
         <button class="button button-primary" id="start-button"><span>开始游戏</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
-        <div class="menu-secondary"><button class="button button-quiet" id="settings-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 3-.7 2.2-2 .9-2.1-.6L3.3 9l1.6 1.6v2.8L3.3 15l1.9 3.5 2.1-.6 2 .9.7 2.2h4l.7-2.2 2-.9 2.1.6 1.9-3.5-1.6-1.6v-2.8L20.7 9l-1.9-3.5-2.1.6-2-.9L14 3Z"/><circle cx="12" cy="12" r="3"/></svg>设置</button>
-        <span class="menu-divider"></span><button class="button button-quiet" id="exit-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5m4-12 4 4-4 4m-5-4h12"/></svg>退出游戏</button></div>
-      </nav>
-      <p class="menu-footnote">无需下载 · 点开即玩</p>
+        <button class="button button-secondary" id="select-level-button">选择关卡</button>
+        <div class="menu-secondary"><button class="button button-quiet" id="settings-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 3-.7 2.2-2 .9-2.1-.6L3.3 9l1.6 1.6v2.8L3.3 15l1.9 3.5 2.1-.6 2 .9.7 2.2h4l.7-2.2 2-.9 2.1.6 1.9-3.5-1.6-1.6v-2.8L20.7 9l-1.9-3.5-2.1.6-2-.9L14 3Z"/><circle cx="12" cy="12" r="3"/></svg>设置</button></div>
+      </nav></div>
     </section>
 
-    <section class="screen level-screen" id="level-screen" hidden aria-labelledby="level-heading">
+    <section class="screen level-screen" id="level-screen" hidden aria-label="选择关卡">
+      <div class="chapter-day-scene" id="chapter-day-scene" aria-hidden="true"></div>
+      <div class="chapter-night-scene" id="chapter-night-scene" hidden aria-hidden="true"><div class="night-stars"></div><div class="night-headland night-headland-far"></div><div class="night-headland night-headland-near"></div><div class="night-sea"></div><div class="night-reflection"></div><div class="night-shore"></div><div class="night-fog"><span></span><span></span><span></span></div><div class="night-sand-grains"></div></div>
       <header class="screen-header"><button class="icon-button" data-menu aria-label="返回主菜单"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button><span>选择关卡</span><span class="header-spacer"></span></header>
-      <div class="level-content"><p class="eyebrow">从这一片浅湾开始</p><h1 id="level-heading">今天，去赶海。</h1><p class="section-description">在潮水漫过沙滩前，找到所有成对的赶海收获。</p>
-        <button class="level-card" id="level-one"><span class="level-card-top"><span class="level-label">第一关</span><span class="level-number">01</span></span><span class="level-art" id="level-art" aria-hidden="true"></span><span class="level-name">初见浅湾</span><span class="level-detail">6 × 6 沙格 <span>·</span> 4 种赶海收获</span><span class="level-enter">进入沙滩 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span></button>
-        <p class="level-note" id="level-note">找到相同的一对，就把它们收入收藏。</p>
-      </div>
+      <div class="chapter-pages" id="chapter-pages"></div>
+      <nav class="chapter-pagination" aria-label="切换大关">
+        <button class="icon-button" id="chapter-previous" aria-label="上一大关"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
+        <div class="chapter-indicators" id="chapter-indicators" role="list" aria-label="大关位置"></div>
+        <button class="icon-button" id="chapter-next" aria-label="下一大关"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
+      </nav>
+      <p class="chapter-help" id="chapter-help">已通关的关卡可重玩 · 新挑战从主页开始</p>
     </section>
 
     <section class="screen settings-screen" id="settings-screen" hidden aria-labelledby="settings-heading">
+      <svg class="settings-drift" viewBox="0 0 480 180" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="drift-sage" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c2d4bd"/><stop offset="1" stop-color="#8eac9b"/></linearGradient>
+          <linearGradient id="drift-brass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e7d6a9"/><stop offset="1" stop-color="#c6ae7c"/></linearGradient>
+          <linearGradient id="drift-coral" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dfbca3"/><stop offset="1" stop-color="#c4957e"/></linearGradient>
+          <linearGradient id="drift-sand" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f1dfbf"/><stop offset="1" stop-color="#eed9b5"/></linearGradient>
+          <g id="drift-gear">
+            <path d="M44 5h12l3 10 8 3 9-5 9 9-5 9 3 8 10 3v12l-10 3-3 8 5 9-9 9-9-5-8 3-3 10H44l-3-10-8-3-9 5-9-9 5-9-3-8-10-3V42l10-3 3-8-5-9 9-9 9 5 8-3Z" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="50" cy="48" r="29" fill="none" stroke="#fff7db" stroke-width="1.3" opacity=".6"/>
+            <circle cx="50" cy="48" r="17" fill="#eddfbe" stroke-width="2"/>
+            <path d="M36 41a16 16 0 0 1 23-7M25 34l4-4M70 61l4-4" fill="none" stroke="#fff6d9" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+            <g fill="#9a8967" stroke="none" opacity=".3"><circle cx="37" cy="23" r="1.3"/><circle cx="73" cy="42" r="1.6"/><circle cx="29" cy="57" r="1"/><circle cx="65" cy="73" r="1.5"/></g>
+          </g>
+        </defs>
+        <ellipse cx="65" cy="140" rx="83" ry="17" fill="#b69b6c" opacity=".15"/>
+        <ellipse cx="274" cy="156" rx="53" ry="10" fill="#b69b6c" opacity=".12"/>
+        <ellipse cx="425" cy="131" rx="83" ry="16" fill="#b69b6c" opacity=".14"/>
+        <g transform="translate(-14 30) rotate(-19 75 75) scale(1.5)" fill="url(#drift-sage)" stroke="#829e89"><use href="#drift-gear"/></g>
+        <g transform="translate(221 90) rotate(17 43 43) scale(.86)" fill="url(#drift-brass)" stroke="#b39b6d"><use href="#drift-gear"/></g>
+        <g transform="translate(351 12) rotate(23 76 76) scale(1.52)" fill="url(#drift-coral)" stroke="#b48f75"><use href="#drift-gear"/></g>
+        <path d="M-20 121q47-19 86-8t76 27q36 15 85 2t70 9q29 14 59-27t66-15q33 16 78 5v86H-20Z" fill="url(#drift-sand)"/>
+        <g fill="none" stroke-linecap="round"><path d="M7 119q28-8 52-2m20 6 20 7m138 20q20-5 36-2m99-27q22-15 44-9m23 7 18 1" stroke="#fff2d3" stroke-width="2" opacity=".8"/><path d="M18 130q29-5 53 1m168 29 25-2m121-31q21-9 43-1" stroke="#c5aa7a" stroke-width="1" opacity=".35"/></g>
+        <g fill="#b89b68" opacity=".4"><circle cx="32" cy="116" r="1.6"/><circle cx="52" cy="120" r="1"/><circle cx="89" cy="135" r="1.3"/><circle cx="261" cy="149" r="1.3"/><circle cx="279" cy="153" r=".9"/><circle cx="395" cy="117" r="1.5"/><circle cx="416" cy="121" r="1"/><circle cx="444" cy="128" r="1.2"/></g>
+      </svg>
       <header class="screen-header"><button class="icon-button" data-menu aria-label="返回主菜单"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button><span>设置</span><span class="header-spacer"></span></header>
-      <div class="placeholder-content"><div class="placeholder-icon" aria-hidden="true">☼</div><p class="eyebrow">先听一会儿海风</p><h1 id="settings-heading">设置即将开放</h1><p class="section-description">这一版先去海边走走。<br>更多设置，之后在这里见。</p><button class="button button-primary" data-menu>返回主菜单</button></div>
+      <div class="settings-content">
+        <div class="settings-panel">
+          <h1 id="settings-heading">设置</h1>
+          <div class="setting-row">
+            <span class="setting-label" id="music-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17V5l11-2v12M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2.5"/><ellipse cx="17" cy="16" rx="3" ry="2.5"/></svg>音乐</span>
+            <button type="button" class="setting-switch" id="music-switch" role="switch" aria-checked="true" aria-labelledby="music-label"><span class="switch-track" aria-hidden="true"></span><span class="switch-state" aria-hidden="true">ON</span><span class="switch-knob" aria-hidden="true"></span></button>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label" id="sound-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 4-6 5H2v6h3l6 5ZM15 8q4 4 0 8M18 5q7 7 0 14"/></svg>音效</span>
+            <button type="button" class="setting-switch" id="sound-switch" role="switch" aria-checked="true" aria-labelledby="sound-label"><span class="switch-track" aria-hidden="true"></span><span class="switch-state" aria-hidden="true">ON</span><span class="switch-knob" aria-hidden="true"></span></button>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label" id="unlock-label"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M9 10V6a4 4 0 0 1 8 0M12 14v3"/></svg>一键解锁全部关卡</span>
+            <button type="button" class="setting-switch" id="unlock-switch" role="switch" aria-checked="false" aria-labelledby="unlock-label"><span class="switch-track" aria-hidden="true"></span><span class="switch-state" aria-hidden="true">OFF</span><span class="switch-knob" aria-hidden="true"></span></button>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="screen play-screen" id="play-screen" hidden aria-label="第一关，初见浅湾">
-      <header class="play-header"><button class="icon-button" id="back-button" aria-label="暂停并返回"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button><div class="play-location"><span class="location-dot"></span>初见浅湾<span class="small-separator">/</span><span class="level-mini">01</span></div><button class="icon-button" id="pause-button" aria-label="暂停游戏"><svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg></button></header>
-      <div class="play-intro"><p class="eyebrow">趁潮水还未漫过沙滩</p><p>翻开沙层，记住海的礼物。</p></div>
-      <div class="board-wrap"><div class="board" id="board" aria-label="6行6列赶海配对棋盘"></div><div class="board-caption"><span class="caption-dot"></span>水下的沙格也可以继续翻开</div></div>
-      <footer class="collection"><div class="collection-heading"><span>今日拾得</span><strong><span id="pairs-count">0</span><span class="count-total"> / 18 对</span></strong></div><div class="collection-track" id="collection-track" aria-label="赶海收集进度"></div><p class="play-hint" id="play-hint">翻开两格，寻找相同的赶海收获</p></footer>
+    <section class="screen play-screen" id="play-screen" hidden aria-label="初入浅滩，第一关">
+      <div class="puzzle-sand-background" id="puzzle-sand-background" hidden aria-hidden="true"></div>
+      <header class="play-header"><span class="header-spacer" aria-hidden="true"></span><div class="play-location"><span class="location-dot"></span><span id="play-chapter">初入浅滩</span><span class="small-separator">/</span><span class="level-mini" id="play-number">01</span></div><button class="icon-button" id="pause-button" aria-label="暂停游戏"><svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg></button></header>
+      <div class="puzzle-rules" id="puzzle-rules" hidden>横、纵、两条标记的对角线，都不能重复</div>
+      <section class="level-objectives" id="level-objectives" hidden aria-label="本关胜利条件"><ul class="condition-list" id="play-conditions"></ul></section>
+      <div class="tutorial-coach" id="tutorial-coach" hidden><p id="tutorial-message" role="status" aria-live="polite"></p><button class="button button-secondary" id="tutorial-next" hidden>继续教学</button></div>
+      <svg class="tutorial-tide-arrow" id="tutorial-tide-arrow" viewBox="0 0 30 44" hidden aria-hidden="true"><path d="M11 3h8v22h8L15 40 3 25h8Z"/></svg>
+      <div class="board-wrap"><div class="board" id="board" aria-label="4行4列赶海配对棋盘"></div><div class="board-caption"><span class="caption-dot"></span>水下的沙格也可以继续翻开</div></div>
+      <section class="puzzle-controls" id="puzzle-controls" hidden aria-label="填图工具"><div class="puzzle-toolbar" id="puzzle-toolbar" role="group" aria-label="选择物品或拾起工具"></div><p id="puzzle-feedback" role="status" aria-live="polite">选择物品，再点格子填入；拾起可改错</p></section>
+      <footer class="collection">
+        <div class="harvest-bucket" id="harvest-bucket" role="img" aria-label="空的收获桶，已收集0对">
+          <svg class="bucket-back" viewBox="0 0 130 130" aria-hidden="true"><defs><linearGradient id="bucket-body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9e7cf"/><stop offset="1" stop-color="#9bbdae"/></linearGradient></defs><ellipse cx="65" cy="121" rx="42" ry="5" fill="#bda373" opacity=".16"/><path d="M27 43V34C27 4 103 4 103 34v9" fill="none" stroke="#91aa96" stroke-width="5"/><path d="M27 43V34C27 4 103 4 103 34v9" fill="none" stroke="#f7efd8" stroke-width="2"/><path d="m21 42 10 72q34 16 68 0l10-72Z" fill="url(#bucket-body)" stroke="#7ca294" stroke-width="1.6"/><ellipse cx="65" cy="42" rx="44" ry="10" fill="#7b9f91"/><ellipse cx="65" cy="42" rx="39" ry="7" fill="#a7c2a6"/></svg>
+          <div class="bucket-contents" id="bucket-contents" aria-hidden="true"></div>
+          <svg class="bucket-front" viewBox="0 0 130 130" aria-hidden="true"><path d="m27 80 4 34q34 16 68 0l4-34q-38 15-76 0Z" fill="#e8f0d7" opacity=".25"/><path d="m21 42 10 72q34 16 68 0l10-72M21 42q44 20 88 0" fill="none" stroke="#7b9e8d" stroke-width="2"/><path d="m27 52 7 52" stroke="#f6f4db" stroke-width="3" stroke-linecap="round" opacity=".55"/><path d="M34 116q31 12 62 0" fill="none" stroke="#e6ecd0" stroke-width="2"/></svg>
+          <span id="bucket-target" class="bucket-target" aria-hidden="true"></span>
+        </div>
+        <div class="harvest-summary"><span class="harvest-label">今日赶海</span><strong class="harvest-total"><span id="pairs-count">0</span><span class="count-total" id="pairs-total"> / 8 对</span></strong><span class="time-reward" id="time-reward" hidden aria-hidden="true">+5 秒</span></div>
+      </footer>
     </section>
-
-    <section class="screen exit-screen" id="exit-screen" hidden aria-labelledby="exit-heading"><div class="placeholder-content"><div id="exit-art" class="exit-art" aria-hidden="true"></div><p class="eyebrow">下次，再来听海</p><h1 id="exit-heading">这一程，先到这里。</h1><p class="section-description">你可以关闭这个页面，<br>也可以随时回到海边。</p><button class="button button-primary" data-menu>重新进入</button></div></section>
 
     <canvas id="tide-canvas" aria-hidden="true"></canvas>
-    <div class="tide-warning" id="tide-warning" hidden role="status">潮水快要漫过沙滩了</div>
-    <div class="modal-layer" id="modal-layer" hidden><section class="modal-card" id="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-heading" tabindex="-1"><div class="modal-art" id="modal-art" aria-hidden="true"></div><p class="eyebrow" id="modal-eyebrow"></p><h2 id="modal-heading"></h2><p class="modal-description" id="modal-description"></p><div class="modal-actions" id="modal-actions"></div></section></div>
+    <div id="catch-effects" aria-hidden="true"></div>
+    <div class="tide-danger" id="tide-danger" hidden aria-hidden="true"></div>
+    <div class="modal-layer" id="modal-layer" hidden><section class="modal-card" id="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-heading" tabindex="-1"><div class="modal-art" id="modal-art" aria-hidden="true"></div><p class="eyebrow" id="modal-eyebrow"></p><h2 id="modal-heading"></h2><p class="modal-description" id="modal-description"></p><section class="modal-objectives" id="modal-objectives" hidden aria-label="本关胜利条件"><ul class="condition-list" id="modal-conditions"></ul></section><div class="modal-actions" id="modal-actions"></div></section></div>
     <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
     <noscript><div class="noscript">请启用浏览器 JavaScript 后试玩游戏。</div></noscript>
   </main>

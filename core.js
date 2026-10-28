@@ -6,20 +6,46 @@
     constructor(options = {}) {
       this.level = options.level ?? levels[0];
       this.duration = options.duration ?? this.level.duration;
+      this.pairBonus = options.pairBonus ?? this.level.pairBonus ?? 5000;
       this.revealDuration = options.revealDuration ?? 500;
+      this.random = options.random ?? Math.random;
       this.state = 'idle';
       this.cards = [];
       this.elapsed = 0;
+      this.activeTime = 0;
+      this.timerRunning = true;
+      this.bonusTime = 0;
       this.pairs = 0;
       this.turns = 0;
+      this.mismatches = 0;
       this.selected = [];
       this.pending = null;
       this.version = 0;
+      this.lastMatchedKind = null;
+      this.failureReason = null;
     }
     start(now) {
-      this.cards = this.level.layout.map((value, index) => ({ index, value, status: 'hidden' }));
+      const layout = [...this.level.layout];
+      if (this.level.randomize) {
+        for (let i = layout.length - 1; i > 0; i--) {
+          const j = Math.floor(this.random() * (i + 1));
+          [layout[i], layout[j]] = [layout[j], layout[i]];
+        }
+      }
+      this.cards = layout.map((value, index) => {
+        const row = Math.floor(index / this.level.columns), column = index % this.level.columns;
+        const fog = this.level.fog && (this.level.fog.cells ? this.level.fog.cells.includes(index) : this.level.fog.shape === 'perimeter'
+          ? row === 0 || row === this.level.rows - 1 || column === 0 || column === this.level.columns - 1
+          : row < this.level.fog.rows);
+        return { index, value, status: 'hidden', fog: fog ? { covered: true, until: null } : null };
+      });
       this.state = 'playing';
-      this.elapsed = this.pairs = this.turns = 0;
+      this.elapsed = this.bonusTime = this.pairs = this.turns = 0;
+      this.mismatches = 0;
+      this.activeTime = 0;
+      this.timerRunning = true;
+      this.lastMatchedKind = null;
+      this.failureReason = null;
       this.selected = [];
       this.pending = null;
       this.lastNow = now;
@@ -27,15 +53,25 @@
     }
     update(now) {
       if (this.state !== 'playing') return;
-      this.elapsed = Math.min(this.duration, this.elapsed + Math.max(0, now - this.lastNow));
+      const delta = Math.max(0, now - this.lastNow);
+      this.activeTime += delta;
+      if (this.timerRunning) this.elapsed = Math.min(this.duration + this.bonusTime, this.elapsed + delta);
       this.lastNow = now;
-      if (this.elapsed >= this.duration) {
+      if (this.remaining <= 0) {
         this.state = 'lost';
+        this.failureReason = 'timeout';
         this.pending = null;
         this.version++;
         return;
       }
-      if (this.pending && this.elapsed >= this.pending.at) {
+      for (const card of this.cards) {
+        if (card.fog && !card.fog.covered && this.activeTime >= card.fog.until) {
+          card.fog.covered = true;
+          card.fog.until = null;
+          this.version++;
+        }
+      }
+      if (this.pending && this.activeTime >= this.pending.at) {
         this.selected.forEach(index => { this.cards[index].status = 'hidden'; });
         this.selected = [];
         this.pending = null;
@@ -45,7 +81,7 @@
     select(index, now) {
       this.update(now);
       const card = this.cards[index];
-      if (this.state !== 'playing' || this.pending || !card || card.status !== 'hidden') return false;
+      if (this.state !== 'playing' || this.pending || !card || card.fog?.covered || card.status !== 'hidden') return false;
       card.status = 'open';
       this.selected.push(index);
       this.version++;
@@ -55,12 +91,31 @@
         if (a.value === b.value) {
           a.status = b.status = 'matched';
           this.pairs++;
+          this.lastMatchedKind = a.value;
+          this.bonusTime += this.pairBonus;
           this.selected = [];
-          if (this.pairs === this.cards.length / 2) this.state = 'won';
+          if (this.pairs === this.totalPairs) {
+            this.state = this.conditionStates.every(condition => condition.completed) ? 'won' : 'lost';
+            if (this.state === 'lost') this.failureReason = 'conditions';
+          }
         } else {
-          this.pending = { at: this.elapsed + this.revealDuration };
+          this.mismatches++;
+          if (this.conditionStates.some(condition => condition.failed)) {
+            this.state = 'lost';
+            this.failureReason = 'conditions';
+            this.pending = null;
+          } else this.pending = { at: this.activeTime + this.revealDuration };
         }
       }
+      return true;
+    }
+    clearFog(index, now) {
+      this.update(now);
+      const card = this.cards[index];
+      if (this.state !== 'playing' || !this.timerRunning || !card?.fog?.covered) return false;
+      card.fog.covered = false;
+      card.fog.until = this.activeTime + this.level.fog.duration;
+      this.version++;
       return true;
     }
     pause(now) {
@@ -70,13 +125,33 @@
       this.version++;
       return true;
     }
+    setTimerRunning(running, now) {
+      this.update(now);
+      this.timerRunning = running;
+      this.version++;
+    }
     resume(now) {
       if (this.state !== 'paused') return;
       this.lastNow = now;
       this.state = 'playing';
       this.version++;
     }
-    get progress() { return Math.min(1, this.elapsed / this.duration); }
+    get conditions() { return this.level.conditions ?? []; }
+    get conditionStates() {
+      const allCollected = this.pairs === this.totalPairs && this.totalPairs > 0;
+      return this.conditions.map(condition => {
+        if (condition.type === 'maxMismatches') {
+          const failed = this.mismatches > condition.limit;
+          return { ...condition, current: this.mismatches, completed: allCollected && !failed, failed };
+        }
+        // Unknown future conditions remain unmet until their evaluator is added.
+        const completed = condition.type === 'lastPairKind' && allCollected && this.lastMatchedKind === condition.kind;
+        return { ...condition, completed, failed: allCollected && !completed };
+      });
+    }
+    get totalPairs() { return this.level.layout.length / 2; }
+    get remaining() { return Math.max(0, this.duration + this.bonusTime - this.elapsed); }
+    get progress() { return Math.max(0, Math.min(1, 1 - this.remaining / this.duration)); }
   }
   if (typeof module !== 'undefined' && module.exports) module.exports = MemoryGame;
   else root.MemoryGame = MemoryGame;
