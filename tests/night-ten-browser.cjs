@@ -26,7 +26,7 @@ const { pathToFileURL } = require('node:url');
     };
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#chapter-2 .chapter-level:enabled').count(), 10);
-    assert.equal(await page.locator('#level-22').isDisabled(), true);
+    assert.equal(await page.locator('#level-31').isDisabled(), true);
     await page.locator('#level-20').click();
     const initial = await state();
     assert.equal(initial.levelId, 20); assert.equal(initial.rows, 6); assert.equal(initial.columns, 6);
@@ -77,7 +77,7 @@ const { pathToFileURL } = require('node:url');
     await action('下一关');
     assert.equal((await state()).levelId, 21);
     assert.equal(await page.locator('#modal-heading').innerText(), '当太阳升起，你发现自己到了礁石岸边！');
-    assert.equal(await page.locator('.tile.is-tangled').count(), 12);
+    assert.equal(await page.locator('.tile.is-tangled').count(), 8);
     assert.deepEqual(errors, []);
     console.log('PASS: night-ten 6x6 fixed five-kind board, 36 fog masks, direct timed start, pause/refog, retry, bonus deadline, no inherited conditions, full victory and entry to the remade reef chapter. No images captured.');
   } finally { await browser.close(); }

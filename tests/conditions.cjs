@@ -119,7 +119,7 @@ const { pathToFileURL } = require('node:url');
     await page.clock.fastForward(61000);
     await page.clock.runFor(700);
     assert.equal((await state()).failureReason, 'timeout');
-    assert.equal(await page.locator('#modal-heading').innerText(), '潮水先到了一步。');
+    assert.equal(await page.locator('#modal-heading').innerText(), '潮水先到了一步');
     assert.equal(await page.locator('#modal-art .washed-bucket-art').count(), 1);
     await page.getByRole('button', { name: '返回选关', exact: true }).click();
     await page.locator('#level-2').click();

@@ -139,8 +139,11 @@
       id: 10,
       rows: 8,
       columns: 8,
-      duration: 60000,
-      pairBonus: 5000,
+      duration: 120000,
+      pairBonus: 0,
+      conditions: Object.freeze([
+        Object.freeze({ id: 'no-pair-bonus', type: 'noPairBonus', checkAt: 'completion', label: '此关配对成功将不会奖励时间' })
+      ]),
       layout: Object.freeze([
         1, 5, 2, 4, 2, 4, 1, 5,
         1, 2, 1, 2, 4, 5, 5, 0,
@@ -391,6 +394,29 @@
       pairBonus: 5000,
       intro: 'seagrass',
       seagrass: Object.freeze({ cells: Object.freeze([
+        4,
+        9, 11,
+        16,
+        19,
+        24, 26,
+        31
+      ]) }),
+      layout: Object.freeze([
+        5, 0, 1, 2, 5, 4,
+        5, 0, 0, 1, 1, 0,
+        0, 5, 0, 2, 1, 1,
+        2, 2, 4, 4, 0, 5,
+        2, 0, 5, 1, 2, 2,
+        2, 1, 4, 1, 4, 4
+      ])
+    }),
+    Object.freeze({
+      id: 22,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      seagrass: Object.freeze({ cells: Object.freeze([
         2, 5,
         7, 10,
         12, 15,
@@ -405,6 +431,162 @@
         4, 1, 4, 0, 1, 4,
         5, 2, 5, 0, 2, 4,
         1, 5, 5, 0, 2, 1
+      ])
+    }),
+    Object.freeze({
+      id: 23,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      seagrass: Object.freeze({ cells: Object.freeze([
+        2, 8, 12, 13, 14, 15, 16, 17, 20, 26, 32
+      ]) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'three-pairs-in-five-seconds', type: 'timedPairs', checkAt: 'continuous', count: 3, window: 5000, label: '在5秒内完成3次配对' })
+      ]),
+      layout: Object.freeze([
+        2, 2, 1, 5, 2, 0,
+        5, 2, 5, 4, 1, 0,
+        5, 5, 4, 1, 0, 1,
+        1, 2, 1, 0, 1, 2,
+        4, 4, 0, 4, 1, 0,
+        4, 2, 2, 0, 0, 5
+      ])
+    }),
+    Object.freeze({
+      id: 24,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      seagrass: Object.freeze({ cells: Object.freeze([7, 16, 26]) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'grass-limit', type: 'maxGrass', checkAt: 'continuous', limit: 10, label: '海草覆盖的格子不能超过10格' })
+      ]),
+      layout: Object.freeze([
+        4, 2, 0, 0, 2, 1,
+        1, 1, 1, 2, 1, 0,
+        0, 5, 4, 5, 0, 5,
+        4, 0, 1, 2, 4, 2,
+        5, 0, 2, 5, 5, 1,
+        1, 0, 4, 2, 2, 4
+      ])
+    }),
+    Object.freeze({
+      id: 25,
+      type: 'grassPuzzle',
+      rows: 5,
+      columns: 5,
+      duration: 60000,
+      pairBonus: 0,
+      rewards: Object.freeze([0, 1, 2, 4, 5]),
+      // Generated from a clear board by reversible cross toggles. Fixed for replay.
+      layout: Object.freeze([
+        0, 1, 1, 1, 1,
+        1, 1, 0, 1, 1,
+        0, 1, 1, 0, 0,
+        0, 0, 0, 0, 1,
+        1, 0, 1, 0, 1
+      ])
+    }),
+    Object.freeze({
+      id: 26,
+      type: 'grassPuzzle',
+      rows: 5,
+      columns: 5,
+      duration: 60000,
+      pairBonus: 0,
+      rewards: Object.freeze([0, 1, 2, 4, 5]),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'move-limit', type: 'maxTurns', checkAt: 'continuous', limit: 15, label: '总翻动次数不能超过15次' })
+      ]),
+      layout: Object.freeze([
+        1, 1, 0, 0, 1,
+        0, 1, 0, 0, 1,
+        1, 0, 1, 0, 0,
+        1, 1, 1, 1, 1,
+        1, 1, 0, 1, 1
+      ])
+    }),
+    Object.freeze({
+      id: 27,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      newItem: Object.freeze({ kind: 3, name: '八爪鱼' }),
+      seagrass: Object.freeze({ cells: Object.freeze([
+        2, 3, 7, 10, 13, 16, 20, 21, 26, 27
+      ]) }),
+      layout: Object.freeze([
+        1, 5, 4, 5, 2, 1,
+        3, 3, 0, 4, 2, 1,
+        2, 0, 5, 4, 0, 1,
+        0, 2, 4, 1, 2, 5,
+        3, 3, 5, 4, 0, 4,
+        1, 3, 2, 5, 3, 0
+      ])
+    }),
+    Object.freeze({
+      id: 28,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      conditions: Object.freeze([
+        Object.freeze({ id: 'mismatch-limit', type: 'maxMismatches', checkAt: 'continuous', limit: 20, label: '配对失败的次数不得超过20次' })
+      ]),
+      seagrass: Object.freeze({ cells: Object.freeze([
+        3, 8, 9, 10, 13, 15, 17, 21, 27, 33
+      ]) }),
+      layout: Object.freeze([
+        0, 0, 5, 1, 3, 2,
+        0, 3, 4, 0, 4, 2,
+        2, 3, 5, 0, 5, 1,
+        1, 1, 4, 0, 3, 4,
+        1, 4, 2, 2, 5, 1,
+        3, 5, 5, 4, 3, 2
+      ])
+    }),
+    Object.freeze({
+      id: 29,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      seagrass: Object.freeze({ cells: Object.freeze([7, 10, 25, 28]) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'grass-harvest', type: 'minGrassMatches', checkAt: 'continuous', target: 10, label: '至少在10个海草格上完成配对' })
+      ]),
+      layout: Object.freeze([
+        2, 1, 5, 0, 1, 0,
+        2, 1, 2, 4, 5, 0,
+        0, 4, 5, 4, 1, 2,
+        5, 1, 0, 0, 2, 5,
+        2, 1, 1, 2, 4, 0,
+        5, 4, 1, 4, 2, 0
+      ])
+    }),
+    Object.freeze({
+      id: 30,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      seagrass: Object.freeze({ cells: Object.freeze([
+        0, 1, 7, 8, 14, 15, 21, 22, 28, 29, 35
+      ]) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'mismatch-tide', type: 'mismatchTideRise', checkAt: 'continuous', penalty: 3000, label: '配对失败会导致潮水上涨' })
+      ]),
+      layout: Object.freeze([
+        2, 4, 2, 0, 3, 1,
+        1, 2, 5, 5, 4, 3,
+        0, 3, 0, 3, 5, 2,
+        4, 2, 1, 0, 1, 5,
+        3, 4, 0, 1, 5, 3,
+        4, 4, 2, 0, 1, 5
       ])
     })
   ]);

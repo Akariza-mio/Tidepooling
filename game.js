@@ -86,6 +86,7 @@
   $('play-screen').prepend(playReef);
 
   function isPuzzle() { return game.level.type === 'diagonalPuzzle'; }
+  function isGrassPuzzle() { return game.level.type === 'grassPuzzle'; }
   function isJourney() { return game.level.type === 'fogJourney'; }
 
   function buildChapterPages() {
@@ -273,7 +274,7 @@
     focusScreen(id);
   }
   function startLevel(level) {
-    game = level.type === 'fogJourney' ? new FogJourney({ level }) : level.type === 'diagonalPuzzle' ? new DiagonalPuzzle({ level }) : new MemoryGame({ level });
+    game = level.type === 'grassPuzzle' ? new GrassPuzzle({ level }) : level.type === 'fogJourney' ? new FogJourney({ level }) : level.type === 'diagonalPuzzle' ? new DiagonalPuzzle({ level }) : new MemoryGame({ level });
     startGame();
   }
   function startGame() {
@@ -286,12 +287,16 @@
     $('play-chapter').textContent = chapterNames[chapterIndex];
     $('play-number').textContent = String(localLevelIndex + 1).padStart(2, '0');
     $('play-screen').setAttribute('aria-label', `${chapterNames[chapterIndex]}，第${levelNumerals[localLevelIndex]}关`);
-    if (isPuzzle() || game.level.id === 1 || game.level.newItem || game.level.intro || game.conditions.length) game.setTimerRunning(false, now);
+    if (isPuzzle() || isGrassPuzzle() || game.level.id === 1 || game.level.newItem || game.level.intro || game.conditions.length) game.setTimerRunning(false, now);
     $('play-screen').classList.toggle('is-night-play', chapterIndex === 1);
     $('play-night-scene').hidden = chapterIndex !== 1;
     $('play-screen').classList.toggle('is-reef-play', chapterIndex === 2);
     $('play-reef-scene').hidden = chapterIndex !== 2;
     $('play-screen').classList.toggle('is-puzzle', isPuzzle());
+    $('play-screen').classList.toggle('is-grass-puzzle', isGrassPuzzle());
+    $('play-screen').classList.remove('is-grass-solved');
+    $('grass-puzzle-rules').hidden = !isGrassPuzzle();
+    $('grass-puzzle-panel').hidden = !isGrassPuzzle();
     $('play-screen').classList.toggle('is-journey', isJourney());
     $('journey-hint').hidden = !isJourney();
     $('journey-panel').hidden = !isJourney();
@@ -301,9 +306,9 @@
     $('level-objectives').hidden = game.conditions.length === 0;
     $('puzzle-rules').hidden = !isPuzzle();
     $('puzzle-controls').hidden = !isPuzzle();
-    document.querySelector('.collection').hidden = isPuzzle() || isJourney();
-    document.querySelector('.board-caption').hidden = isPuzzle() || isJourney();
-    // The fifth and sixth slots of every chapter share the sand-drawn puzzle setting.
+    document.querySelector('.collection').hidden = isPuzzle() || isJourney() || isGrassPuzzle();
+    document.querySelector('.board-caption').hidden = isPuzzle() || isJourney() || isGrassPuzzle();
+    // Sand-drawn numbers belong only to the first chapter's filling puzzles.
     $('puzzle-sand-background').hidden = !isPuzzle();
     metricsStart = previousFrame = now;
     renderedFrames = measuredFps = 0;
@@ -318,10 +323,10 @@
     lastJourneyPenalty = 0;
     $('board').style.setProperty('--board-columns', game.level.columns);
     $('board').style.aspectRatio = `${game.level.columns} / ${game.level.rows}`;
-    $('board').setAttribute('aria-label', `${game.level.rows}行${game.level.columns}列${isJourney() ? '迷雾寻物地图' : isPuzzle() ? '赶海填图棋盘' : '赶海配对棋盘'}`);
+    $('board').setAttribute('aria-label', `${game.level.rows}行${game.level.columns}列${isGrassPuzzle() ? '拔草解结棋盘' : isJourney() ? '迷雾寻物地图' : isPuzzle() ? '赶海填图棋盘' : '赶海配对棋盘'}`);
     $('pairs-total').textContent = ` / ${game.totalPairs} 对`;
     if (isPuzzle()) buildPuzzleTools();
-    cardElements = isJourney() ? buildJourneyBoard() : isPuzzle() ? buildPuzzleBoard() : game.cards.map(card => {
+    cardElements = isGrassPuzzle() ? buildGrassPuzzleBoard() : isJourney() ? buildJourneyBoard() : isPuzzle() ? buildPuzzleBoard() : game.cards.map(card => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'tile';
@@ -350,7 +355,8 @@
             const pair = game.cards.filter(c => c.status === 'matched' && previousStates[c.index] !== 'matched');
             const awardedTime = game.bonusTime - oldBonus;
             collectPair(pair, awardedTime);
-            announce(`找到一对${BeachArt.names[card.value]}，${awardedTime === game.pairBonus ? '增加5秒' : '潮水已退到底'}，已经收集${game.pairs}对。`);
+            const rewardMessage = game.pairBonus === 0 ? '本关配对不奖励时间' : awardedTime === game.pairBonus ? '增加5秒' : '潮水已退到底';
+            announce(`找到一对${BeachArt.names[card.value]}，${rewardMessage}，已经收集${game.pairs}对。`);
           }
           else if (game.mismatches > oldMismatches && game.conditions.some(condition => condition.type === 'mismatchTideRise')) {
             tideRetreat = { from: displayedTide, start: animationTime, duration: 420 };
@@ -372,7 +378,12 @@
     refreshBucketTarget();
     syncGame();
     drawTide(performance.now());
-    if (isJourney()) {
+    if (isGrassPuzzle()) {
+      if (game.conditions.length) showLevelConditions();
+      else openModal({ eyebrow: '', heading: '挑战！', art: 'seagrass',
+        description: '点击任意沙格，本格及上下左右的海草状态都会切换。\n有海草的变成沙地，没有海草的则长出海草。\n在涨潮前清空全部海草，找出礁石间的收获！',
+        actions: [{ text: '我知道了', run: beginTimedGame }] });
+    } else if (isJourney()) {
       $('journey-panel').querySelector('p').textContent = game.level.noRevisit
         ? '点击相邻格移动 · 走过的灰格不可再踩'
         : '点击上下左右相邻格子移动 · 礁石和潮池不可通过';
@@ -429,6 +440,42 @@
       $('board').append(button);
       return button;
     });
+  }
+  function buildGrassPuzzleBoard() {
+    return game.cards.map(card => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'tile grass-cell';
+      button.dataset.index = card.index;
+      const kind = game.level.rewards[card.index % game.level.rewards.length];
+      button.innerHTML = `<span class="shell-face">${BeachArt.item(kind, 'grass-reward-' + card.index)}</span><span class="sand-cover"></span><span class="seagrass-cover" aria-hidden="true">${BeachArt.seagrass('grass-puzzle-' + card.index)}</span>`;
+      button.addEventListener('click', () => {
+        if (modalOpen) return;
+        if (game.select(card.index, performance.now())) {
+          if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) game.lastAffected.forEach(index => {
+            cardElements[index].animate([{ boxShadow: '0 0 0 3px #78a58bab, 0 0 14px #c3d69b99' }, { boxShadow: '0 0 0 0 #78a58b00' }], { duration: 260, easing: 'ease-out' });
+          });
+          announce(`已牵动本格及相邻海草，剩余${game.grassCount}格海草。`);
+        }
+        syncGame();
+      });
+      $('board').append(button);
+      return button;
+    });
+  }
+  function syncGrassPuzzle() {
+    game.cards.forEach((card, i) => {
+      const button = cardElements[i];
+      button.dataset.status = card.status;
+      button.setAttribute('aria-pressed', String(card.grass));
+      button.setAttribute('aria-label', `第${Math.floor(i / game.level.columns) + 1}行第${i % game.level.columns + 1}列，${card.grass ? '有海草' : '沙地'}，点击牵动本格与上下左右`);
+      button.disabled = game.state !== 'playing' || !game.timerRunning;
+    });
+    $('play-screen').classList.toggle('is-grass-solved', game.state === 'won');
+    $('grass-puzzle-count').textContent = game.grassCount;
+    $('grass-puzzle-moves').textContent = game.turns;
+    renderConditions($('play-conditions'));
+    if (game.state === 'lost' && !resultShown) { resultShown = true; showResult(); }
   }
   function syncJourney() {
     game.cards.forEach((card, i) => {
@@ -589,11 +636,14 @@
     });
   }
   function showLevelConditions() {
-    openModal({ eyebrow: '留意这次赶海的要求', heading: '本关胜利条件', description: '在涨潮前完成全部配对，并达成以下要求。',
+    openModal({ eyebrow: '留意这次赶海的要求', heading: '本关胜利条件', description: isGrassPuzzle() ? '在涨潮前清空全部海草，并达成以下要求。' : '在涨潮前完成全部配对，并达成以下要求。',
       art: 'notice-board', showConditions: true, conditionProgress: false,
       actions: [{ text: '我知道了', run: beginTimedGame }] });
   }
   function conditionLabel(condition, showProgress = true) {
+    if (showProgress && condition.type === 'minGrassMatches') return `${condition.label}（${condition.current} / ${condition.target}）`;
+    if (showProgress && condition.type === 'maxTurns') return `总翻动次数不能超过 ${condition.current} / ${condition.limit}次`;
+    if (showProgress && condition.type === 'maxGrass') return `海草覆盖的格子不能超过 ${condition.current} / ${condition.limit} 格`;
     return showProgress && condition.type === 'maxMismatches'
       ? `配对失败的次数不得超过 ${condition.current} / ${condition.limit}次` : condition.label;
   }
@@ -661,7 +711,7 @@
     rewardUntil = rewardSeconds = 0;
   }
   function refreshBucketTarget() {
-    if (isJourney() && currentScreen === 'play') {
+    if ((isJourney() || isGrassPuzzle()) && currentScreen === 'play') {
       const screen = $('play-screen');
       const style = getComputedStyle(screen);
       const width = screen.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
@@ -671,7 +721,7 @@
           return total + (css.display === 'none' || css.position === 'absolute' ? 0 : child.getBoundingClientRect().height + parseFloat(css.marginTop) + parseFloat(css.marginBottom));
         }, 0);
       const height = screen.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - occupied - 4;
-      screen.style.setProperty('--journey-board-size', Math.floor(Math.max(0, Math.min(width, height))) + 'px');
+      screen.style.setProperty(isGrassPuzzle() ? '--grass-board-size' : '--journey-board-size', Math.floor(Math.max(0, Math.min(width, height))) + 'px');
     }
     layoutFogField();
     const layer = $('catch-effects').getBoundingClientRect();
@@ -704,7 +754,7 @@
       $('catch-effects').append(element);
       flights.push({ element, x, y, size, start: animationTime + i * 30, duration: 480, last: i === pair.length - 1, group });
     });
-    if (game.progress < displayedTide) tideRetreat = { from: displayedTide, start: animationTime, duration: 480 };
+    if (awardedTime > 0 && game.progress < displayedTide) tideRetreat = { from: displayedTide, start: animationTime, duration: 480 };
     if (awardedTime > 0) {
       rewardSeconds = animationTime < rewardUntil ? rewardSeconds + awardedTime / 1000 : awardedTime / 1000;
       rewardUntil = animationTime + 1000;
@@ -776,6 +826,7 @@
   function syncGame() {
     if (lastVersion === game.version) return;
     lastVersion = game.version;
+    if (isGrassPuzzle()) { syncGrassPuzzle(); return; }
     if (isJourney()) { syncJourney(); return; }
     if (isPuzzle()) { syncPuzzle(); return; }
     game.cards.forEach((card, i) => {
@@ -848,14 +899,15 @@
       });
       container.classList.add('modal-bucket-art');
       container.append(bucket);
-    } else if (art === 'puzzle-result') {
+    } else if (art === 'puzzle-result' || art === 'grass-result') {
       container.classList.add('modal-puzzle-art');
       const board = document.createElement('div');
       board.className = 'puzzle-complete-art';
       board.style.setProperty('--puzzle-columns', game.level.columns);
       game.cards.forEach(card => {
         const cell = document.createElement('span');
-        cell.innerHTML = BeachArt.item(card.value, 'puzzle-result-' + card.index);
+        const kind = art === 'grass-result' ? game.level.rewards[card.index % game.level.rewards.length] : card.value;
+        cell.innerHTML = BeachArt.item(kind, 'puzzle-result-' + card.index);
         board.append(cell);
       });
       container.append(board);
@@ -927,7 +979,7 @@
     if (currentScreen !== 'play' || modalOpen || !game.pause(performance.now())) { syncGame(); return; }
     syncGame();
     hideTideDanger();
-    openModal({ eyebrow: '把这一刻，留在沙滩上', heading: '歇一歇，潮水等等。', description: isJourney() ? `游戏已暂停\n当前已拾取 ${game.collectedCount} / ${game.totalTreasures} 件收获` : isPuzzle() ? `游戏已暂停\n当前已填 ${game.filledCount} / ${game.cards.length} 格` : `游戏已暂停\n当前已收集 ${game.pairs} / ${game.totalPairs} 对`, art: null, showConditions: true,
+    openModal({ eyebrow: '把这一刻，留在沙滩上', heading: '歇一歇，潮水等等', description: isGrassPuzzle() ? `游戏已暂停\n剩余海草 ${game.grassCount} 格，已拨动 ${game.turns} 次` : isJourney() ? `游戏已暂停\n当前已拾取 ${game.collectedCount} / ${game.totalTreasures} 件收获` : isPuzzle() ? `游戏已暂停\n当前已填 ${game.filledCount} / ${game.cards.length} 格` : `游戏已暂停\n当前已收集 ${game.pairs} / ${game.totalPairs} 对`, art: null, showConditions: true,
       actions: [{ text: '继续赶海', run: resumeGame }, { text: '重新开始', run: startGame }, { text: '返回选关', run: () => showScreen('level') }] });
   }
   function showResult() {
@@ -942,11 +994,18 @@
           if (game.level.id === 1) localStorage.setItem('beach-pairs-level-one', 'won');
         } catch (_) { /* In-memory progress still permits replay this session. */ }
       }
-      announce(isJourney() ? '挑战成功！五种目标全部找到。' : isPuzzle() ? '挑战成功！棋盘已填满，横、纵和两条对角线均无重复。' : `通关成功！${game.totalPairs}对赶海收获全部收集完成。`);
+      announce(isGrassPuzzle() ? '挑战成功！海草已全部清空。' : isJourney() ? '挑战成功！五种目标全部找到。' : isPuzzle() ? '挑战成功！棋盘已填满，横、纵和两条对角线均无重复。' : `通关成功！${game.totalPairs}对赶海收获全部收集完成。`);
     } else announce(game.failureReason === 'wrongTarget' ? '碰到了当前目标以外的物品，本次挑战结束。' : conditionFailure ? '未完成全部的条件，本次挑战未通过。' : '潮水已经漫过沙滩，本次赶海结束。');
+    if (isGrassPuzzle()) {
+      openModal({ eyebrow: '', heading: won ? '挑战成功！' : conditionFailure ? '未完成全部的条件' : '潮水先到了一步',
+        description: won ? `海草清空了，礁石间的收获露出来啦！\n共拨动了 ${game.turns} 次。` : conditionFailure ? `未满足：${game.conditionStates.filter(condition => !condition.completed).map(condition => conditionLabel(condition)).join('\n')}` : `还剩 ${game.grassCount} 格海草。\n理清相邻的根系，再试一次吧。`,
+        art: won ? 'grass-result' : conditionFailure ? 'condition-failure' : 'washed-bucket', result: true, immediateResult: conditionFailure,
+        actions: [{ text: won ? '下一关' : '重新挑战', run: won ? goToNextLevel : startGame }, { text: '返回选关', run: () => showScreen('level') }, { text: '返回主菜单', run: () => showScreen('menu') }] });
+      return;
+    }
     if (isJourney()) {
       const wrong = game.failureReason === 'wrongTarget';
-      openModal({ eyebrow: '', heading: won ? '目标全部找齐啦！' : wrong ? '碰错物品了' : '潮水先到了一步。',
+      openModal({ eyebrow: '', heading: won ? '目标全部找齐啦！' : wrong ? '碰错物品了' : '潮水先到了一步',
         description: won ? `你找齐了 ${game.totalTreasures} 种物品，共走了 ${game.turns} 步。` : wrong ? `当前目标是${BeachArt.names[game.target.kind]}，却碰到了${BeachArt.names[game.wrongKind]}。\n已找到 ${game.collectedCount} / ${game.totalTreasures} 种，记住位置再试一次吧。` : `已找到 ${game.collectedCount} / ${game.totalTreasures} 种物品。\n留意目标刷新和潮水，再试一次吧。`,
         art: won ? 'journey-result' : wrong ? 'condition-failure' : 'washed-bucket', result: true, immediateResult: wrong,
         actions: [{ text: won ? '下一关' : '重新挑战', run: won ? goToNextLevel : startGame }, { text: '返回选关', run: () => showScreen('level') }, { text: '返回主菜单', run: () => showScreen('menu') }] });
@@ -954,7 +1013,7 @@
     }
     if (isPuzzle()) {
       openModal({ eyebrow: won ? '' : '潮起潮落，总有下一次',
-        heading: won ? '挑战成功！' : '潮水先到了一步。',
+        heading: won ? '挑战成功！' : '潮水先到了一步',
         description: won ? '你在涨潮前完成了填图挑战！' : `这次填入了 ${game.filledCount} / ${game.cards.length} 格。\n整理一下思路，再挑战一次吧。`,
         art: won ? 'puzzle-result' : 'washed-bucket', result: true,
         actions: [{ text: won ? '下一关' : '重新挑战', run: won ? goToNextLevel : startGame }, { text: '返回选关', run: () => showScreen('level') }, { text: '返回主菜单', run: () => showScreen('menu') }] });
@@ -963,7 +1022,7 @@
     const failedConditions = game.conditionStates.filter(condition => !condition.completed).map(condition => conditionLabel(condition)).join('\n');
     const immediateFailure = conditionFailure && game.pairs < game.totalPairs;
     openModal({ eyebrow: won ? `${game.totalPairs} 对收获，一份完整的海边记忆` : conditionFailure ? immediateFailure ? '这次没有达成赶海的要求' : '收获齐了，再留意一下要求' : '潮起潮落，总有下一次',
-      heading: won ? '海的礼物，收好啦。' : conditionFailure ? '未完成全部的条件' : '潮水先到了一步。',
+      heading: won ? '海的礼物，收好啦。' : conditionFailure ? '未完成全部的条件' : '潮水先到了一步',
       description: won ? `你在涨潮前找到了全部赶海收获。\n这一程，共翻找了 ${game.turns} 次。` : conditionFailure ? `已收集 ${game.pairs} / ${game.totalPairs} 对。\n未满足：${failedConditions}` : `这次收集了 ${game.pairs} / ${game.totalPairs} 对赶海收获。\n记住刚才的发现，再试一次吧。`,
       art: won ? 'harvest' : conditionFailure ? 'condition-failure' : 'washed-bucket', result: true, immediateResult: immediateFailure,
       actions: [{ text: won ? '下一关' : '重新挑战', run: won ? goToNextLevel : startGame }, { text: '返回选关', run: () => showScreen('level') }, { text: '返回主菜单', run: () => showScreen('menu') }] });
@@ -971,7 +1030,7 @@
   function goToNextLevel() {
     const nextLevel = BeachLevels.find(level => level.id === game.level.id + 1);
     if (nextLevel) { startLevel(nextLevel); return; }
-    openModal({ eyebrow: '下一片海岸，稍后相见', heading: '下一关即将开放', description: '你已经完成了当前开放的关卡。', art: isJourney() ? 'journey-result' : isPuzzle() ? 'puzzle-result' : 'harvest',
+    openModal({ eyebrow: '下一片海岸，稍后相见', heading: '下一关即将开放', description: '你已经完成了当前开放的关卡。', art: isGrassPuzzle() ? 'grass-result' : isJourney() ? 'journey-result' : isPuzzle() ? 'puzzle-result' : 'harvest',
       actions: [{ text: '返回选关', run: () => showScreen('level') }, { text: '返回主菜单', run: () => showScreen('menu') }] });
   }
   function resizeCanvas() {
@@ -1138,6 +1197,6 @@
   requestAnimationFrame(frame);
   // Read-only diagnostics for local acceptance checks; no hidden in-game controls.
   window.beachDiagnostics = Object.freeze({
-    snapshot: () => ({ screen: currentScreen, levelId: game.level.id, seagrass: game.level.seagrass ? game.cards.map(card => ({ grass: card.tangled, locked: game.isGrassLocked(card), until: card.grassLockedUntil })) : null, mode: game.level.type || 'matching', journey: isJourney() ? { phase: game.phase, position: game.position, noRevisit: Boolean(game.level.noRevisit), visited: [...game.visited], targetKind: game.target?.kind ?? null, targetIndex: game.target?.index ?? null, targetRemaining: game.targetRemaining, targetHistory: [...game.targetHistory], penalties: game.penalties, wrongKind: game.wrongKind, collected: [...game.collected], collectedCount: game.collectedCount, totalTreasures: game.totalTreasures, previewSeconds: game.previewSeconds } : null, filledCount: isPuzzle() ? game.filledCount : null, values: isPuzzle() ? game.cards.map(card => card.value) : null, fixed: isPuzzle() ? game.cards.map(card => card.fixed) : null, conflicts: isPuzzle() ? [...game.conflicts] : null, rows: game.level.rows, columns: game.level.columns, totalPairs: game.totalPairs, state: game.state, failureReason: game.failureReason, conditions: game.conditionStates, lastMatchedKind: game.lastMatchedKind, pairs: game.pairs, mismatches: game.mismatches, turns: game.turns, elapsed: game.elapsed, duration: game.duration, bonusTime: game.bonusTime, remaining: game.remaining, progress: game.progress, displayedTide, flights: flights.length, bucketPairs: arrivedPairs, fps: measuredFps, statuses: game.cards.map(card => card.status), fog: game.cards.map(card => card.fog ? { ...card.fog } : null), activeTime: game.activeTime, modalOpen, timerRunning: game.timerRunning, tutorialStep: tutorial?.active ? tutorial.step : null, tutorialTarget: tutorial?.active ? tutorial.target : null })
+    snapshot: () => ({ screen: currentScreen, levelId: game.level.id, seagrass: game.level.seagrass ? game.cards.map(card => ({ grass: card.tangled, locked: game.isGrassLocked(card), until: card.grassLockedUntil })) : null, mode: game.level.type || 'matching', grassPuzzle: isGrassPuzzle() ? { grass: game.cards.map(card => card.grass), remaining: game.grassCount, affected: [...game.lastAffected] } : null, journey: isJourney() ? { phase: game.phase, position: game.position, noRevisit: Boolean(game.level.noRevisit), visited: [...game.visited], targetKind: game.target?.kind ?? null, targetIndex: game.target?.index ?? null, targetRemaining: game.targetRemaining, targetHistory: [...game.targetHistory], penalties: game.penalties, wrongKind: game.wrongKind, collected: [...game.collected], collectedCount: game.collectedCount, totalTreasures: game.totalTreasures, previewSeconds: game.previewSeconds } : null, filledCount: isPuzzle() ? game.filledCount : null, values: isPuzzle() ? game.cards.map(card => card.value) : null, fixed: isPuzzle() ? game.cards.map(card => card.fixed) : null, conflicts: isPuzzle() ? [...game.conflicts] : null, rows: game.level.rows, columns: game.level.columns, totalPairs: game.totalPairs, state: game.state, failureReason: game.failureReason, conditions: game.conditionStates, lastMatchedKind: game.lastMatchedKind, pairs: game.pairs, mismatches: game.mismatches, turns: game.turns, elapsed: game.elapsed, duration: game.duration, bonusTime: game.bonusTime, remaining: game.remaining, progress: game.progress, displayedTide, flights: flights.length, bucketPairs: arrivedPairs, fps: measuredFps, statuses: game.cards.map(card => card.status), fog: game.cards.map(card => card.fog ? { ...card.fog } : null), activeTime: game.activeTime, modalOpen, timerRunning: game.timerRunning, tutorialStep: tutorial?.active ? tutorial.step : null, tutorialTarget: tutorial?.active ? tutorial.target : null })
   });
 })();

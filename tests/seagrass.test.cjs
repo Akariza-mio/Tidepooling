@@ -6,11 +6,30 @@ const levels = require('../levels.js');
 const fixture = cells => ({ rows: 4, columns: 4, duration: 60000, pairBonus: 5000,
   seagrass: { cells }, layout: [0,1,2,3,0,1,2,3,2,3,0,1,2,3,0,1] });
 const create = (cells = [5]) => { const game = new Game({ level: fixture(cells) }); game.start(0); return game; };
-test('the remade first reef level has the exact twelve red-circle cells and an independent fixed deck', () => {
-  assert.equal(levels.length, 21); assert.equal(levels.some(level => level.id >= 22), false);
+test('the swapped first reef level uses only its eight marked cells and a fixed solvable five-kind deck', () => {
   const level = levels.find(level => level.id === 21), game = new Game({ level }); game.start(0);
+  const initialGrass = [4,9,11,16,19,24,26,31];
   assert.equal(level.rows, 6); assert.equal(level.columns, 6); assert.equal(game.duration, 60000);
-  assert.equal(game.totalPairs, 18); assert.equal(level.intro, 'seagrass');
+  assert.equal(level.intro, 'seagrass'); assert.deepEqual(game.conditions, []);
+  assert.deepEqual(game.cards.filter(card => card.tangled).map(card => card.index), initialGrass);
+  assert.deepEqual([0,1,2,4,5].map(kind => level.layout.filter(value => value === kind).length), [8,8,8,6,6]);
+  assert.notDeepEqual(level.layout, levels.find(level => level.id === 22).layout);
+  game.select(4, 0); game.select(3, 0);
+  assert.equal(game.cards[3].tangled, false);
+  assert.equal(game.cards[5].tangled, true); assert.equal(game.cards[10].tangled, true);
+  game.update(500); assert.equal(game.isGrassLocked(game.cards[4]), true);
+  game.update(10000); assert.equal(game.isGrassLocked(game.cards[4]), false);
+  for (const kind of [0,1,2,4,5]) for (const card of game.cards.filter(card => card.value === kind)) assert.equal(game.select(card.index, 10000), true);
+  assert.equal(game.state, 'won'); assert.equal(game.pairs, 18); assert.ok(game.remaining <= 60000);
+  game.start(20000); assert.deepEqual(game.cards.map(card => card.value), level.layout);
+  assert.deepEqual(game.cards.filter(card => card.tangled).map(card => card.index), initialGrass);
+});
+
+test('the swapped second reef level has the exact twelve red-circle cells and an independent fixed deck', () => {
+  assert.equal(levels.length, 30); assert.equal(levels.some(level => level.id >= 31), false);
+  const level = levels.find(level => level.id === 22), game = new Game({ level }); game.start(0);
+  assert.equal(level.rows, 6); assert.equal(level.columns, 6); assert.equal(game.duration, 60000);
+  assert.equal(game.totalPairs, 18); assert.equal(level.intro, undefined);
   assert.deepEqual(game.cards.filter(card => card.tangled).map(card => card.index), [2,5,7,10,12,15,20,23,25,28,30,33]);
   assert.deepEqual([0,1,2,4,5].map(kind => level.layout.filter(value => value === kind).length), [8,8,8,6,6]);
   game.select(2, 0); game.select(3, 0);

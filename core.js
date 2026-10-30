@@ -18,6 +18,7 @@
       this.pairs = 0;
       this.turns = 0;
       this.mismatches = 0;
+      this.grassMatches = 0;
       this.pairTimes = [];
       this.pairKinds = [];
       this.selected = [];
@@ -44,6 +45,7 @@
       this.state = 'playing';
       this.elapsed = this.bonusTime = this.pairs = this.turns = 0;
       this.mismatches = 0;
+      this.grassMatches = 0;
       this.pairTimes = [];
       this.pairKinds = [];
       this.activeTime = 0;
@@ -97,6 +99,8 @@
         this.turns++;
         const [a, b] = this.selected.map(i => this.cards[i]);
         if (a.value === b.value) {
+          // Count each successfully collected grass cell, including new growth.
+          this.grassMatches += Number(a.tangled) + Number(b.tangled);
           a.status = b.status = 'matched';
           this.pairs++;
           this.pairTimes.push(this.activeTime);
@@ -180,6 +184,18 @@
           return { ...condition, completed, failed: allCollected && !completed };
         }
         if (condition.type === 'mismatchTideRise') return { ...condition, completed: allCollected, failed: false };
+        if (condition.type === 'noPairBonus') return { ...condition, completed: allCollected && this.bonusTime === 0, failed: this.bonusTime > 0 };
+        if (condition.type === 'minGrassMatches') {
+          const completed = this.grassMatches >= condition.target;
+          return { ...condition, current: this.grassMatches, completed, failed: allCollected && !completed };
+        }
+        if (condition.type === 'maxGrass') {
+          // Open and temporarily locked grass still belongs to the board;
+          // collected holes never count toward the spreading-grass limit.
+          const current = this.cards.filter(card => card.tangled && card.status !== 'matched').length;
+          const failed = current > condition.limit;
+          return { ...condition, current, completed: allCollected && !failed, failed };
+        }
         if (condition.type === 'maxMismatches') {
           const failed = this.mismatches > condition.limit;
           return { ...condition, current: this.mismatches, completed: allCollected && !failed, failed };

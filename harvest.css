@@ -1,5 +1,8 @@
 /* Catch-and-collect feedback, sized for the portrait board. */
 .play-screen.is-dense-board .board { gap: 4px; padding: 6px; border-radius: 14px; }
+.play-screen.is-dense-board.has-conditions .board-wrap { flex-shrink: 0; }
+.play-screen.is-dense-board.has-conditions .collection { min-height: 108px; grid-template-columns: 108px minmax(0, 1fr); }
+.is-dense-board.has-conditions .harvest-bucket { width: 108px; height: 108px; }
 .play-screen .collection {
   display: grid;
   grid-template-columns: 132px minmax(0, 1fr);
@@ -157,4 +160,11 @@
   .harvest-rule { font-size: 7px; margin-top: 4px; }
   .harvest-summary .play-hint { display: none; }
   .time-reward { top: 10px; font-size: 9px; padding: 3px 5px; }
+}
+@media (max-height: 650px) {
+  .play-screen.is-dense-board.has-conditions .collection { min-height: 82px; grid-template-columns: 82px minmax(0, 1fr); }
+  .is-dense-board.has-conditions .harvest-bucket { width: 82px; height: 82px; }
+}
+@media (orientation: landscape) and (max-height: 580px) {
+  .play-screen.is-dense-board.has-conditions .board-wrap { width: min(100%, calc(100svh - 195px)); }
 }

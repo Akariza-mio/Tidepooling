@@ -51,7 +51,7 @@ async function win(page) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-15').isEnabled(), true);
-    assert.equal(await page.locator('#level-22').isDisabled(), true);
+    assert.equal(await page.locator('#level-31').isDisabled(), true);
     await page.locator('#level-15').click();
     assert.equal((await snapshot(page)).journey.position, 24);
     assert.equal(await page.locator('.journey-cell').count(), 49);

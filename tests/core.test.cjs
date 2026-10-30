@@ -17,15 +17,16 @@ const collectInKindOrder = (game, kinds, lastNow = 1000) => {
   ordered.forEach((index, i) => game.select(index, i === ordered.length - 1 ? lastNow : i));
 };
 
-test('level ten has 64 fixed cells, five even-count kinds, 60 seconds and all 32 pairs required', () => {
+test('level ten has 64 fixed cells, five even-count kinds, 120 seconds without time rewards and all 32 pairs required', () => {
   const level = levels.find(level => level.id === 10);
   const game = create({ level });
   assert.equal(level.rows, 8);
   assert.equal(level.columns, 8);
   assert.equal(game.cards.length, 64);
   assert.equal(game.totalPairs, 32);
-  assert.equal(game.duration, 60000);
-  assert.deepEqual(game.conditions, []);
+  assert.equal(game.duration, 120000);
+  assert.equal(game.conditions[0].type, 'noPairBonus');
+  assert.equal(game.pairBonus, 0);
   const counts = new Map();
   game.cards.forEach(card => counts.set(card.value, (counts.get(card.value) || 0) + 1));
   assert.deepEqual([...counts].sort((a, b) => a[0] - b[0]), [[0, 14], [1, 14], [2, 12], [4, 12], [5, 12]]);
@@ -34,15 +35,23 @@ test('level ten has 64 fixed cells, five even-count kinds, 60 seconds and all 32
     game.select(a, pair * 2);
     game.select(b, pair * 2 + 1);
     assert.equal(game.state, pair === 31 ? 'won' : 'playing');
+    assert.equal(game.bonusTime, 0);
+    assert.equal(game.remaining, 120000 - (pair * 2 + 1));
   }
   assert.equal(game.pairs, 32);
-  assert.equal(game.bonusTime, 63);
+  assert.equal(game.bonusTime, 0);
   assert.ok(game.cards.every(card => card.status === 'matched'));
   game.start(1000);
   assert.deepEqual(game.cards.map(card => card.value), [...level.layout]);
   assert.equal(game.pairs, 0);
   assert.equal(game.mismatches, 0);
-  game.update(61000);
+  const [a, b] = findPair(game);
+  game.select(a, 61000); game.select(b, 61000);
+  assert.equal(game.remaining, 60000);
+  assert.equal(game.bonusTime, 0);
+  game.update(120999);
+  assert.equal(game.state, 'playing');
+  game.update(121000);
   assert.equal(game.failureReason, 'timeout');
 });
 

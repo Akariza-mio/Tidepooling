@@ -30,6 +30,7 @@ const { pathToFileURL } = require('node:url');
     }
     await page.locator('#select-level-button').click();
     await page.locator('#level-10').click();
+    await action('我知道了');
     await collectExcept();
     await page.clock.runFor(700);
     await action('下一关');
@@ -152,6 +153,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#chapter-previous').click();
     await page.locator('#chapter-pages:not(.is-sliding)').waitFor({ state: 'attached' });
     await page.locator('#level-10').click();
+    await action('我知道了');
     assert.equal(await page.locator('#play-night-scene').isVisible(), false);
     assert.equal(await page.locator('.board-fog').count(), 0);
     assert.deepEqual(errors, []);

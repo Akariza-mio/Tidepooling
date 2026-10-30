@@ -17,6 +17,7 @@
   <script src="levels.js" defer></script>
   <script src="core.js" defer></script>
   <script src="puzzle.js" defer></script>
+  <script src="grass-puzzle.js" defer></script>
   <script src="journey.js" defer></script>
   <script src="art.js" defer></script>
   <script src="reef-art.js" defer></script>
@@ -108,6 +109,7 @@
       <div class="puzzle-sand-background" id="puzzle-sand-background" hidden aria-hidden="true"></div>
       <header class="play-header"><span class="header-spacer" aria-hidden="true"></span><div class="play-location"><span class="location-dot"></span><span id="play-chapter">初入浅滩</span><span class="small-separator">/</span><span class="level-mini" id="play-number">01</span></div><button class="icon-button" id="pause-button" aria-label="暂停游戏"><svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg></button></header>
       <div class="puzzle-rules" id="puzzle-rules" hidden>横、纵、两条标记的对角线，都不能重复</div>
+      <div class="puzzle-rules" id="grass-puzzle-rules" hidden>点击任意沙格，切换本格与上下左右的海草</div>
       <section class="level-objectives" id="level-objectives" hidden aria-label="本关胜利条件"><ul class="condition-list" id="play-conditions"></ul></section>
       <section class="journey-target" id="journey-target" hidden aria-label="当前寻找目标"><div class="journey-target-art" id="journey-target-art" aria-hidden="true"></div><div class="journey-target-label"><span>当前目标</span><strong id="journey-target-name">准备寻找</strong></div><div class="journey-target-clock"><strong id="journey-target-seconds" role="timer" aria-label="本轮剩余时间">—</strong><span>秒</span></div></section>
       <p class="journey-hint" id="journey-hint" role="status" hidden></p>
@@ -115,6 +117,7 @@
       <svg class="tutorial-tide-arrow" id="tutorial-tide-arrow" viewBox="0 0 30 44" hidden aria-hidden="true"><path d="M11 3h8v22h8L15 40 3 25h8Z"/></svg>
       <div class="board-wrap"><div class="board" id="board" aria-label="4行4列赶海配对棋盘"></div><div class="board-caption"><span class="caption-dot"></span>水下的沙格也可以继续翻开</div></div>
       <section class="puzzle-controls" id="puzzle-controls" hidden aria-label="填图工具"><div class="puzzle-toolbar" id="puzzle-toolbar" role="group" aria-label="选择物品或拾起工具"></div><p id="puzzle-feedback" role="status" aria-live="polite">选择物品，再点格子填入；拾起可改错</p></section>
+      <section class="grass-puzzle-panel" id="grass-puzzle-panel" hidden aria-label="拔草解结进度"><div class="grass-puzzle-progress"><span>剩余海草 <strong id="grass-puzzle-count">14</strong> 格</span><span>已拨动 <strong id="grass-puzzle-moves">0</strong> 次</span></div><p>有草变沙地，无草长海草 · 清空全部海草即可通关</p></section>
       <section class="journey-panel" id="journey-panel" hidden aria-label="迷雾寻物收获"><div class="journey-progress"><span>目标收获</span><strong id="journey-count">0 / 5 件</strong></div><div class="journey-satchel" id="journey-satchel"></div><p>点击上下左右相邻格子移动 · 礁石和潮池不可通过</p></section>
       <footer class="collection">
         <div class="harvest-bucket" id="harvest-bucket" role="img" aria-label="空的收获桶，已收集0对">

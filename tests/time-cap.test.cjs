@@ -10,7 +10,7 @@ function pair(game, now) {
     assert.equal(game.select(card.index, now), true);
   }
 }
-for (const level of levels.filter(level => !level.type)) test(`level ${level.id} discards overflow across repeated rewards and has no hidden bank`, () => {
+for (const level of levels.filter(level => !level.type && level.pairBonus > 0)) test(`level ${level.id} discards overflow across repeated rewards and has no hidden bank`, () => {
   const game = new Game({ level }); game.start(0);
   game.update(1000); assert.equal(game.remaining, level.duration - 1000);
   pair(game, 1000); assert.equal(game.remaining, level.duration);

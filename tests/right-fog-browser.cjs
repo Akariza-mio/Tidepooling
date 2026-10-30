@@ -19,7 +19,7 @@ const { pathToFileURL } = require('node:url');
     const label = '配对失败会导致潮水上涨';
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-17').isEnabled(), true);
-    assert.equal(await page.locator('#level-22').isDisabled(), true);
+    assert.equal(await page.locator('#level-31').isDisabled(), true);
     await page.locator('#level-17').click();
     assert.equal((await state()).levelId, 17);
     assert.equal(await page.locator('#play-number').innerText(), '07');
@@ -65,7 +65,7 @@ const { pathToFileURL } = require('node:url');
     await tile(0).click(); await tile(1).click();
     assert.equal((await state()).state, 'lost'); assert.equal((await state()).failureReason, 'timeout');
     assert.equal((await state()).remaining, 0);
-    assert.equal(await page.locator('#modal-heading').innerText(), '潮水先到了一步。');
+    assert.equal(await page.locator('#modal-heading').innerText(), '潮水先到了一步');
     await action('重新挑战'); await action('我知道了');
     // A previous mistake must not create a hidden objective that prevents victory.
     await tile(0).click(); await tile(1).click(); await page.clock.runFor(520);

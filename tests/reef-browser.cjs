@@ -47,7 +47,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#chapter-3 .reef-emblem-art').count(), 1);
     assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), '三');
     assert.equal(await page.locator('#level-21').isEnabled(), true);
-    assert.equal(await page.locator('#level-22').isDisabled(), true);
+    assert.equal(await page.locator('#level-31').isDisabled(), true);
     for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
       await page.setViewportSize(viewport); await page.clock.runFor(60);
       const fits = await page.evaluate(() => {
@@ -73,12 +73,12 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#chapter-next').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#chapter-pages').getAttribute('aria-busy'), null);
     assert.equal(await page.locator('#chapter-reef-scene').isVisible(), true);
-    assert.equal(await page.locator('#chapter-3 .chapter-level:enabled').count(), 1);
+    assert.equal(await page.locator('#chapter-3 .chapter-level:enabled').count(), 10);
     await page.locator('#chapter-previous').click(); await page.locator('#level-20').click();
     assert.equal(await page.locator('#play-night-scene').isVisible(), true);
     assert.equal(await page.locator('#play-reef-scene').isVisible(), false);
     assert.equal(await page.locator('.seagrass-cover').count(), 0);
     assert.deepEqual(errors, []); assert.deepEqual(requests, []);
-    console.log('PASS: reef art and emblem, five viewport layouts, bidirectional night/reef fade and slide, transition locks/cancellation/reduced motion, only the remade first reef level is available, no grass UI leaks into chapter two. No images captured.');
+    console.log('PASS: reef art and emblem, five viewport layouts, bidirectional night/reef fade and slide, transition locks/cancellation/reduced motion, the ten remade reef levels are available, no grass UI leaks into chapter two. No images captured.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

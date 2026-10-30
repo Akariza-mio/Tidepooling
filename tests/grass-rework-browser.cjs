@@ -18,10 +18,10 @@ const { pathToFileURL } = require('node:url');
     });
     await normal.goto(url); await normal.emulateMedia({ reducedMotion: 'reduce' });
     assert.deepEqual(await normal.evaluate(() => JSON.parse(localStorage.getItem('beach-pairs-completed-levels'))), [1,12,20]);
-    assert.equal(await normal.evaluate(() => BeachLevels.length), 21);
+    assert.equal(await normal.evaluate(() => BeachLevels.length), 30);
     await normal.locator('#select-level-button').click();
     await normal.locator('#chapter-next').click(); await normal.locator('#chapter-next').click();
-    assert.equal(await normal.locator('#chapter-3 .chapter-level:enabled').count(), 1);
+    assert.equal(await normal.locator('#chapter-3 .chapter-level:enabled').count(), 10);
     assert.equal(await normal.locator('#chapter-reef-scene').isVisible(), true);
     assert.equal(await normal.locator('#chapter-3 .chapter-progress').innerText(), '已通关 0 / 10');
     // The migration runs once, so future remade levels may save new progress.

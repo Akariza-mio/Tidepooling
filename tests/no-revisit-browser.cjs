@@ -19,7 +19,7 @@ const action = (page, name) => page.getByRole('button', { name, exact: true }).c
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-16').isEnabled(), true);
-    assert.equal(await page.locator('#level-22').isDisabled(), true);
+    assert.equal(await page.locator('#level-31').isDisabled(), true);
     await page.locator('#level-16').click();
     assert.equal(await page.locator('#modal-heading').innerText(), '挑战！');
     assert.equal(await page.locator('#modal-description').innerText(), '这次走过的格子将不能重复踏入');
