@@ -4,8 +4,7 @@ const Game = require('../core.js');
 const levels = require('../levels.js');
 const level = levels.find(level => level.id === 12);
 function create() {
-  let seed = 7391;
-  const game = new Game({ level, random: () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32) });
+  const game = new Game({ level });
   game.start(0);
   return game;
 }
@@ -28,17 +27,18 @@ test('night level two has 20 perimeter fog cells, a clear 4x4 center and balance
   assert.equal(game.cards[35].fog.covered, true);
 });
 
-test('every restart shuffles only this level without mutating its pool or changing counts', () => {
+test('entries and restarts retain the authored layout without changing counts', () => {
   const game = create(), pool = [...level.layout];
   for (let i = 0; i < 20; i++) {
     const before = game.cards.map(card => card.value);
     game.start(i * 1000);
-    assert.notDeepEqual(game.cards.map(card => card.value), before);
+    assert.deepEqual(game.cards.map(card => card.value), before);
+    assert.deepEqual(create().cards.map(card => card.value), pool);
     assert.deepEqual(counts(game), [8, 8, 8, 6, 6]);
     assert.ok(game.cards.filter(card => card.fog).every(card => card.fog.covered));
     assert.deepEqual(level.layout, pool);
   }
-  const fixed = new Game({ level: levels.find(level => level.id === 11), random: () => { throw Error('Fixed level must not shuffle'); } });
+  const fixed = new Game({ level: levels.find(level => level.id === 11) });
   fixed.start(0);
   assert.deepEqual(fixed.cards.map(card => card.value), [...fixed.level.layout]);
 });

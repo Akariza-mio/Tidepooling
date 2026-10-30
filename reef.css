@@ -1,0 +1,21 @@
+/* Morning reef art stays below every interactive element. */
+.chapter-reef-scene { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: #e9e5c7; }
+.reef-scene-art { display: block; width: 100%; height: 100%; pointer-events: none; }
+.level-screen.is-reef-chapter, .play-screen.is-reef-play { isolation: isolate; background: #ede9cb; }
+#chapter-3 .chapter-heading h1 { color: #467b6b; text-shadow: 0 2px 0 #fff6d680; }
+#chapter-3 .chapter-heading .eyebrow, #chapter-3 .chapter-progress { color: #6c8971; }
+.is-reef-chapter .chapter-indicator[aria-current="page"] { background: #7d9d7a; box-shadow: 0 2px 0 #5d8268; }
+.is-reef-chapter .chapter-level:not(.is-minigame):not(:disabled) { background: #edf2dd; border-color: #f8f8dc; box-shadow: 0 3px 0 #a9bba0; }
+.is-reef-play .board { background: #9bab861a; border-color: #97ab824d; }
+.reef-emblem-art { display: block; width: 100%; height: 100%; }
+.seagrass-cover { position: absolute; inset: -1px; z-index: 4; pointer-events: none; opacity: 0; transform: translateY(12px) scale(.8) rotate(7deg); transition: opacity .24s ease-out, transform .24s ease-out; }
+.seagrass-cover > svg { width: 100%; height: 100%; }
+.seagrass-art { display: block; filter: drop-shadow(0 2px 1px #537a5d25); }
+.tile.is-tangled[data-status="hidden"] .seagrass-cover { opacity: 1; transform: none; }
+.locked-seagrass-art { display: none; }
+.is-grass-locked .seagrass-cover > .seagrass-art { display: none; }
+.is-grass-locked .seagrass-cover > .locked-seagrass-art { display: block; }
+.is-tangled .sand-cover { background: linear-gradient(145deg, #e3d7a9, #d5c797); }
+.is-grass-locked .sand-cover { background: linear-gradient(145deg, #e7dbec, #cfbddd); }
+.is-grass-locked { cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { .seagrass-cover { transition: none; } }

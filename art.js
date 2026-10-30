@@ -9,7 +9,7 @@
     ['#e6bba1', '#ae8068', '#fff0d9'],
     ['#b9d6e2', '#709bac', '#eaf6ef']
   ];
-  const names = ['珊瑚扇贝', '薄荷小螃蟹', '奶油小虾', '丁香八爪鱼', '蜜桃小海螺', '晴蓝小鱼'];
+  const names = ['扇贝', '螃蟹', '小虾', '八爪鱼', '海螺', '鱼儿'];
   const shapes = [
     // Keep the original pink scallop illustration unchanged.
     '<path d="M49 83C29 77 11 56 12 36 13 26 22 26 25 22 31 15 35 21 39 15 44 8 56 8 61 15 65 21 70 15 76 22 79 27 88 26 89 36 91 54 72 78 52 83Z"/><g class="ribs"><path d="M49 79 21 32M50 78 32 24M50 78 44 17M51 78 57 17M52 79 69 25M53 79 81 33"/></g><path class="highlight" d="M19 40Q48 25 81 40M25 57Q51 45 76 57"/>',
@@ -58,5 +58,14 @@
     // inserted by the UI so clearing a tile never restarts the shared texture.
     return `<svg class="fog-field-art" viewBox="0 0 600 600" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><linearGradient id="${id}-tone" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d5e0df"/><stop offset=".38" stop-color="#bccdd0"/><stop offset="1" stop-color="#aabfc6"/></linearGradient><filter id="${id}-feather" class="fog-edge-filter" filterUnits="userSpaceOnUse" x="-48" y="-48" width="696" height="696" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".018 .035" numOctaves="2" seed="7" result="edge-noise"/><feDisplacementMap in="SourceGraphic" in2="edge-noise" scale="18" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="8"/></filter><mask id="${id}-mask" class="fog-field-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="-48" y="-48" width="696" height="696" style="mask-type:alpha"><g class="fog-mask-shape" filter="url(#${id}-feather)"></g></mask></defs><g mask="url(#${id}-mask)"><path d="M-48-48h696v696H-48Z" fill="url(#${id}-tone)"/><g id="${id}-streaks" fill="none" stroke-linecap="round"><path d="M-25 38C55 10 135 65 220 39S365 20 440 42s130 23 190-8M-25 108c100-30 150 24 246-2s145-14 226 9 128 5 183-15M-25 175c100-30 165 25 262-1s141-20 223 3 122 13 170-6" stroke="#edf4ef" stroke-width="15" opacity=".3"/><path d="M-20 65c100-22 155 19 244 0s159-14 234 6 122 5 167-7M-20 137c85-19 159 19 249 0s137-15 220 4 139 7 177-4M-20 204c100-19 165 12 246-1s147-15 222 4 128 6 177-4" stroke="#f4f7ee" stroke-width="3.2" opacity=".54"/><path d="M-20 82c100-16 155 18 244 0s159-12 234 6 122 4 167-5M-20 154c85-15 159 18 249 0s137-13 220 4 139 5 177-3" stroke="#809fab" stroke-width="2.4" opacity=".22"/></g><use href="#${id}-streaks" y="214"/><use href="#${id}-streaks" y="428"/></g></svg>`;
   }
-  root.BeachArt = { item, names, washedBucket, conditionFailure, noticeBoard, sandMatrices, moon, fog, fogField };
+  function journeySymbol(type) {
+    const drawings = {
+      footprints: '<g fill="#5c9485"><path d="M30 34c-8 2-10 12-8 21l4 19c2 8 14 6 15-1 2-9-7-15-6-24 1-6 1-16-5-15Z"/><ellipse cx="28" cy="25" rx="6" ry="8"/><circle cx="18" cy="31" r="3.4"/><circle cx="15" cy="39" r="2.8"/><path d="M66 24c8 1 11 11 10 20l-2 20c-1 8-13 8-15 1-3-8 6-16 4-24-2-6-3-16 3-17Z"/><ellipse cx="66" cy="15" rx="6" ry="8"/><circle cx="77" cy="20" r="3.4"/><circle cx="81" cy="28" r="2.8"/></g>',
+      reef: '<path d="m12 73 5-25 18-12 14 3 14-18 18 13 9 40-18 10-40-1Z" fill="#9eacaa" stroke="#788f91" stroke-width="2"/><path d="m19 49 15-9 15 5 14-20 14 12m-28 8 8 29m-36 0 17-6m28 7 15-7" fill="none" stroke="#d9e0d6" stroke-width="3" stroke-linecap="round"/><path d="m38 53 4 8m30-17 4 9" stroke="#80989a" stroke-width="2" stroke-linecap="round"/>',
+      pool: '<path d="M12 40c8-15 31-19 44-12s25-3 32 16-8 34-24 32-30 9-45-4S4 55 12 40Z" fill="#84b4bb" stroke="#e5e8c8" stroke-width="5"/><path d="M18 45c15-9 31 7 49-1m-41 17c12-5 24 4 37 0" stroke="#d8ede4" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M15 39c10-10 21-13 35-8" fill="none" stroke="#b8d8cb" stroke-width="3" stroke-linecap="round"/>',
+      bucket: '<path d="M22 38v-7C22 4 78 4 78 31v7" fill="none" stroke="#82a696" stroke-width="4"/><path d="m18 35 10 50q22 11 44 0l10-50Z" fill="#bbd7c3" stroke="#6e9a8d" stroke-width="2.5"/><path d="m24 43 7 36" stroke="#f0f1d8" stroke-width="4" stroke-linecap="round"/><ellipse cx="50" cy="35" rx="32" ry="8" fill="#8eb3a3" stroke="#6e9a8d" stroke-width="2.5"/><ellipse cx="50" cy="34" rx="26" ry="4" fill="#d2e1c5"/><path d="M32 85q18 7 36 0" fill="none" stroke="#e7edd3" stroke-width="2"/>'
+    };
+    return `<svg class="journey-symbol" viewBox="0 0 100 100" aria-hidden="true" focusable="false">${drawings[type] || drawings.footprints}</svg>`;
+  }
+  root.BeachArt = { item, names, washedBucket, conditionFailure, noticeBoard, sandMatrices, moon, fog, fogField, journeySymbol };
 })(globalThis);

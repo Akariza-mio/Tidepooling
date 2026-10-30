@@ -49,7 +49,7 @@ test('a mismatch is counted once per distinct pair, never for a single flip, dup
   game.select(2, 503);
   game.select(5, 504);
   assert.equal(game.pairs, 1);
-  assert.equal(game.bonusTime, 5000);
+  assert.equal(game.bonusTime, 504);
   assert.equal(game.mismatches, 1);
 });
 

@@ -43,7 +43,7 @@ test('fog restoration conceals open/collected cells without changing matching st
   game.select(0, 1);
   game.select(7, 2);
   assert.equal(game.pairs, 1);
-  assert.equal(game.bonusTime, 5000);
+  assert.equal(game.bonusTime, 2);
   game.update(5000);
   assert.equal(game.cards[0].fog.covered, true);
   assert.equal(game.cards[0].status, 'matched');

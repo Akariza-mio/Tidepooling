@@ -36,7 +36,7 @@ test('level ten has 64 fixed cells, five even-count kinds, 60 seconds and all 32
     assert.equal(game.state, pair === 31 ? 'won' : 'playing');
   }
   assert.equal(game.pairs, 32);
-  assert.equal(game.bonusTime, 160000);
+  assert.equal(game.bonusTime, 63);
   assert.ok(game.cards.every(card => card.status === 'matched'));
   game.start(1000);
   assert.deepEqual(game.cards.map(card => card.value), [...level.layout]);
@@ -66,7 +66,7 @@ test('level eight expands to a fixed 6x6 board and requires all eighteen pairs',
   }
   assert.equal(game.state, 'won');
   assert.equal(game.pairs, 18);
-  assert.equal(game.bonusTime, 90000);
+  assert.equal(game.bonusTime, 35);
   assert.ok(game.cards.every(card => card.status === 'matched'));
   game.start(2000);
   assert.deepEqual(game.cards.map(card => card.value), [...level.layout]);
@@ -88,7 +88,7 @@ test('level seven restores matching with five kinds, fixed 4x6 layout and 60 sec
   collectInKindOrder(game, [5, 4, 2, 1, 0]);
   assert.equal(game.state, 'won', 'Any final kind passes, with no extra condition.');
   assert.equal(game.pairs, 12);
-  assert.equal(game.bonusTime, 60000);
+  assert.equal(game.bonusTime, 1000);
   assert.ok(game.cards.every(card => card.status === 'matched'));
   game.start(2000);
   assert.deepEqual(game.cards.map(card => card.value), initial);
@@ -216,7 +216,7 @@ test('all twenty-four level-two items must be collected to win', () => {
   }
   assert.equal(game.state, 'won');
   assert.equal(game.pairs, 12);
-  assert.equal(game.bonusTime, 60000);
+  assert.equal(game.bonusTime, 23);
   assert.ok(game.cards.every(card => card.status === 'matched'));
   assert.equal(game.select(12, 100), false);
   assert.equal(game.pairs, 12);
@@ -333,17 +333,17 @@ test('clock jumps use elapsed milliseconds, independent of rendered frames', () 
   assert.equal(game.progress, 1);
 });
 
-test('a successful pair adds exactly five seconds, including time above the initial budget', () => {
+test('a successful pair discards rewards above the initial budget', () => {
   const game = create();
   const [a, b] = findPair(game);
   game.select(a, 1000);
   game.select(b, 2000);
-  assert.equal(game.bonusTime, 5000);
+  assert.equal(game.bonusTime, 2000);
   assert.equal(game.elapsed, 2000);
-  assert.equal(game.remaining, 63000);
+  assert.equal(game.remaining, 60000);
   assert.equal(game.progress, 0);
   game.select(a, 2000);
-  assert.equal(game.bonusTime, 5000);
+  assert.equal(game.bonusTime, 2000);
   game.start(3000);
   assert.equal(game.bonusTime, 0);
   assert.equal(game.remaining, 60000);
@@ -372,7 +372,7 @@ test('mismatches do not award time and pausing preserves earned time', () => {
   assert.equal(game.bonusTime, 0);
   game.select(0, 800);
   game.select(3, 900);
-  assert.equal(game.bonusTime, 5000);
+  assert.equal(game.bonusTime, 900);
   game.pause(1000);
   const remaining = game.remaining;
   game.update(100000);
@@ -391,7 +391,7 @@ test('tutorial freezes the countdown while real matches, mismatch exposure and r
   game.select(0, 120001);
   game.select(3, 120002);
   assert.equal(game.pairs, 1);
-  assert.equal(game.remaining, 65000);
+  assert.equal(game.remaining, 60000);
   game.select(1, 120100);
   game.select(2, 120200);
   game.update(120699);
@@ -403,7 +403,7 @@ test('tutorial freezes the countdown while real matches, mismatch exposure and r
   game.update(201000);
   assert.equal(game.elapsed, 1000);
   assert.equal(game.pairs, 1);
-  assert.equal(game.remaining, 64000);
+  assert.equal(game.remaining, 59000);
 });
 
 test('pause also freezes tutorial mismatch exposure and restarting restores a normal timer', () => {

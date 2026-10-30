@@ -15,7 +15,7 @@
   let previousFocus = null;
   const completedLevels = new Set();
   let unlockAll = false;
-  const chapterNames = ['初入浅滩', '月下独捉', '第三大关', '第四大关', '第五大关'];
+  const chapterNames = ['初入浅滩', '月下独捉', '礁间寻宝', '第四大关', '第五大关'];
   const chapterNumerals = ['一', '二', '三', '四', '五'];
   const levelNumerals = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
   let currentChapter = 0;
@@ -42,12 +42,23 @@
   let tutorial = null;
   let selectedPuzzleKind = 0;
   let fogMasks = new Map();
+  let lastJourneyPenalty = 0;
   try {
     const stored = JSON.parse(localStorage.getItem('beach-pairs-completed-levels') || '[]');
     if (Array.isArray(stored)) stored.forEach(id => {
       if (Number.isInteger(id) && id >= 1 && id <= 50) completedLevels.add(id);
     });
   } catch (_) { /* Optional storage; malformed data must not prevent play. */ }
+  // The old third-chapter levels were withdrawn. Invalidate their old wins once,
+  // without erasing progress earned in the first two chapters or future remakes.
+  try {
+    if (localStorage.getItem('beach-pairs-reef-reset-v1') !== 'done') {
+      const hadOldProgress = completedLevels.has(21) || completedLevels.has(22);
+      completedLevels.delete(21); completedLevels.delete(22);
+      if (hadOldProgress) localStorage.setItem('beach-pairs-completed-levels', JSON.stringify([...completedLevels]));
+      localStorage.setItem('beach-pairs-reef-reset-v1', 'done');
+    }
+  } catch (_) { completedLevels.delete(21); completedLevels.delete(22); }
   try {
     if (localStorage.getItem('beach-pairs-level-one') === 'won') completedLevels.add(1);
   } catch (_) { /* Keep progress in memory when storage is unavailable. */ }
@@ -57,6 +68,7 @@
 
   buildMenuPattern();
   $('chapter-day-scene').append(document.querySelector('.landscape').cloneNode(true));
+  $('chapter-reef-scene').innerHTML = BeachArt.reefScene('chapter');
   buildChapterPages();
   $('puzzle-sand-background').innerHTML = BeachArt.sandMatrices();
   const playNight = $('chapter-night-scene').cloneNode(true);
@@ -65,8 +77,16 @@
   playNight.hidden = true;
   playNight.insertAdjacentHTML('beforeend', `<span class="play-night-moon">${BeachArt.moon('play-sky')}</span>`);
   $('play-screen').prepend(playNight);
+  const playReef = document.createElement('div');
+  playReef.id = 'play-reef-scene';
+  playReef.className = 'chapter-reef-scene';
+  playReef.setAttribute('aria-hidden', 'true');
+  playReef.hidden = true;
+  playReef.innerHTML = BeachArt.reefScene('play');
+  $('play-screen').prepend(playReef);
 
   function isPuzzle() { return game.level.type === 'diagonalPuzzle'; }
+  function isJourney() { return game.level.type === 'fogJourney'; }
 
   function buildChapterPages() {
     const lock = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
@@ -75,7 +95,7 @@
       page.className = 'chapter-page';
       page.id = 'chapter-' + (chapter + 1);
       page.setAttribute('aria-labelledby', 'chapter-heading-' + chapter);
-      const emblem = chapter === 1 ? BeachArt.moon('chapter-two') : BeachArt.item([1, 0, 4, 5, 3][chapter], 'chapter-' + chapter);
+      const emblem = chapter === 1 ? BeachArt.moon('chapter-two') : chapter === 2 ? BeachArt.reefEmblem('chapter-three') : BeachArt.item([1, 0, 4, 5, 3][chapter], 'chapter-' + chapter);
       page.innerHTML = `<header class="chapter-heading"><span class="chapter-emblem" aria-hidden="true">${emblem}</span><p class="eyebrow">第${chapterNumerals[chapter]}大关 · 10 关</p><h1 id="chapter-heading-${chapter}">${name}</h1><p class="chapter-progress"></p></header><div class="chapter-grid"></div><p class="chapter-note"></p>`;
       const grid = page.querySelector('.chapter-grid');
       for (let slot = 0; slot < 10; slot++) {
@@ -108,6 +128,7 @@
     const previousChapter = currentChapter;
     currentChapter = Math.max(0, Math.min(4, chapter));
     $('level-screen').classList.toggle('is-night-chapter', currentChapter === 1);
+    $('level-screen').classList.toggle('is-reef-chapter', currentChapter === 2);
     Array.from($('chapter-indicators').children).forEach((indicator, index) => {
       if (index === currentChapter) indicator.setAttribute('aria-current', 'page');
       else indicator.removeAttribute('aria-current');
@@ -136,8 +157,8 @@
     });
     $('chapter-help').hidden = unlockAll;
     $('chapter-help').textContent = unlockAll ? '' : '已通关的关卡可重玩 · 新挑战从主页开始';
-    const animate = moveFocus && currentScreen === 'level' && Math.min(previousChapter, currentChapter) === 0
-      && Math.max(previousChapter, currentChapter) === 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const animate = moveFocus && currentScreen === 'level' && Math.abs(previousChapter - currentChapter) === 1
+      && Math.max(previousChapter, currentChapter) <= 2 && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (animate) {
       const stage = $('chapter-pages');
       const from = $('chapter-' + (previousChapter + 1));
@@ -152,19 +173,19 @@
       from.style.top = -scrollTop + 'px';
       const direction = currentChapter > previousChapter ? 1 : -1;
       const options = { duration: 720, easing: 'cubic-bezier(.3,0,.2,1)', fill: 'both' };
-      const night = $('chapter-night-scene');
-      const toNight = currentChapter === 1;
-      night.hidden = false;
+      const outgoingScene = chapterScene(previousChapter);
+      const incomingScene = chapterScene(currentChapter);
+      outgoingScene.hidden = incomingScene.hidden = false;
       const animations = [
         from.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${-direction * 105}%)` }], options),
         to.animate([{ transform: `translateX(${direction * 105}%)` }, { transform: 'translateX(0)' }], options),
-        $('chapter-day-scene').animate([
-          { transform: toNight ? 'translateX(0) scale(1)' : 'translateX(-3%) scale(1.08)' },
-          { transform: toNight ? 'translateX(-3%) scale(1.08)' : 'translateX(0) scale(1)' }
+        outgoingScene.animate([
+          { opacity: 1, transform: 'translateX(0) scale(1)' },
+          { opacity: 0, transform: `translateX(${-direction * 3}%) scale(1.08)` }
         ], options),
-        night.animate([
-          { opacity: toNight ? 0 : 1, transform: toNight ? 'translateX(3%) scale(1.08)' : 'translateX(0) scale(1)' },
-          { opacity: toNight ? 1 : 0, transform: toNight ? 'translateX(0) scale(1)' : 'translateX(3%) scale(1.08)' }
+        incomingScene.animate([
+          { opacity: 0, transform: `translateX(${direction * 3}%) scale(1.08)` },
+          { opacity: 1, transform: 'translateX(0) scale(1)' }
         ], options)
       ];
       const transition = { from, to, animations };
@@ -179,9 +200,15 @@
     }
     updateChapterArrows();
   }
+  function chapterScene(chapter) {
+    return $(chapter === 1 ? 'chapter-night-scene' : chapter === 2 ? 'chapter-reef-scene' : 'chapter-day-scene');
+  }
   function settleChapterBackground() {
-    $('chapter-night-scene').hidden = currentChapter !== 1;
-    $('chapter-night-scene').style.opacity = currentChapter === 1 ? '1' : '0';
+    const selected = chapterScene(currentChapter);
+    for (const scene of [$('chapter-day-scene'), $('chapter-night-scene'), $('chapter-reef-scene')]) {
+      scene.hidden = scene !== selected;
+      scene.style.opacity = scene === selected ? '1' : '0';
+    }
   }
   function updateChapterArrows() {
     $('chapter-previous').disabled = Boolean(chapterTransition) || currentChapter === 0;
@@ -246,7 +273,7 @@
     focusScreen(id);
   }
   function startLevel(level) {
-    game = level.type === 'diagonalPuzzle' ? new DiagonalPuzzle({ level }) : new MemoryGame({ level });
+    game = level.type === 'fogJourney' ? new FogJourney({ level }) : level.type === 'diagonalPuzzle' ? new DiagonalPuzzle({ level }) : new MemoryGame({ level });
     startGame();
   }
   function startGame() {
@@ -262,16 +289,22 @@
     if (isPuzzle() || game.level.id === 1 || game.level.newItem || game.level.intro || game.conditions.length) game.setTimerRunning(false, now);
     $('play-screen').classList.toggle('is-night-play', chapterIndex === 1);
     $('play-night-scene').hidden = chapterIndex !== 1;
+    $('play-screen').classList.toggle('is-reef-play', chapterIndex === 2);
+    $('play-reef-scene').hidden = chapterIndex !== 2;
     $('play-screen').classList.toggle('is-puzzle', isPuzzle());
+    $('play-screen').classList.toggle('is-journey', isJourney());
+    $('journey-hint').hidden = !isJourney();
+    $('journey-panel').hidden = !isJourney();
+    $('journey-target').hidden = !isJourney();
     $('play-screen').classList.toggle('is-dense-board', !isPuzzle() && Math.max(game.level.rows, game.level.columns) >= 8);
     $('play-screen').classList.toggle('has-conditions', game.conditions.length > 0);
     $('level-objectives').hidden = game.conditions.length === 0;
     $('puzzle-rules').hidden = !isPuzzle();
     $('puzzle-controls').hidden = !isPuzzle();
-    document.querySelector('.collection').hidden = isPuzzle();
-    document.querySelector('.board-caption').hidden = isPuzzle();
+    document.querySelector('.collection').hidden = isPuzzle() || isJourney();
+    document.querySelector('.board-caption').hidden = isPuzzle() || isJourney();
     // The fifth and sixth slots of every chapter share the sand-drawn puzzle setting.
-    $('puzzle-sand-background').hidden = localLevelIndex !== 4 && localLevelIndex !== 5;
+    $('puzzle-sand-background').hidden = !isPuzzle();
     metricsStart = previousFrame = now;
     renderedFrames = measuredFps = 0;
     animationTime = 0;
@@ -282,12 +315,13 @@
     resultShown = false;
     $('board').replaceChildren();
     fogMasks = new Map();
+    lastJourneyPenalty = 0;
     $('board').style.setProperty('--board-columns', game.level.columns);
     $('board').style.aspectRatio = `${game.level.columns} / ${game.level.rows}`;
-    $('board').setAttribute('aria-label', `${game.level.rows}行${game.level.columns}列赶海${isPuzzle() ? '填图' : '配对'}棋盘`);
+    $('board').setAttribute('aria-label', `${game.level.rows}行${game.level.columns}列${isJourney() ? '迷雾寻物地图' : isPuzzle() ? '赶海填图棋盘' : '赶海配对棋盘'}`);
     $('pairs-total').textContent = ` / ${game.totalPairs} 对`;
     if (isPuzzle()) buildPuzzleTools();
-    cardElements = isPuzzle() ? buildPuzzleBoard() : game.cards.map(card => {
+    cardElements = isJourney() ? buildJourneyBoard() : isPuzzle() ? buildPuzzleBoard() : game.cards.map(card => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'tile';
@@ -295,6 +329,7 @@
       button.dataset.status = 'hidden';
       button.setAttribute('aria-label', `第${Math.floor(card.index / game.level.columns) + 1}行第${card.index % game.level.columns + 1}列，未翻开的沙格`);
       button.innerHTML = `<span class="shell-face">${BeachArt.item(card.value, 'card' + card.index)}</span><span class="sand-cover"></span>`;
+      if (card.tangled) appendSeagrassArt(button, card.index);
       if (card.fog) {
         button.classList.add('has-fog');
       }
@@ -307,14 +342,20 @@
           return;
         }
         const oldPairs = game.pairs;
+        const oldMismatches = game.mismatches;
+        const oldBonus = game.bonusTime;
         if (game.select(card.index, now)) {
           scatterSand(button);
           if (game.pairs > oldPairs) {
             const pair = game.cards.filter(c => c.status === 'matched' && previousStates[c.index] !== 'matched');
-            collectPair(pair);
-            announce(`找到一对${BeachArt.names[card.value]}，增加5秒，已经收集${game.pairs}对。`);
+            const awardedTime = game.bonusTime - oldBonus;
+            collectPair(pair, awardedTime);
+            announce(`找到一对${BeachArt.names[card.value]}，${awardedTime === game.pairBonus ? '增加5秒' : '潮水已退到底'}，已经收集${game.pairs}对。`);
           }
-          else announce(`翻开了${BeachArt.names[card.value]}。`);
+          else if (game.mismatches > oldMismatches && game.conditions.some(condition => condition.type === 'mismatchTideRise')) {
+            tideRetreat = { from: displayedTide, start: animationTime, duration: 420 };
+            announce('配对失败，潮水上涨了。');
+          } else announce(`翻开了${BeachArt.names[card.value]}。`);
           syncGame();
           if (tutorial?.active) tutorial.onSelect();
         } else if (game.state === 'lost') syncGame();
@@ -331,7 +372,23 @@
     refreshBucketTarget();
     syncGame();
     drawTide(performance.now());
-    if (game.level.intro === 'nightFog') {
+    if (isJourney()) {
+      $('journey-panel').querySelector('p').textContent = game.level.noRevisit
+        ? '点击相邻格移动 · 走过的灰格不可再踩'
+        : '点击上下左右相邻格子移动 · 礁石和潮池不可通过';
+      $('journey-satchel').innerHTML = game.level.treasures.map((item, i) => `<span class="journey-catch" data-index="${item.index}">${BeachArt.item(item.kind, 'journey-bag-' + i)}<span>${BeachArt.names[item.kind]}</span><b aria-hidden="true">✓</b></span>`).join('');
+      syncJourney();
+      refreshBucketTarget();
+      openModal({ eyebrow: '', heading: '挑战！', art: 'journey',
+        description: game.level.noRevisit ? '这次走过的格子将不能重复踏入' : '请在一定时间内寻找并拾起与屏幕上方展示对应的物品\n如若超时，物品会刷新，潮水会大幅上涨\n在游戏开始前，你可以暂时查看五种物品和障碍的位置\n随后雾会弥漫整个海滩，你的能见度会大大下降\n在涨潮前拾起全部物品，即可通关！\n注意：如果不小心拾起了与需求不符的物品，会直接失败！',
+        emphasizeLastLine: !game.level.noRevisit,
+        actions: [{ text: '我知道了', run: () => { closeModal(false); game.beginPreview(performance.now()); syncGame(); } }] });
+    } else if (game.level.intro === 'seagrass') {
+      openModal({ eyebrow: '', heading: '当太阳升起，你发现自己到了礁石岸边！',
+        description: '礁石间的沙格会有烦人的海草！\n被海草覆盖的格子可以直接翻开，如果配对成功则会正常消除\n如果配对失败，一段时间内该格将被海草缠绕，不可再翻开，且四面相邻的格子都会被海草覆盖',
+        emphasizeLastLine: true,
+        art: 'seagrass', fogIntro: true, actions: [{ text: '我知道了', run: beginTimedGame }] });
+    } else if (game.level.intro === 'nightFog') {
       openModal({ eyebrow: '', heading: '你一直忘我地赶海，不知不觉到了晚上！',
         description: '海边在夜间会起雾，雾可以点击拨开，但是它会在一定时间后恢复\n最好记住雾下面的格子是否已经被配对！',
         art: 'fog', fogIntro: true, actions: [{ text: '我知道了', run: beginTimedGame }] });
@@ -354,11 +411,85 @@
         ] });
     } else if (game.conditions.length) showLevelConditions();
   }
+  function buildJourneyBoard() {
+    return game.cards.map(card => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'tile journey-cell';
+      button.dataset.index = card.index;
+      button.innerHTML = '<span class="journey-content"></span>';
+      button.addEventListener('click', () => {
+        if (modalOpen) return;
+        const count = game.collectedCount;
+        const moved = game.move(card.index, performance.now());
+        if (moved || game.state === 'lost') announce(game.feedback);
+        if (game.collectedCount > count) announce(`拾到${BeachArt.names[game.level.treasures.find(item => item.index === card.index).kind]}，已收集${game.collectedCount}件。`);
+        syncGame();
+      });
+      $('board').append(button);
+      return button;
+    });
+  }
+  function syncJourney() {
+    game.cards.forEach((card, i) => {
+      const button = cardElements[i];
+      const visible = !card.fog.covered;
+      const current = game.position === i;
+      const spent = game.isSpent(i);
+      const treasure = game.level.treasures.find(item => item.index === i);
+      const itemHere = treasure && !game.collected.has(i);
+      button.dataset.fog = visible ? 'clear' : 'covered';
+      fogMasks.get(i).style.opacity = visible ? '0' : '1';
+      button.dataset.terrain = visible ? card.value === -1 ? 'reef' : card.value === -2 ? 'pool' : 'sand' : 'unknown';
+      button.classList.toggle('is-current', current);
+      button.classList.toggle('is-spent', spent);
+      button.classList.toggle('is-next', game.phase === 'exploring' && game.isAdjacent(i) && card.value === 0 && !spent);
+      button.disabled = game.state !== 'playing' || game.phase !== 'exploring' || !game.isAdjacent(i) || spent;
+      const key = `${visible}-${current}-${Boolean(itemHere)}`;
+      if (button.dataset.paint !== key) {
+        button.dataset.paint = key;
+        button.firstElementChild.innerHTML = !visible ? '' : (card.value < 0 ? BeachArt.journeySymbol(card.value === -1 ? 'reef' : 'pool')
+          : itemHere ? BeachArt.item(treasure.kind, 'journey-' + i) : '')
+          + (current ? `<span class="journey-player">${BeachArt.journeySymbol('footprints')}</span>` : '');
+      }
+      const position = `第${Math.floor(i / game.level.columns) + 1}行第${i % game.level.columns + 1}列`;
+      const label = spent ? '已经走过的灰格，不可再次踏入' : !visible ? '迷雾遮蔽' : card.value < 0 ? card.value === -1 ? '礁石，不可通过' : '潮池，不可通过'
+        : itemHere ? BeachArt.names[treasure.kind] : '沙滩通路';
+      button.setAttribute('aria-label', `${position}，${label}${current ? '，你在这里' : ''}`);
+    });
+    $('journey-hint').textContent = game.phase === 'preview' ? `记住路线 · ${game.previewSeconds} 秒后起雾` : game.feedback;
+    const target = game.target;
+    const targetArt = $('journey-target-art');
+    const targetKey = target ? String(target.kind) : 'none';
+    if (targetArt.dataset.kind !== targetKey) {
+      targetArt.dataset.kind = targetKey;
+      targetArt.innerHTML = target ? BeachArt.item(target.kind, 'journey-target') : BeachArt.journeySymbol('footprints');
+    }
+    const seconds = target ? Math.ceil(game.targetRemaining / 1000) : null;
+    $('journey-target-name').textContent = target ? BeachArt.names[target.kind] : game.state === 'won' ? '全部找到' : '准备寻找';
+    $('journey-target-seconds').textContent = seconds === null ? '—' : String(seconds).padStart(2, '0');
+    $('journey-target-seconds').setAttribute('aria-label', seconds === null ? '观察阶段' : `本轮剩余 ${seconds} 秒`);
+    $('journey-target').classList.toggle('is-urgent', seconds !== null && seconds <= 3 && seconds > 0);
+    $('journey-target').classList.toggle('is-paused', game.state === 'paused');
+    $('journey-target').classList.toggle('is-penalty', Boolean(game.penaltyActive));
+    if (game.penalties > lastJourneyPenalty) {
+      lastJourneyPenalty = game.penalties;
+      tideRetreat = { from: displayedTide, start: animationTime, duration: 420 };
+      announce('未按时找到目标，潮水上涨，剩余时间减少20秒。');
+    }
+    $('journey-count').textContent = `${game.collectedCount} / ${game.totalTreasures} 件`;
+    $('journey-satchel').querySelectorAll('.journey-catch').forEach(chip => {
+      const picked = game.collected.has(Number(chip.dataset.index));
+      chip.classList.toggle('is-picked', picked);
+      chip.setAttribute('aria-label', `${chip.querySelector('span').textContent}，${picked ? '已拾取' : '未拾取'}`);
+    });
+    if ((game.state === 'won' || game.state === 'lost') && !resultShown) { resultShown = true; showResult(); }
+  }
   function buildPuzzleTools() {
     selectedPuzzleKind = game.level.kinds[0];
     $('puzzle-toolbar').replaceChildren();
     $('puzzle-toolbar').style.setProperty('--puzzle-tool-count', game.level.kinds.length + 1);
-    const labels = { 0: '扇贝', 1: '螃蟹', 2: '小虾', 4: '海螺', 5: '鱼儿' };
+    const labels = BeachArt.names;
     [...game.level.kinds, null].forEach(kind => {
       const button = document.createElement('button');
       button.type = 'button';
@@ -530,6 +661,18 @@
     rewardUntil = rewardSeconds = 0;
   }
   function refreshBucketTarget() {
+    if (isJourney() && currentScreen === 'play') {
+      const screen = $('play-screen');
+      const style = getComputedStyle(screen);
+      const width = screen.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      const occupied = [...screen.children].filter(child => !child.classList.contains('board-wrap'))
+        .reduce((total, child) => {
+          const css = getComputedStyle(child);
+          return total + (css.display === 'none' || css.position === 'absolute' ? 0 : child.getBoundingClientRect().height + parseFloat(css.marginTop) + parseFloat(css.marginBottom));
+        }, 0);
+      const height = screen.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - occupied - 4;
+      screen.style.setProperty('--journey-board-size', Math.floor(Math.max(0, Math.min(width, height))) + 'px');
+    }
     layoutFogField();
     const layer = $('catch-effects').getBoundingClientRect();
     const target = $('bucket-target').getBoundingClientRect();
@@ -543,7 +686,7 @@
       $('puzzle-sand-background').style.setProperty('--sand-doodle-top', (top - screen.top) + 'px');
     }
   }
-  function collectPair(pair) {
+  function collectPair(pair, awardedTime) {
     refreshBucketTarget();
     const layer = $('catch-effects').getBoundingClientRect();
     const group = { kind: pair[0].value, number: game.pairs, delivered: false };
@@ -562,10 +705,13 @@
       flights.push({ element, x, y, size, start: animationTime + i * 30, duration: 480, last: i === pair.length - 1, group });
     });
     if (game.progress < displayedTide) tideRetreat = { from: displayedTide, start: animationTime, duration: 480 };
-    rewardSeconds = animationTime < rewardUntil ? rewardSeconds + game.pairBonus / 1000 : game.pairBonus / 1000;
-    rewardUntil = animationTime + 1000;
-    $('time-reward').textContent = '+' + rewardSeconds + ' 秒';
-    $('time-reward').hidden = false;
+    if (awardedTime > 0) {
+      rewardSeconds = animationTime < rewardUntil ? rewardSeconds + awardedTime / 1000 : awardedTime / 1000;
+      rewardUntil = animationTime + 1000;
+      const seconds = Math.round(rewardSeconds * 10) / 10;
+      $('time-reward').textContent = seconds > 0 ? '+' + seconds + ' 秒' : '潮水已退到底';
+      $('time-reward').hidden = false;
+    }
   }
   function deliverToBucket(group) {
     if (group.delivered) return;
@@ -624,9 +770,13 @@
       $('time-reward').style.transform = `translateY(${-3 * (1 - (rewardUntil - animationTime) / 1000)}px)`;
     }
   }
+  function appendSeagrassArt(button, index) {
+    button.insertAdjacentHTML('beforeend', `<span class="seagrass-cover" aria-hidden="true">${BeachArt.seagrass('card-' + index)}${BeachArt.lockedSeagrass('card-' + index)}</span>`);
+  }
   function syncGame() {
     if (lastVersion === game.version) return;
     lastVersion = game.version;
+    if (isJourney()) { syncJourney(); return; }
     if (isPuzzle()) { syncPuzzle(); return; }
     game.cards.forEach((card, i) => {
       const element = cardElements[i];
@@ -650,6 +800,15 @@
         element.disabled = game.state !== 'playing' || (!card.fog.covered && card.status !== 'hidden');
         const position = `第${Math.floor(i / game.level.columns) + 1}行第${i % game.level.columns + 1}列`;
         element.setAttribute('aria-label', card.fog.covered ? `${position}，雾遮蔽的格子，点击拨开` : card.status === 'matched' ? `${position}，雾已拨开，已收集的空格` : `${position}，雾已拨开，${card.status === 'hidden' ? '未翻开的沙格' : BeachArt.names[card.value]}`);
+      }
+      if (game.level.seagrass) {
+        const locked = game.isGrassLocked(card);
+        if (card.tangled && !element.querySelector('.seagrass-cover')) appendSeagrassArt(element, i);
+        element.classList.toggle('is-tangled', card.tangled);
+        element.classList.toggle('is-grass-locked', locked);
+        element.dataset.tangled = String(card.tangled);
+        element.disabled = game.state !== 'playing' || locked || card.status !== 'hidden';
+        if (card.tangled && card.status === 'hidden') element.setAttribute('aria-label', `第${Math.floor(i / game.level.columns) + 1}行第${i % game.level.columns + 1}列，${locked ? '紫色交叉海草，暂时不能翻开' : '绿色海草格，可以翻开'}`);
       }
       previousStates[i] = card.status;
     });
@@ -700,10 +859,16 @@
         board.append(cell);
       });
       container.append(board);
+    } else if (art === 'journey' || art === 'journey-result') {
+      container.classList.add('modal-journey-art');
+      container.innerHTML = BeachArt.journeySymbol(art === 'journey' ? 'footprints' : 'bucket');
+      if (art === 'journey-result') container.insertAdjacentHTML('beforeend', `<span class="journey-result-items">${game.level.treasures.map((item, i) => BeachArt.item(item.kind, 'journey-result-' + i)).join('')}</span>`);
     } else if (art === 'notice-board') {
       container.innerHTML = BeachArt.noticeBoard();
     } else if (art === 'fog') {
       container.innerHTML = BeachArt.fog('modal');
+    } else if (art === 'seagrass') {
+      container.innerHTML = BeachArt.reefEmblem('modal');
     } else if (art === 'condition-failure') {
       container.innerHTML = BeachArt.conditionFailure();
     } else if (art === 'washed-bucket') {
@@ -711,18 +876,26 @@
       container.innerHTML = BeachArt.washedBucket();
     } else container.innerHTML = BeachArt.item(art, 'modal');
   }
-  function openModal({ eyebrow, heading, description, art = 0, result = false, immediateResult = false, artBelowHeading = false, fogIntro = false, showConditions = false, conditionProgress = true, actions }) {
+  function openModal({ eyebrow, heading, description, emphasizeLastLine = false, art = 0, result = false, immediateResult = false, artBelowHeading = false, fogIntro = false, showConditions = false, conditionProgress = true, actions }) {
     previousFocus = document.activeElement;
     modalOpen = true;
     $('modal-eyebrow').textContent = eyebrow;
     $('modal-eyebrow').hidden = !eyebrow;
     $('modal-heading').textContent = heading;
     $('modal-description').textContent = description;
+    if (emphasizeLastLine) {
+      const lines = description.split('\n');
+      const warning = document.createElement('strong');
+      warning.textContent = lines.pop();
+      $('modal-description').replaceChildren(document.createTextNode(lines.join('\n') + '\n'), warning);
+    }
     renderModalArt(art);
     $('modal-card').classList.toggle('result-card', result);
     $('modal-card').classList.toggle('immediate-result', immediateResult);
     $('modal-card').classList.toggle('species-card', artBelowHeading);
     $('modal-card').classList.toggle('fog-intro-card', fogIntro);
+    $('modal-card').classList.toggle('journey-intro-card', emphasizeLastLine);
+    $('modal-card').scrollTop = 0;
     $('modal-objectives').hidden = !showConditions || game.conditions.length === 0;
     if (showConditions) renderConditions($('modal-conditions'), conditionProgress);
     else $('modal-conditions').replaceChildren();
@@ -754,7 +927,7 @@
     if (currentScreen !== 'play' || modalOpen || !game.pause(performance.now())) { syncGame(); return; }
     syncGame();
     hideTideDanger();
-    openModal({ eyebrow: '把这一刻，留在沙滩上', heading: '歇一歇，潮水等等。', description: isPuzzle() ? `游戏已暂停\n当前已填 ${game.filledCount} / ${game.cards.length} 格` : `游戏已暂停\n当前已收集 ${game.pairs} / ${game.totalPairs} 对`, art: null, showConditions: true,
+    openModal({ eyebrow: '把这一刻，留在沙滩上', heading: '歇一歇，潮水等等。', description: isJourney() ? `游戏已暂停\n当前已拾取 ${game.collectedCount} / ${game.totalTreasures} 件收获` : isPuzzle() ? `游戏已暂停\n当前已填 ${game.filledCount} / ${game.cards.length} 格` : `游戏已暂停\n当前已收集 ${game.pairs} / ${game.totalPairs} 对`, art: null, showConditions: true,
       actions: [{ text: '继续赶海', run: resumeGame }, { text: '重新开始', run: startGame }, { text: '返回选关', run: () => showScreen('level') }] });
   }
   function showResult() {
@@ -769,8 +942,16 @@
           if (game.level.id === 1) localStorage.setItem('beach-pairs-level-one', 'won');
         } catch (_) { /* In-memory progress still permits replay this session. */ }
       }
-      announce(isPuzzle() ? '挑战成功！棋盘已填满，横、纵和两条对角线均无重复。' : `通关成功！${game.totalPairs}对赶海收获全部收集完成。`);
-    } else announce(conditionFailure ? '未完成全部的条件，本次挑战未通过。' : '潮水已经漫过沙滩，本次赶海结束。');
+      announce(isJourney() ? '挑战成功！五种目标全部找到。' : isPuzzle() ? '挑战成功！棋盘已填满，横、纵和两条对角线均无重复。' : `通关成功！${game.totalPairs}对赶海收获全部收集完成。`);
+    } else announce(game.failureReason === 'wrongTarget' ? '碰到了当前目标以外的物品，本次挑战结束。' : conditionFailure ? '未完成全部的条件，本次挑战未通过。' : '潮水已经漫过沙滩，本次赶海结束。');
+    if (isJourney()) {
+      const wrong = game.failureReason === 'wrongTarget';
+      openModal({ eyebrow: '', heading: won ? '目标全部找齐啦！' : wrong ? '碰错物品了' : '潮水先到了一步。',
+        description: won ? `你找齐了 ${game.totalTreasures} 种物品，共走了 ${game.turns} 步。` : wrong ? `当前目标是${BeachArt.names[game.target.kind]}，却碰到了${BeachArt.names[game.wrongKind]}。\n已找到 ${game.collectedCount} / ${game.totalTreasures} 种，记住位置再试一次吧。` : `已找到 ${game.collectedCount} / ${game.totalTreasures} 种物品。\n留意目标刷新和潮水，再试一次吧。`,
+        art: won ? 'journey-result' : wrong ? 'condition-failure' : 'washed-bucket', result: true, immediateResult: wrong,
+        actions: [{ text: won ? '下一关' : '重新挑战', run: won ? goToNextLevel : startGame }, { text: '返回选关', run: () => showScreen('level') }, { text: '返回主菜单', run: () => showScreen('menu') }] });
+      return;
+    }
     if (isPuzzle()) {
       openModal({ eyebrow: won ? '' : '潮起潮落，总有下一次',
         heading: won ? '挑战成功！' : '潮水先到了一步。',
@@ -790,7 +971,7 @@
   function goToNextLevel() {
     const nextLevel = BeachLevels.find(level => level.id === game.level.id + 1);
     if (nextLevel) { startLevel(nextLevel); return; }
-    openModal({ eyebrow: '下一片海岸，稍后相见', heading: '下一关即将开放', description: '你已经完成了当前开放的关卡。', art: isPuzzle() ? 'puzzle-result' : 'harvest',
+    openModal({ eyebrow: '下一片海岸，稍后相见', heading: '下一关即将开放', description: '你已经完成了当前开放的关卡。', art: isJourney() ? 'journey-result' : isPuzzle() ? 'puzzle-result' : 'harvest',
       actions: [{ text: '返回选关', run: () => showScreen('level') }, { text: '返回主菜单', run: () => showScreen('menu') }] });
   }
   function resizeCanvas() {
@@ -957,6 +1138,6 @@
   requestAnimationFrame(frame);
   // Read-only diagnostics for local acceptance checks; no hidden in-game controls.
   window.beachDiagnostics = Object.freeze({
-    snapshot: () => ({ screen: currentScreen, levelId: game.level.id, mode: game.level.type || 'matching', filledCount: isPuzzle() ? game.filledCount : null, values: isPuzzle() ? game.cards.map(card => card.value) : null, fixed: isPuzzle() ? game.cards.map(card => card.fixed) : null, conflicts: isPuzzle() ? [...game.conflicts] : null, rows: game.level.rows, columns: game.level.columns, totalPairs: game.totalPairs, state: game.state, failureReason: game.failureReason, conditions: game.conditionStates, lastMatchedKind: game.lastMatchedKind, pairs: game.pairs, mismatches: game.mismatches, turns: game.turns, elapsed: game.elapsed, duration: game.duration, bonusTime: game.bonusTime, remaining: game.remaining, progress: game.progress, displayedTide, flights: flights.length, bucketPairs: arrivedPairs, fps: measuredFps, statuses: game.cards.map(card => card.status), fog: game.cards.map(card => card.fog ? { ...card.fog } : null), activeTime: game.activeTime, modalOpen, timerRunning: game.timerRunning, tutorialStep: tutorial?.active ? tutorial.step : null, tutorialTarget: tutorial?.active ? tutorial.target : null })
+    snapshot: () => ({ screen: currentScreen, levelId: game.level.id, seagrass: game.level.seagrass ? game.cards.map(card => ({ grass: card.tangled, locked: game.isGrassLocked(card), until: card.grassLockedUntil })) : null, mode: game.level.type || 'matching', journey: isJourney() ? { phase: game.phase, position: game.position, noRevisit: Boolean(game.level.noRevisit), visited: [...game.visited], targetKind: game.target?.kind ?? null, targetIndex: game.target?.index ?? null, targetRemaining: game.targetRemaining, targetHistory: [...game.targetHistory], penalties: game.penalties, wrongKind: game.wrongKind, collected: [...game.collected], collectedCount: game.collectedCount, totalTreasures: game.totalTreasures, previewSeconds: game.previewSeconds } : null, filledCount: isPuzzle() ? game.filledCount : null, values: isPuzzle() ? game.cards.map(card => card.value) : null, fixed: isPuzzle() ? game.cards.map(card => card.fixed) : null, conflicts: isPuzzle() ? [...game.conflicts] : null, rows: game.level.rows, columns: game.level.columns, totalPairs: game.totalPairs, state: game.state, failureReason: game.failureReason, conditions: game.conditionStates, lastMatchedKind: game.lastMatchedKind, pairs: game.pairs, mismatches: game.mismatches, turns: game.turns, elapsed: game.elapsed, duration: game.duration, bonusTime: game.bonusTime, remaining: game.remaining, progress: game.progress, displayedTide, flights: flights.length, bucketPairs: arrivedPairs, fps: measuredFps, statuses: game.cards.map(card => card.status), fog: game.cards.map(card => card.fog ? { ...card.fog } : null), activeTime: game.activeTime, modalOpen, timerRunning: game.timerRunning, tutorialStep: tutorial?.active ? tutorial.step : null, tutorialTarget: tutorial?.active ? tutorial.target : null })
   });
 })();

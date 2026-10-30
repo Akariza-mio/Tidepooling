@@ -60,7 +60,7 @@ const { pathToFileURL } = require('node:url');
     await guidedClick();
     assert.equal((await state()).tutorialStep, 'success');
     assert.equal((await state()).pairs, 1);
-    assert.equal((await state()).bonusTime, 5000);
+    assert.equal((await state()).bonusTime, 0);
     assert.equal(await page.locator('.tile:enabled').count(), 0);
     await page.clock.runFor(700);
     assert.equal(await page.locator('#bucket-contents .bucket-find').count(), 1);

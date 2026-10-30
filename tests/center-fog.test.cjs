@@ -3,8 +3,7 @@ const assert = require('node:assert/strict');
 const Game = require('../core.js');
 const level = require('../levels.js').find(level => level.id === 13);
 function create() {
-  let seed = 179;
-  const game = new Game({ level, random: () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32) });
+  const game = new Game({ level });
   game.start(0);
   return game;
 }
@@ -23,7 +22,7 @@ function finish(game, now = 11000) {
   }
 }
 
-test('night level three has a central 2x2 fog area, balanced even counts, and fresh random restarts', () => {
+test('night level three has central 2x2 fog, balanced even counts, and fixed entries/restarts', () => {
   const game = create();
   assert.equal(game.duration, 60000);
   assert.equal(game.totalPairs, 18);
@@ -32,7 +31,8 @@ test('night level three has a central 2x2 fog area, balanced even counts, and fr
   for (let i = 0; i < 10; i++) {
     const before = game.cards.map(card => card.value);
     game.start(0);
-    assert.notDeepEqual(game.cards.map(card => card.value), before);
+    assert.deepEqual(game.cards.map(card => card.value), before);
+    assert.deepEqual(create().cards.map(card => card.value), pool);
     assert.deepEqual([0, 1, 2, 4, 5].map(kind => game.cards.filter(card => card.value === kind).length), [8, 8, 8, 6, 6]);
     assert.deepEqual(level.layout, pool);
   }
