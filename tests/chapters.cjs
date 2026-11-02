@@ -1,11 +1,11 @@
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
 const { pathToFileURL } = require('node:url');
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const errors = [], requests = [];
@@ -27,7 +27,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('.chapter-page:visible').count(), 1);
     assert.equal(await page.locator('#level-one').isDisabled(), true);
     assert.equal(await page.locator('#chapter-previous').isDisabled(), true);
-    const names = ['初入浅滩', '月下独捉', '礁间寻宝', '第四大关', '第五大关'];
+    const names = ['初入浅滩', '月下独捉', '礁间寻宝', '踏浪而寻', '第五大关'];
     for (let index = 0; index < 5; index++) {
       const chapter = page.locator('.chapter-page:visible');
       assert.equal(await chapter.locator('h1').innerText(), names[index]);
@@ -44,7 +44,7 @@ const { pathToFileURL } = require('node:url');
     }
     assert.equal(await page.locator('#chapter-next').isDisabled(), true);
     await page.locator('#chapter-previous').click();
-    assert.equal(await page.locator('.chapter-page:visible h1').innerText(), '第四大关');
+    assert.equal(await page.locator('.chapter-page:visible h1').innerText(), '踏浪而寻');
     for (let i = 0; i < 3; i++) { await page.locator('#chapter-previous').click(); await page.locator('#chapter-pages:not(.is-sliding)').waitFor({ state: 'attached' }); }
     assert.equal(await page.locator('#chapter-tabs').count(), 0);
     assert.equal(await page.locator('.chapter-pagination button').count(), 2);

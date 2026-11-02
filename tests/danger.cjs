@@ -1,11 +1,11 @@
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const fs = require('node:fs');
 const { pathToFileURL } = require('node:url');
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const errors = [];
@@ -28,8 +28,8 @@ const { pathToFileURL } = require('node:url');
     await page.clock.runFor(400);
     assert.equal(await glow.isVisible(), true);
     assert.equal(await glow.evaluate(el => getComputedStyle(el).pointerEvents), 'none');
-    fs.mkdirSync(path.resolve(__dirname, '../preview'), { recursive: true });
-    await page.screenshot({ path: path.resolve(__dirname, '../preview/12-danger-glow.png'), animations: 'disabled' });
+    if (process.env.BEACH_CAPTURE_PREVIEWS === '1') fs.mkdirSync(path.resolve(__dirname, '../preview'), { recursive: true });
+    if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.resolve(__dirname, '../preview/12-danger-glow.png'), animations: 'disabled' });
     const samples = [];
     for (let i = 0; i < 4; i++) {
       samples.push(Number(await glow.evaluate(el => getComputedStyle(el).opacity)));
@@ -49,7 +49,7 @@ const { pathToFileURL } = require('node:url');
     await page.clock.runFor(1000);
     assert.equal(await page.evaluate(() => beachDiagnostics.snapshot().bonusTime), 10000);
     assert.equal(await glow.isHidden(), true);
-    await page.screenshot({ path: path.resolve(__dirname, '../preview/13-danger-cleared.png'), animations: 'disabled' });
+    if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.resolve(__dirname, '../preview/13-danger-cleared.png'), animations: 'disabled' });
 
     await page.clock.fastForward(5000);
     await page.clock.runFor(400);

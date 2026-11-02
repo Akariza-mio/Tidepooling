@@ -1,8 +1,9 @@
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+if (process.env.BEACH_CAPTURE_PREVIEWS !== '1') { console.log('Preview skipped. Generate only on explicit user request.'); process.exit(0); }
+const { chromium } = require('./browser-support.cjs');
 const path = require('node:path');
 const fs = require('node:fs');
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 1080, height: 230 }, deviceScaleFactor: 1 });
     await page.setContent('<html lang="zh-CN"><meta charset="utf-8"><style>body{margin:0;padding:22px;box-sizing:border-box;height:230px;background:#fff6e6;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;font-family:"Microsoft YaHei",sans-serif}figure{margin:0;display:flex;align-items:center;flex-direction:column;justify-content:center;background:linear-gradient(145deg,#fffaf0,#f4e6cd);border:1px solid #eadbbd;border-radius:18px}svg{width:126px;height:126px;filter:drop-shadow(1px 4px 3px #a78a5e25)}figcaption{font-size:13px;color:#678475;letter-spacing:1px;margin-top:8px}</style><body></body></html>');

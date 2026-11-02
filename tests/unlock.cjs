@@ -1,10 +1,10 @@
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = [], requests = [];
@@ -40,10 +40,10 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#unlock-switch').getAttribute('aria-checked'), 'false');
     await page.locator('#unlock-switch').click();
     await select();
-    assert.equal(await page.locator('.chapter-level:enabled').count(), 30);
+    assert.equal(await page.locator('.chapter-level:enabled').count(), 32);
     assert.equal(await page.locator('#chapter-1 .chapter-progress').innerText(), '已通关 0 / 10');
     assert.equal(await page.locator('#level-2 .chapter-level-status').innerText(), '可挑战');
-    assert.equal(await page.locator('#level-31').isDisabled(), true);
+    assert.equal(await page.locator('#level-33').isDisabled(), true);
     if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.resolve(__dirname, '../preview/36-unlocked-selection.png'), animations: 'disabled' });
     await winSecond();
     assert.deepEqual(await progress(), initial);
@@ -69,7 +69,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#settings-button').click();
     assert.equal(await page.locator('#unlock-switch').getAttribute('aria-checked'), 'true');
     await select();
-    assert.equal(await page.locator('.chapter-level:enabled').count(), 30);
+    assert.equal(await page.locator('.chapter-level:enabled').count(), 32);
     assert.equal(await page.locator('#chapter-1 .chapter-progress').innerText(), '已通关 1 / 10');
     await winSecond();
     assert.deepEqual(await progress(), genuine);
@@ -91,7 +91,7 @@ const { pathToFileURL } = require('node:url');
     await blocked.locator('#unlock-switch').click();
     await blocked.locator('#settings-screen [data-menu]').click();
     await blocked.locator('#select-level-button').click();
-    assert.equal(await blocked.locator('.chapter-level:enabled').count(), 30);
+    assert.equal(await blocked.locator('.chapter-level:enabled').count(), 32);
     await blocked.locator('#level-screen [data-menu]').click();
     await blocked.locator('#settings-button').click();
     await blocked.locator('#unlock-switch').click();

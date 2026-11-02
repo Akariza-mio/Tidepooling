@@ -1,11 +1,11 @@
 // Functional acceptance only; no preview images or screenshots.
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const errors = [], requests = [];
@@ -132,7 +132,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#unlock-switch').click();
     await page.locator('#settings-screen [data-menu]').click();
     await page.locator('#select-level-button').click();
-    assert.equal(await page.locator('.chapter-level:enabled').count(), 30);
+    assert.equal(await page.locator('.chapter-level:enabled').count(), 32);
     await page.locator('#level-10').click();
     assert.equal((await state()).levelId, 10);
     assert.equal((await state()).totalPairs, 32);

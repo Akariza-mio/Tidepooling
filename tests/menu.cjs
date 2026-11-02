@@ -1,11 +1,11 @@
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const errors = [], external = [];
@@ -31,8 +31,8 @@ const { pathToFileURL } = require('node:url');
     const afterPeriod = await offset();
     assert.ok(Math.abs(afterPeriod - initial) < .5, 'The pattern period must align without a jump.');
     const preview = path.resolve(__dirname, '../preview');
-    fs.mkdirSync(preview, { recursive: true });
-    await page.screenshot({ path: path.join(preview, '14-menu-pattern.png'), animations: 'disabled' });
+    if (process.env.BEACH_CAPTURE_PREVIEWS === '1') fs.mkdirSync(preview, { recursive: true });
+    if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.join(preview, '14-menu-pattern.png'), animations: 'disabled' });
     for (const viewport of [{ width: 320, height: 568 }, { width: 430, height: 932 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
       await page.setViewportSize(viewport);
       const layout = await page.evaluate(() => {
@@ -52,7 +52,7 @@ const { pathToFileURL } = require('node:url');
       assert.equal(layout.centered, true);
       assert.equal(layout.hit, 'start-button');
       assert.equal(layout.overflow, false);
-      await page.screenshot({ path: path.join(preview, `15-menu-${viewport.width}x${viewport.height}.png`), animations: 'disabled' });
+      if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.join(preview, `15-menu-${viewport.width}x${viewport.height}.png`), animations: 'disabled' });
     }
     await page.setViewportSize({ width: 390, height: 844 });
     await page.locator('#settings-button').click();

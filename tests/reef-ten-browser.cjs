@@ -1,10 +1,10 @@
 // Functional and DOM acceptance only; no screenshots, previews or archives.
-const {chromium}=require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const {chromium}=require('./browser-support.cjs');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {pathToFileURL}=require('node:url');
 (async()=>{
-  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+  const browser=await chromium.launch({headless:true});
   try{
     const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
     page.on('pageerror',error=>errors.push(error.message));
@@ -19,7 +19,7 @@ const {pathToFileURL}=require('node:url');
     const grass=async()=>(await state()).seagrass.flatMap((card,i)=>card.grass?[i]:[]);
     await page.locator('#select-level-button').click();await page.locator('#chapter-next').click();await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#chapter-3 .chapter-level:enabled').count(),10);
-    assert.equal(await page.locator('#level-30').isEnabled(),true);assert.equal(await page.locator('#level-31').isDisabled(),true);
+    assert.equal(await page.locator('#level-30').isEnabled(),true);assert.equal(await page.locator('#level-33').isDisabled(),true);
     await page.locator('#level-30').click();
     assert.equal(await page.locator('#play-number').innerText(),'10');assert.equal(await page.locator('#modal-art .notice-board-art').count(),1);
     assert.equal(await page.locator('#modal-conditions').innerText(),label);assert.equal((await state()).conditions[0].penalty,3000);
@@ -52,7 +52,7 @@ const {pathToFileURL}=require('node:url');
     await page.clock.runFor(800);assert.equal((await state()).state,'won');assert.equal((await state()).pairs,18);
     assert.equal((await state()).conditions[0].completed,true);assert.ok((await state()).remaining<=60000);
     assert.equal(await page.locator('#modal-art .bucket-find').count(),18);
-    await action('下一关');assert.equal(await page.locator('#modal-heading').innerText(),'下一关即将开放');
+    await action('下一关');assert.equal((await state()).levelId,31);assert.equal((await state()).surf.phase,'calm');assert.equal(await page.locator('#play-surf-scene').isVisible(),true);assert.equal((await state()).timerRunning,false);
     assert.deepEqual(errors,[]);
     console.log('PASS: complete third chapter availability, reef-ten fixed six-kind deck and eleven grass cells, all penalty rule displays, exact -3s/tide animation, grass spreading and independent cooldown, pause/retry, penalty timeout and full victory. No images captured.');
   }finally{await browser.close();}

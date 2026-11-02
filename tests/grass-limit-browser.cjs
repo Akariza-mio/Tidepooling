@@ -1,10 +1,10 @@
 // Functional and layout acceptance only. No screenshots, previews or archives.
-const {chromium}=require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const {chromium}=require('./browser-support.cjs');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {pathToFileURL}=require('node:url');
 (async()=>{
-  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+  const browser=await chromium.launch({headless:true});
   try {
     const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
     page.on('pageerror',error=>errors.push(error.message));
@@ -73,7 +73,7 @@ const {pathToFileURL}=require('node:url');
     await testing.addInitScript(()=>localStorage.setItem('beach-pairs-unlock-all','on'));
     await testing.goto(url);await testing.emulateMedia({reducedMotion:'reduce'});
     await testing.locator('#select-level-button').click();await testing.locator('#chapter-next').click();await testing.locator('#chapter-next').click();
-    assert.equal(await testing.locator('#level-26').isEnabled(),true);assert.equal(await testing.locator('#level-31').isDisabled(),true);
+    assert.equal(await testing.locator('#level-26').isEnabled(),true);assert.equal(await testing.locator('#level-33').isDisabled(),true);
     await testing.locator('#level-26').click();await testing.getByRole('button',{name:'我知道了',exact:true}).click();
     for(const i of solution)await testing.locator('.grass-cell').nth(i).click();
     await testing.getByRole('heading',{name:'挑战成功！',exact:true}).waitFor();

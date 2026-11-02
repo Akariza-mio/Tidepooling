@@ -7,3 +7,8 @@
 # 游戏发行压缩包
 /release/
 /concepts/
+
+# Optional local development dependencies and macOS metadata
+/node_modules/
+.DS_Store
+npm-debug.log*

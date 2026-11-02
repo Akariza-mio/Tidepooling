@@ -1,5 +1,5 @@
 // Functional browser acceptance only: this script never captures screenshots.
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
@@ -8,7 +8,7 @@ const solution = [0, 1, 2, 4, 2, 4, 0, 1, 4, 2, 1, 0, 1, 0, 4, 2];
 const sixthSolution = [0, 2, 5, 1, 4, 1, 4, 0, 2, 5, 2, 5, 1, 4, 0, 4, 0, 2, 5, 1, 5, 1, 4, 0, 2];
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   const errors = [], externalRequests = [];
   const setup = async (init) => {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -302,7 +302,7 @@ const sixthSolution = [0, 2, 5, 1, 4, 1, 4, 0, 2, 5, 2, 5, 1, 4, 0, 4, 0, 2, 5, 
       localStorage.setItem('beach-pairs-completed-levels', '[1]');
     });
     await testing.locator('#select-level-button').click();
-    assert.equal(await testing.locator('.chapter-level:enabled').count(), 30);
+    assert.equal(await testing.locator('.chapter-level:enabled').count(), 32);
     assert.equal(await testing.locator('#level-5').evaluate(button => button.classList.contains('is-unlocked') && getComputedStyle(button).backgroundColor !== getComputedStyle(document.getElementById('level-7')).backgroundColor), true);
     await testing.locator('#level-5').click();
     await action(testing, '我知道了');

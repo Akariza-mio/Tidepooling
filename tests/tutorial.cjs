@@ -1,10 +1,10 @@
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const errors = [], requests = [];
@@ -14,7 +14,7 @@ const { pathToFileURL } = require('node:url');
     const root = process.env.BEACH_GAME_DIR || path.resolve(__dirname, '..');
     await page.goto(pathToFileURL(path.join(root, 'index.html')).href);
     const state = () => page.evaluate(() => beachDiagnostics.snapshot());
-    const capture = name => page.screenshot({ path: path.resolve(__dirname, '../preview/' + name), animations: 'disabled' });
+    const capture = name => process.env.BEACH_CAPTURE_PREVIEWS === '1' ? page.screenshot({ path: path.resolve(__dirname, '../preview/' + name), animations: 'disabled' }) : Promise.resolve();
     async function guidedClick() {
       assert.equal(await page.locator('.tile:enabled').count(), 1);
       const target = (await state()).tutorialTarget;

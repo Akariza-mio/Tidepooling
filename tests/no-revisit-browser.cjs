@@ -1,5 +1,5 @@
 // Functional verification only; no screenshots or packages.
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const { pathToFileURL } = require('node:url');
 const path = require('node:path');
@@ -8,7 +8,7 @@ const level = require('../levels.js').find(level => level.id === 16);
 const snapshot = page => page.evaluate(() => beachDiagnostics.snapshot());
 const action = (page, name) => page.getByRole('button', { name, exact: true }).click();
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = [];
@@ -19,7 +19,7 @@ const action = (page, name) => page.getByRole('button', { name, exact: true }).c
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-16').isEnabled(), true);
-    assert.equal(await page.locator('#level-31').isDisabled(), true);
+    assert.equal(await page.locator('#level-33').isDisabled(), true);
     await page.locator('#level-16').click();
     assert.equal(await page.locator('#modal-heading').innerText(), '挑战！');
     assert.equal(await page.locator('#modal-description').innerText(), '这次走过的格子将不能重复踏入');

@@ -1,0 +1,15 @@
+{
+  "name": "beach-memory-game",
+  "version": "0.20.0",
+  "private": true,
+  "description": "Buildless portrait HTML5 beach memory game; Node is optional for playing.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node scripts/serve.cjs",
+    "test": "node scripts/test.cjs",
+    "test:smoke": "node tests/portability-browser.cjs",
+    "test:browser": "node tests/reef-ten-browser.cjs",
+    "test:surf": "node tests/surf-browser.cjs"
+  },
+  "devDependencies": { "playwright": "1.62.1" }
+}

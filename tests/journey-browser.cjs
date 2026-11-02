@@ -1,5 +1,5 @@
 // Functional checks only: no screenshots, previews or packages.
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
@@ -39,7 +39,7 @@ async function win(page) {
   assert.equal((await snapshot(page)).state, 'won');
 }
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = [], requests = [];
@@ -51,7 +51,7 @@ async function win(page) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-15').isEnabled(), true);
-    assert.equal(await page.locator('#level-31').isDisabled(), true);
+    assert.equal(await page.locator('#level-33').isDisabled(), true);
     await page.locator('#level-15').click();
     assert.equal((await snapshot(page)).journey.position, 24);
     assert.equal(await page.locator('.journey-cell').count(), 49);

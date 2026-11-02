@@ -1,10 +1,10 @@
 // Functional and layout checks only. No screenshot or preview files.
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = [], requests = [];
@@ -19,7 +19,7 @@ const { pathToFileURL } = require('node:url');
     const finishTransition = async () => {
       // The browser's native animation timeline is independent of the mocked JS clock.
       await page.evaluate(() => Promise.all(document.getAnimations().filter(animation =>
-        /^(chapter-[1-3]|chapter-(day|night|reef)-scene)$/.test(animation.effect?.target.id || ''))
+        /^(chapter-[1-4]|chapter-(day|night|reef|surf)-scene|chapter-surf-bridge)$/.test(animation.effect?.target.id || ''))
         .map(animation => animation.finished.catch(() => {}))));
       await page.locator('#chapter-pages:not(.is-sliding)').waitFor({ state: 'attached' });
     };
@@ -47,7 +47,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#chapter-3 .reef-emblem-art').count(), 1);
     assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), '三');
     assert.equal(await page.locator('#level-21').isEnabled(), true);
-    assert.equal(await page.locator('#level-31').isDisabled(), true);
+    assert.equal(await page.locator('#level-33').isDisabled(), true);
     for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
       await page.setViewportSize(viewport); await page.clock.runFor(60);
       const fits = await page.evaluate(() => {
@@ -60,6 +60,91 @@ const { pathToFileURL } = require('node:url');
       assert.equal(fits, true, JSON.stringify(viewport));
     }
     await page.setViewportSize({ width: 390, height: 844 });
+    // Inspect the actual animation midpoint without creating screenshots.
+    const surfCrossing = async direction => {
+      await page.locator('#chapter-' + direction).click();
+      assert.equal(await page.locator('#chapter-pages').getAttribute('aria-busy'), 'true');
+      assert.equal(await page.locator('#chapter-next').isDisabled(), true);
+      assert.equal(await page.locator('#chapter-previous').isDisabled(), true);
+      assert.equal(await page.locator('#chapter-3').evaluate(el => el.inert), true);
+      assert.equal(await page.locator('#chapter-4').evaluate(el => el.inert), true);
+      const middle = await page.evaluate(() => {
+        const ids = ['chapter-3', 'chapter-4', 'chapter-reef-scene', 'chapter-surf-scene', 'chapter-surf-bridge'];
+        const animations = document.getAnimations().filter(a => ids.includes(a.effect?.target.id));
+        for (const animation of animations) { animation.pause(); animation.currentTime = 450; }
+        return ['chapter-reef-scene', 'chapter-surf-scene', 'chapter-surf-bridge'].map(id => {
+          const element = document.getElementById(id), style = getComputedStyle(element);
+          return { id, opacity: Number(style.opacity), transform: style.transform, hidden: element.hidden };
+        });
+      });
+      for (const frame of middle) {
+        assert.equal(frame.hidden, false);
+        assert.ok(frame.opacity > 0 && frame.opacity < 1, JSON.stringify(frame));
+        assert.notEqual(frame.transform, 'none');
+      }
+      await page.evaluate(() => {
+        const ids = ['chapter-3', 'chapter-4', 'chapter-reef-scene', 'chapter-surf-scene', 'chapter-surf-bridge'];
+        for (const animation of document.getAnimations().filter(a => ids.includes(a.effect?.target.id))) animation.finish();
+      });
+      await finishTransition();
+      assert.equal(await page.locator('#chapter-surf-bridge').isVisible(), false);
+      assert.equal(await page.locator('.chapter-page:visible').count(), 1);
+      assert.equal(await page.locator('#chapter-3').evaluate(el => el.inert), false);
+      assert.equal(await page.locator('#chapter-4').evaluate(el => el.inert), false);
+    };
+    await surfCrossing('next');
+    assert.equal(await page.locator('.chapter-page:visible h1').innerText(), '踏浪而寻');
+    assert.equal(await page.locator('#chapter-4 .surf-emblem-art').count(), 1);
+    assert.equal(await page.locator('#chapter-surf-scene').isVisible(), true);
+    assert.equal(await page.locator('#chapter-reef-scene').isVisible(), false);
+    assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), '四');
+    assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(), 2);
+    assert.equal(await page.locator('#chapter-4 .is-minigame').count(), 2);
+    assert.equal(await page.evaluate(() => BeachLevels.length), 32);
+    for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
+      await page.setViewportSize(viewport);
+      assert.equal(await page.evaluate(() => {
+        const scene = document.getElementById('chapter-surf-scene');
+        const art = scene.firstElementChild.getBoundingClientRect(), app = document.getElementById('app').getBoundingClientRect();
+        const pager = document.querySelector('.chapter-pagination').getBoundingClientRect();
+        const next = document.getElementById('chapter-next'), button = next.getBoundingClientRect();
+        return art.top <= app.top + 1 && art.bottom >= app.bottom - 1 && art.left <= app.left + 1 && art.right >= app.right - 1
+          && pager.bottom <= app.bottom && getComputedStyle(scene).pointerEvents === 'none' && document.documentElement.scrollWidth <= innerWidth
+          && next.contains(document.elementFromPoint(button.x + button.width / 2, button.y + button.height / 2));
+      }), true, JSON.stringify(viewport));
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    await surfCrossing('previous');
+    assert.equal(await page.locator('#chapter-reef-scene').isVisible(), true);
+    assert.equal(await page.locator('#chapter-surf-scene').isVisible(), false);
+    await turn('next'); await turn('next');
+    assert.equal(await page.locator('.chapter-page:visible h1').innerText(), '第五大关');
+    assert.equal(await page.locator('#chapter-surf-scene').isVisible(), false);
+    await turn('previous');
+    assert.equal(await page.locator('#chapter-surf-scene').isVisible(), true);
+    // Leaving either direction mid-transition must clear the decorative wash and locks.
+    for (const direction of ['previous', 'next']) {
+      if (direction === 'next') await turn('previous');
+      await page.locator('#chapter-' + direction).click();
+      await page.locator('#level-screen [data-menu]').click();
+      assert.equal(await page.locator('#chapter-surf-bridge').isVisible(), false);
+      assert.equal(await page.locator('#chapter-pages').getAttribute('aria-busy'), null);
+      assert.equal(await page.locator('.chapter-page[inert]').count(), 0);
+      await page.locator('#select-level-button').click();
+      assert.equal(await page.locator('.chapter-page:visible').count(), 1);
+      assert.equal(await page.locator('#chapter-surf-scene').isVisible(), false);
+      await turn('next'); await turn('next');
+      if (direction === 'previous') await turn('next');
+    }
+    // Start at reef, check accessible motion settings, then restore the original test flow.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.locator('#chapter-next').click();
+    assert.equal(await page.locator('#chapter-pages').getAttribute('aria-busy'), null);
+    assert.equal(await page.locator('#chapter-surf-scene').isVisible(), true);
+    assert.equal(await page.locator('#chapter-surf-bridge').isVisible(), false);
+    assert.equal(await page.locator('#chapter-surf-scene .surf-wash').evaluate(el => getComputedStyle(el).animationName), 'none');
+    await page.locator('#chapter-previous').click();
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
     await turn('previous'); assert.equal(await page.locator('#chapter-night-scene').isVisible(), true);
     assert.equal(await page.locator('#chapter-reef-scene').isVisible(), false);
     // Interrupt the second-to-third transition and confirm a clean menu/re-entry.
@@ -79,6 +164,6 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#play-reef-scene').isVisible(), false);
     assert.equal(await page.locator('.seagrass-cover').count(), 0);
     assert.deepEqual(errors, []); assert.deepEqual(requests, []);
-    console.log('PASS: reef art and emblem, five viewport layouts, bidirectional night/reef fade and slide, transition locks/cancellation/reduced motion, the ten remade reef levels are available, no grass UI leaks into chapter two. No images captured.');
+    console.log('PASS: reef and surf scenery/emblems, five viewport layouts, bidirectional night/reef/surf transitions and wave bridge, input locks/cancellation/reduced motion, chapter-four/five boundary, 32 levels with surf-one/two opened, no chapter-two UI leaks. No images captured.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

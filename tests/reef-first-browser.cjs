@@ -1,10 +1,10 @@
 // Functional checks only; no screenshots, previews or archives.
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = []; page.on('pageerror', error => errors.push(error.message));
@@ -19,7 +19,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#select-level-button').click();
     await page.locator('#chapter-next').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-21').isEnabled(), true);
-    assert.equal(await page.locator('#level-31').isDisabled(), true);
+    assert.equal(await page.locator('#level-33').isDisabled(), true);
     await page.locator('#level-21').click();
     assert.equal(await page.locator('#play-chapter').innerText(), '礁间寻宝');
     assert.equal(await page.locator('#play-number').innerText(), '01');
@@ -86,7 +86,7 @@ const { pathToFileURL } = require('node:url');
     await action('我知道了'); await page.locator('#pause-button').click();
     await action('返回选关');
     assert.equal(await page.locator('#level-22').isEnabled(), true);
-    assert.equal(await page.locator('#level-31').isDisabled(), true);
+    assert.equal(await page.locator('#level-33').isDisabled(), true);
     await page.locator('#level-22').click();
     assert.deepEqual((await state()).seagrass.flatMap((card, i) => card.grass ? [i] : []), secondGrass);
     assert.deepEqual(await page.locator('.tile .seaside-item').evaluateAll(icons => icons.map(icon => Number(icon.dataset.kind))), secondDeck);

@@ -1,10 +1,10 @@
 // Browser functionality only. No screenshots, previews or packages.
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = []; page.on('pageerror', error => errors.push(error.message));
@@ -18,7 +18,7 @@ const { pathToFileURL } = require('node:url');
     const condition = (container, id) => page.locator(`#${container} [data-condition="${id}"]`);
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-19').isEnabled(), true);
-    assert.equal(await page.locator('#level-31').isDisabled(), true);
+    assert.equal(await page.locator('#level-33').isDisabled(), true);
     await page.locator('#level-19').click();
     assert.equal((await state()).levelId, 19);
     assert.equal(await page.locator('#play-number').innerText(), '09');

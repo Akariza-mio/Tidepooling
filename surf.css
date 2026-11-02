@@ -1,0 +1,53 @@
+/* Windy bay: decorative surf stays below the selector and never blocks input. */
+.chapter-surf-scene, .chapter-surf-bridge { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.chapter-surf-scene { background: #e6e9d7; }
+.surf-scene-art, .surf-emblem-art, .surf-bridge-art { display: block; width: 100%; height: 100%; pointer-events: none; }
+.level-screen.is-surf-chapter { background: #e6e9d7; }
+#chapter-4 .chapter-heading h1 { color: #376e78; text-shadow: 0 2px 0 #fff7dcb3; }
+#chapter-4 .chapter-heading .eyebrow, #chapter-4 .chapter-progress { color: #607e7c; }
+#chapter-4 .chapter-note, .is-surf-chapter .chapter-help { color: #637e77; }
+.is-surf-chapter > .screen-header { color: #456e72; }
+.is-surf-chapter .chapter-indicator[aria-current="page"] { background: #5f8e96; box-shadow: 0 2px 0 #44747e; }
+#chapter-4 .chapter-level:not(.is-minigame):disabled { background: #edf0e2; border-color: #fcf8e7; box-shadow: 0 3px 0 #a4b8ac47, inset 0 0 0 3px #dbe5d34d; color: #718582; }
+#chapter-4 .chapter-level:not(.is-minigame):disabled .chapter-level-number, #chapter-4 .chapter-level:not(.is-minigame):disabled .chapter-level-status { color: #7b928b; }
+.surf-clouds { animation: bay-cloud-drift 18s ease-in-out infinite alternate; }
+.surf-swell-far { animation: bay-swell-far 6s ease-in-out infinite alternate; }
+.surf-swell-near { animation: bay-swell-near 4.8s ease-in-out -2s infinite alternate; }
+.surf-wash { animation: bay-shore-wash 6.4s ease-in-out -1.8s infinite; }
+.surf-spray { animation: bay-spray 4.8s ease-in-out -2s infinite; }
+.surf-wind { animation: bay-wind 7s ease-in-out infinite alternate; }
+@keyframes bay-cloud-drift { from { transform: translateX(-9px); } to { transform: translateX(16px); } }
+@keyframes bay-swell-far { from { transform: translate(-7px, -3px); } to { transform: translate(8px, 4px); } }
+@keyframes bay-swell-near { from { transform: translate(8px, -4px); } to { transform: translate(-8px, 5px); } }
+@keyframes bay-shore-wash { 0%, 100% { transform: translate(9px, 10px); opacity: .55; } 48% { transform: translate(-5px, -9px); opacity: .9; } }
+@keyframes bay-spray { 0%, 100% { opacity: .3; transform: translate(0, 2px); } 50% { opacity: .8; transform: translate(-4px, -3px); } }
+@keyframes bay-wind { from { transform: translateX(7px); opacity: .45; } to { transform: translateX(-8px); opacity: .8; } }
+/* Hidden chapters and the menu do not spend time animating the bay. */
+#level-screen[hidden] .chapter-surf-scene *, #play-screen[hidden] .chapter-surf-scene *, .chapter-surf-scene[hidden] *, .is-surf-paused .chapter-surf-scene * { animation-play-state: paused; }
+.play-screen.is-surf-play { isolation: isolate; background: #e6e9d7; }
+.is-surf-play .board { position: relative; grid-template-rows: repeat(var(--board-rows), minmax(0, 1fr)); border-color: #a0b5a255; background: #91b0a222; }
+.board-surf { position: absolute; inset: -3px; z-index: 7; pointer-events: none; }
+.surf-warning, .surf-band { position: absolute; inset: 0; }
+.surf-warning { border: 2px dashed #bd804c; border-radius: 10px; background: #fbe8ac24; box-shadow: 0 0 0 2px #fff2c185; animation: surf-warning-pulse .9s ease-in-out infinite; }
+.surf-warning span { position: absolute; left: 2px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 17px; height: 19px; border: 1px solid #f8efc9; border-radius: 6px; background: #b88050; color: #fff7df; font: 700 14px Georgia, serif; box-shadow: 0 1px 3px #806c3c33; }
+.surf-warning span + span { left: auto; right: 2px; }
+.is-column .surf-warning span { left: 50%; top: 2px; transform: translateX(-50%); }
+.is-column .surf-warning span + span { right: auto; top: auto; bottom: 2px; }
+.surf-visual { display: none; position: absolute; inset: 0 -80px; overflow: hidden; pointer-events: none; }
+.is-column .surf-visual { inset: -80px 0; }
+.surf-band { filter: drop-shadow(0 2px 2px #659a9c26); }
+.surf-band-art { display: block; width: 100%; height: 100%; }
+.surf-band-flow { animation: surf-band-current 2.4s linear infinite; }
+.board-surf:not([data-phase="warning"]) .surf-warning { display: none; }
+.board-surf:is([data-phase="arriving"], [data-phase="washing"], [data-phase="retreating"]) .surf-visual { display: block; }
+.is-surf-covered .shell-face, .is-surf-covered .sand-particle { visibility: hidden; }
+/* Identical wet sand masks every state during entry, the full five-second wash and exit. */
+.is-surf-covered .sand-cover { visibility: visible; opacity: 1; transform: none; transition: none; animation: none; background: #b7d5cd; border-color: #cbe1d2; box-shadow: inset 0 1px 3px #7daaa333; }
+.is-surf-covered .sand-cover::before, .is-surf-covered .sand-cover::after { opacity: .15; }
+.is-surf-covered { cursor: default; }
+.is-surf-paused .board-surf * { animation-play-state: paused; }
+@keyframes surf-warning-pulse { 0%, 100% { opacity: 1; } 45%, 60% { opacity: .12; } }
+@keyframes surf-band-current { from { transform: translateX(0); } to { transform: translateX(-200px); } }
+@media (prefers-reduced-motion: reduce) {
+  .chapter-surf-scene *, .surf-warning, .surf-band-flow { animation: none; }
+}

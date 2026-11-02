@@ -1,11 +1,11 @@
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
   const errors = [];
   const requests = [];
@@ -13,9 +13,9 @@ const { pathToFileURL } = require('node:url');
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', request => { if (/^https?:/.test(request.url())) requests.push(request.url()); });
   const capture = path.resolve(__dirname, '../preview');
-  fs.mkdirSync(capture, { recursive: true });
+  if (process.env.BEACH_CAPTURE_PREVIEWS === '1') fs.mkdirSync(capture, { recursive: true });
   async function screenshot(name) {
-    await page.screenshot({ path: path.join(capture, name), animations: 'disabled' });
+    if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.join(capture, name), animations: 'disabled' });
   }
   const url = pathToFileURL(path.resolve(process.env.BEACH_GAME_DIR || path.resolve(__dirname, '..'), 'index.html')).href;
   await page.goto(url);

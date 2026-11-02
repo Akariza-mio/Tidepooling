@@ -588,6 +588,42 @@
         3, 4, 0, 1, 5, 3,
         4, 4, 2, 0, 1, 5
       ])
+    }),
+    Object.freeze({
+      id: 31,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      intro: 'surf',
+      surf: Object.freeze({ interval: 20000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 3000, axes: Object.freeze(['row', 'column']) }),
+      layout: Object.freeze([
+        4, 2, 0, 5, 1, 0,
+        1, 5, 2, 0, 4, 2,
+        0, 1, 4, 2, 5, 1,
+        2, 4, 1, 0, 2, 5,
+        5, 0, 2, 1, 4, 0,
+        1, 2, 5, 4, 0, 1
+      ])
+    }),
+    Object.freeze({
+      id: 32,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      surf: Object.freeze({ interval: 20000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 3000, axes: Object.freeze(['row', 'column']) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'three-pairs-in-five-seconds', type: 'timedPairs', checkAt: 'continuous', count: 3, window: 5000, label: '在5秒内完成3次配对' })
+      ]),
+      layout: Object.freeze([
+        2, 3, 0, 4, 5, 2,
+        2, 4, 2, 4, 3, 2,
+        0, 2, 1, 0, 5, 5,
+        5, 5, 0, 0, 3, 1,
+        4, 4, 3, 1, 5, 0,
+        1, 3, 1, 3, 1, 4
+      ])
     })
   ]);
   if (typeof module !== 'undefined' && module.exports) module.exports = levels;

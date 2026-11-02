@@ -1,10 +1,10 @@
 // Functional and DOM-layout checks only. No screenshots, previews or archives.
-const {chromium}=require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const {chromium}=require('./browser-support.cjs');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {pathToFileURL}=require('node:url');
 (async()=>{
-  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+  const browser=await chromium.launch({headless:true});
   try {
     const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[],requests=[];
     page.on('pageerror',error=>errors.push(error.message));
@@ -68,7 +68,7 @@ const {pathToFileURL}=require('node:url');
     await action('下一关');assert.equal((await state()).levelId,26);
     assert.equal(await page.locator('#modal-conditions').innerText(),'总翻动次数不能超过15次');
     await action('我知道了');await page.locator('#pause-button').click();
-    await action('返回选关');assert.equal(await page.locator('#level-25').isEnabled(),true);assert.equal(await page.locator('#level-31').isDisabled(),true);
+    await action('返回选关');assert.equal(await page.locator('#level-25').isEnabled(),true);assert.equal(await page.locator('#level-33').isDisabled(),true);
     await page.locator('#level-25').click();await action('我知道了');await page.clock.fastForward(60001);await page.clock.runFor(700);
     assert.equal((await state()).failureReason,'timeout');assert.equal(await page.locator('#modal-heading').innerText(),'潮水先到了一步');
     await action('重新挑战');assert.deepEqual((await state()).grassPuzzle.grass,initial);await action('我知道了');

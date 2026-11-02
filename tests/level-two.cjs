@@ -1,10 +1,10 @@
-const { chromium } = require('C:/Users/29781/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('./browser-support.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+  const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const errors = [], requests = [];
@@ -48,7 +48,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal((await state()).pairs, 0);
     await page.clock.runFor(1000);
     assert.ok((await state()).elapsed >= 1000);
-    await page.screenshot({ path: path.resolve(__dirname, '../preview/34-level-two.png'), animations: 'disabled' });
+    if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.resolve(__dirname, '../preview/34-level-two.png'), animations: 'disabled' });
     await page.locator('.tile').nth(0).click();
     await page.locator('.tile').nth(1).click();
     assert.equal(await page.locator('.tile[data-status="open"]').count(), 2);
@@ -80,7 +80,7 @@ const { pathToFileURL } = require('node:url');
         return board.top >= header.bottom && board.bottom <= footer.top && footer.bottom <= app.bottom + 1 && board.left >= app.left && board.right <= app.right && document.documentElement.scrollWidth <= innerWidth;
       });
       assert.equal(contained, true, JSON.stringify(viewport));
-      await page.screenshot({ path: path.resolve(__dirname, `../preview/35-level-two-${viewport.width}x${viewport.height}.png`), animations: 'disabled' });
+      if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.resolve(__dirname, `../preview/35-level-two-${viewport.width}x${viewport.height}.png`), animations: 'disabled' });
     }
     await page.setViewportSize({ width: 390, height: 844 });
     await collectAll();
