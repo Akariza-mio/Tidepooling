@@ -30,6 +30,27 @@
     const id = 's' + index + '-' + suffix;
     return `<svg class="shell-art seaside-item" data-kind="${index}" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="${light}"/><stop offset=".55" stop-color="${base}"/><stop offset="1" stop-color="${dark}"/></linearGradient></defs><g fill="url(#${id})" stroke="${dark}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${shapes[index]}</g><style>.seaside-item .ribs{fill:none;stroke-width:2.3;opacity:.65}.seaside-item .highlight{fill:none;stroke:#fff9ee;stroke-width:2.8;opacity:.65}.seaside-item .eyes{fill:#4d5d58;stroke:none}.seaside-item .smile{fill:none;stroke:#647365;stroke-width:1.8}.seaside-item .blush{fill:#e8a1a0;stroke:none;opacity:.55}</style></svg>`;
   }
+  function harvestEmblem(suffix = '') {
+    const id = 'harvest-emblem-' + suffix;
+    const find = (kind, x, y, size) => item(kind, `${id}-${kind}`)
+      .replace('class="shell-art seaside-item"', 'class="seaside-item"')
+      .replace('<svg ', `<svg x="${x}" y="${y}" width="${size}" height="${size}" `);
+    return `<svg class="harvest-emblem-art" viewBox="0 0 140 140" aria-hidden="true" focusable="false">
+      <defs><linearGradient id="${id}-body" x2=".9" y2="1"><stop stop-color="#e6edd3"/><stop offset=".55" stop-color="#b7d1b9"/><stop offset="1" stop-color="#8fb5a3"/></linearGradient></defs>
+      <ellipse cx="70" cy="126" rx="45" ry="7" fill="#ae9b6d" opacity=".18"/>
+      <path d="M31 63V40C31 7 109 7 109 40v23" fill="none" stroke="#819f8b" stroke-width="5" stroke-linecap="round"/>
+      <path d="M31 57V40C31 10 109 10 109 40v17" fill="none" stroke="#fff4d8" stroke-width="2"/>
+      <path d="m24 60 11 58q35 17 70 0l11-58Z" fill="url(#${id}-body)" stroke="#719a88" stroke-width="2" stroke-linejoin="round"/>
+      <ellipse cx="70" cy="60" rx="46" ry="12" fill="#739e8a"/>
+      <ellipse cx="70" cy="59" rx="39" ry="8" fill="#4f7f72"/>
+      ${find(0, 23, 32, 50)}${find(3, 81, 34, 39)}${find(1, 53, 23, 55)}${find(4, 44, 46, 40)}
+      <path d="M27 68q43 19 86 0l-8 50q-35 17-70 0Z" fill="url(#${id}-body)" stroke="#719a88" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M25 61q45 21 90 0" fill="none" stroke="#f4f0d4" stroke-width="4" stroke-linecap="round"/>
+      <path d="m35 78 6 31" stroke="#fff8df" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+      <path d="M42 118q28 10 56 0" fill="none" stroke="#e8edd1" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="m67 87 3-5 3 5 6 1-4 4 1 6-6-3-6 3 1-6-4-4Z" fill="#e6cf92" stroke="#bcaa77" stroke-width="1.2" stroke-linejoin="round"/>
+    </svg>`;
+  }
   function washedBucket() {
     return `<svg class="washed-bucket-art" viewBox="0 0 140 140" aria-hidden="true" focusable="false"><defs><linearGradient id="washed-bucket-fill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e1ead0"/><stop offset="1" stop-color="#a2c3b2"/></linearGradient></defs><ellipse cx="72" cy="119" rx="52" ry="9" fill="#a6c9bd" opacity=".24"/><path d="M8 111q13-9 27 0t27 0 27 0 27 0" fill="none" stroke="#a8d0c5" stroke-width="6" stroke-linecap="round" opacity=".6"/><g transform="rotate(-28 68 76)" stroke-linecap="round" stroke-linejoin="round"><path d="M39 43V32c0-28 59-28 59 0v11" fill="none" stroke="#94ae98" stroke-width="4"/><path d="M39 43V32c0-28 59-28 59 0" fill="none" stroke="#f6efd8" stroke-width="1.5"/><path d="m29 43 9 63q29 14 58 0l10-63Z" fill="url(#washed-bucket-fill)" stroke="#82a692" stroke-width="1.8"/><ellipse cx="68" cy="43" rx="39" ry="9" fill="#93b6a0" stroke="#82a692" stroke-width="1.8"/><ellipse cx="68" cy="43" rx="32" ry="5.5" fill="#dce6c8"/><path d="m36 55 6 40" stroke="#fff8df" stroke-width="3" opacity=".65"/><g fill="#7c9d8b"><circle cx="57" cy="76" r="2"/><circle cx="80" cy="76" r="2"/></g><path d="M62 88q6-5 12 0" fill="none" stroke="#7c9d8b" stroke-width="1.7"/><path d="M42 108q26 9 51 0" fill="none" stroke="#e6edd1" stroke-width="2"/></g><path d="M16 122q13-9 26-2t26-1 28 0 26-2" fill="none" stroke="#f5f7df" stroke-width="4" stroke-linecap="round"/><path d="M15 92q-7-9-9-3t9 3m99-3q10-9 11-3t-11 3" fill="#bad8ca"/><path d="m113 69 3-6m-8 2 1-5" stroke="#c4b18c" stroke-width="2" stroke-linecap="round"/></svg>`;
   }
@@ -67,5 +88,5 @@
     };
     return `<svg class="journey-symbol" viewBox="0 0 100 100" aria-hidden="true" focusable="false">${drawings[type] || drawings.footprints}</svg>`;
   }
-  root.BeachArt = { item, names, washedBucket, conditionFailure, noticeBoard, sandMatrices, moon, fog, fogField, journeySymbol };
+  root.BeachArt = { item, names, harvestEmblem, washedBucket, conditionFailure, noticeBoard, sandMatrices, moon, fog, fogField, journeySymbol };
 })(globalThis);

@@ -26,7 +26,7 @@ test('the swapped first reef level uses only its eight marked cells and a fixed 
 });
 
 test('the swapped second reef level has the exact twelve red-circle cells and an independent fixed deck', () => {
-  assert.equal(levels.length, 34); assert.equal(levels.some(level => level.id >= 35), false);
+  assert.equal(levels.length, 40); assert.equal(levels.some(level => level.id >= 41), false);
   const level = levels.find(level => level.id === 22), game = new Game({ level }); game.start(0);
   assert.equal(level.rows, 6); assert.equal(level.columns, 6); assert.equal(game.duration, 60000);
   assert.equal(game.totalPairs, 18); assert.equal(level.intro, undefined);

@@ -15,7 +15,7 @@ function finish(game, now) {
   }
 }
 test('surf three has six balanced kinds on an independent fixed 6x6 board, sixty seconds and only a twenty-mistake condition', () => {
-  const game = create(); assert.equal(levels.length, 34); assert.equal(levels.some(item => item.id >= 35), false);
+  const game = create(); assert.equal(levels.length, 40); assert.equal(levels.some(item => item.id >= 41), false);
   assert.equal(level.rows, 6); assert.equal(level.columns, 6); assert.equal(game.duration, 60000); assert.equal(game.totalPairs, 18);
   assert.deepEqual([0,1,2,3,4,5].map(kind => level.layout.filter(value => value === kind).length), [6,6,6,6,6,6]);
   assert.notDeepEqual(level.layout, levels.find(item => item.id === 32).layout);

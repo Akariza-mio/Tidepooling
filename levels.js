@@ -660,6 +660,117 @@
         4, 3, 1, 2, 5, 0,
         4, 5, 2, 1, 4, 3
       ])
+    }),
+    Object.freeze({
+      id: 35,
+      type: 'bucketSort',
+      intro: 'bucketSort',
+      rows: 2,
+      columns: 3,
+      duration: 60000,
+      pairBonus: 0,
+      capacity: 4,
+      buckets: Object.freeze([
+        Object.freeze([0, 1, 2, 4]), Object.freeze([1, 2, 4, 0]),
+        Object.freeze([2, 4, 0, 1]), Object.freeze([4, 0, 1, 2]),
+        Object.freeze([]), Object.freeze([])
+      ]),
+      layout: Object.freeze([0, 1, 2, 4, 1, 2, 4, 0, 2, 4, 0, 1, 4, 0, 1, 2])
+    }),
+    Object.freeze({
+      id: 36,
+      type: 'bucketSort',
+      rows: 2,
+      columns: 4,
+      duration: 60000,
+      pairBonus: 0,
+      capacity: 4,
+      buckets: Object.freeze([
+        Object.freeze([0, 4, 1, 5]), Object.freeze([4, 1, 5, 2]),
+        Object.freeze([1, 5, 2, 3]), Object.freeze([5, 2, 3, 0]),
+        Object.freeze([2, 3, 0, 4]), Object.freeze([3, 0, 4, 1]),
+        Object.freeze([]), Object.freeze([])
+      ]),
+      layout: Object.freeze([0, 4, 1, 5, 4, 1, 5, 2, 1, 5, 2, 3, 5, 2, 3, 0, 2, 3, 0, 4, 3, 0, 4, 1])
+    }),
+    Object.freeze({
+      id: 37,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      surf: Object.freeze({ interval: 15000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 6000, targetCount: 2, axes: Object.freeze(['row', 'column']) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'antepenultimate-octopus', type: 'pairKindFromEnd', checkAt: 'continuous', fromEnd: 3, kind: 3, label: '倒数第三对配对必须是八爪鱼',
+          itemRefs: Object.freeze([Object.freeze({ text: '八爪鱼', kind: 3 })]) }),
+        Object.freeze({ id: 'penultimate-conch', type: 'pairKindFromEnd', checkAt: 'continuous', fromEnd: 2, kind: 4, label: '倒数第二对配对必须是海螺',
+          itemRefs: Object.freeze([Object.freeze({ text: '海螺', kind: 4 })]) })
+      ]),
+      layout: Object.freeze([
+        4, 3, 1, 2, 2, 4,
+        5, 4, 5, 2, 4, 0,
+        2, 1, 2, 3, 5, 0,
+        1, 4, 5, 1, 0, 5,
+        2, 0, 5, 1, 3, 0,
+        3, 3, 3, 1, 4, 0
+      ])
+    }),
+    Object.freeze({
+      id: 38,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      surf: Object.freeze({ interval: 15000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 6000, targetCount: 2, axes: Object.freeze(['row', 'column']) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'two-pairs-in-two-seconds', type: 'timedPairs', checkAt: 'continuous', count: 2, window: 2000, label: '在2秒内完成2次配对' })
+      ]),
+      layout: Object.freeze([
+        0, 2, 3, 1, 2, 4,
+        4, 5, 5, 0, 0, 0,
+        2, 3, 2, 5, 4, 5,
+        4, 4, 2, 1, 0, 3,
+        5, 4, 5, 3, 3, 3,
+        2, 1, 0, 1, 1, 1
+      ])
+    }),
+    Object.freeze({
+      id: 39,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      surf: Object.freeze({ interval: 15000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 6000, targetCount: 2, axes: Object.freeze(['row', 'column']) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'mismatch-limit', type: 'maxMismatches', checkAt: 'continuous', limit: 20, label: '配对失败的次数不能超过20次' })
+      ]),
+      layout: Object.freeze([
+        1, 3, 2, 0, 3, 1,
+        1, 5, 4, 3, 5, 5,
+        0, 0, 5, 1, 4, 2,
+        5, 4, 4, 3, 3, 1,
+        4, 2, 0, 0, 4, 0,
+        1, 2, 2, 5, 3, 2
+      ])
+    }),
+    Object.freeze({
+      id: 40,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      surf: Object.freeze({ interval: 15000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 5000, targetCount: 3, axes: Object.freeze(['row', 'column']) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'mismatch-tide-rise', type: 'mismatchTideRise', checkAt: 'complete', penalty: 3000, label: '配对失败会导致潮水上涨' })
+      ]),
+      layout: Object.freeze([
+        1, 5, 1, 2, 2, 0,
+        3, 5, 2, 1, 4, 2,
+        0, 5, 0, 1, 3, 5,
+        4, 3, 1, 2, 2, 0,
+        4, 3, 3, 0, 4, 3,
+        4, 5, 1, 5, 0, 4
+      ])
     })
   ]);
   if (typeof module !== 'undefined' && module.exports) module.exports = levels;

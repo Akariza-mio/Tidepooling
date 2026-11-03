@@ -51,3 +51,11 @@
 @media (prefers-reduced-motion: reduce) {
   .chapter-surf-scene *, .surf-warning, .surf-band-flow { animation: none; }
 }
+
+/* Leave room for level conditions and the harvest bucket on short screens. */
+.has-surf-conditions .board-wrap { flex: 1; min-height: 0; width: 100%; margin: 8px 0 30px; display: flex; align-items: center; justify-content: center; container-type: size; }
+.has-surf-conditions .board { flex: none; width: min(100cqw, 100cqh); }
+.has-surf-conditions .board-caption { top: calc(50% + min(50cqw, 50cqh) + 8px); }
+@media (orientation: landscape) and (max-height: 580px) {
+  .has-surf-conditions .board-wrap { margin: 3px 0; }
+}

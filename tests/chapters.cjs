@@ -27,7 +27,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('.chapter-page:visible').count(), 1);
     assert.equal(await page.locator('#level-one').isDisabled(), true);
     assert.equal(await page.locator('#chapter-previous').isDisabled(), true);
-    const names = ['初入浅滩', '月下独捉', '礁间寻宝', '踏浪而寻', '第五大关'];
+    const names = ['初入浅滩', '月下独捉', '礁间寻宝', '踏浪而寻', '挑战EX'];
     for (let index = 0; index < 5; index++) {
       const chapter = page.locator('.chapter-page:visible');
       assert.equal(await chapter.locator('h1').innerText(), names[index]);

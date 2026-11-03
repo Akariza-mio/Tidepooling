@@ -152,12 +152,12 @@
 .chapter-level.is-unlocked { color: #47776b; background: #eef4e4; border-color: #e4f0d6; box-shadow: 0 3px 0 #becfb6; }
 .chapter-level.is-unlocked .chapter-level-number, .chapter-level.is-unlocked .chapter-level-status { color: #71967b; }
 .chapter-level.is-unlocked:hover { background: #f6faec; }
-/* Reserve coral-red cards for the fifth and sixth slots in every chapter. */
-.chapter-level.is-minigame { color: #aa8379; background: #f1e0d8; border-color: #fff1e7; box-shadow: 0 3px 0 #cfafa147, inset 0 0 0 3px #ead0c34d; }
-.chapter-level.is-minigame .chapter-level-number, .chapter-level.is-minigame .chapter-level-status { color: #af8579; }
-.chapter-level.is-minigame:not(:disabled) { color: #a3645c; background: #f8ded5; border-color: #ffede3; box-shadow: 0 3px 0 #d5a99c, inset 0 0 0 3px #f3cfc1; }
-.chapter-level.is-minigame:not(:disabled) .chapter-level-number, .chapter-level.is-minigame:not(:disabled) .chapter-level-status { color: #b97769; }
-.chapter-level.is-minigame:not(:disabled):hover { background: #ffe9df; }
+/* Coral-red cards mark minigames and every challenge in the EX chapter. */
+.chapter-level.is-minigame, #chapter-5 .chapter-level { color: #aa8379; background: #f1e0d8; border-color: #fff1e7; box-shadow: 0 3px 0 #cfafa147, inset 0 0 0 3px #ead0c34d; }
+.chapter-level.is-minigame .chapter-level-number, .chapter-level.is-minigame .chapter-level-status, #chapter-5 .chapter-level-number, #chapter-5 .chapter-level-status { color: #af8579; }
+.chapter-level.is-minigame:not(:disabled), #chapter-5 .chapter-level:not(:disabled) { color: #a3645c; background: #f8ded5; border-color: #ffede3; box-shadow: 0 3px 0 #d5a99c, inset 0 0 0 3px #f3cfc1; }
+.chapter-level.is-minigame:not(:disabled) .chapter-level-number, .chapter-level.is-minigame:not(:disabled) .chapter-level-status, #chapter-5 .chapter-level:not(:disabled) .chapter-level-number, #chapter-5 .chapter-level:not(:disabled) .chapter-level-status { color: #b97769; }
+.chapter-level.is-minigame:not(:disabled):hover, #chapter-5 .chapter-level:not(:disabled):hover { background: #ffe9df; }
 .chapter-note { text-align: center; color: #969680; font-size: 10px; line-height: 1.9; margin: 21px 0 0; }
 .chapter-pagination { display: flex; align-items: center; justify-content: space-between; width: min(100%, 370px); margin: 0 auto; gap: 17px; flex-shrink: 0; padding: 5px 0; }
 .chapter-pagination .icon-button { background: #fff8e9b0; border-color: #e3d4b9; }
@@ -225,3 +225,6 @@
   .chapter-indicator { width: 23px; height: 28px; font-size: 10px; }
   .chapter-note { margin-top: 11px; }
 }
+
+/* The EX shore reuses the first chapter's daylight; its emblem is a full harvest. */
+.harvest-emblem-art { display: block; width: 100%; height: 100%; pointer-events: none; }

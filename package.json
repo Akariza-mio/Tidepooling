@@ -11,7 +11,13 @@
     "test:browser": "node tests/reef-ten-browser.cjs",
     "test:surf": "node tests/surf-browser.cjs",
     "test:surf:three": "node tests/surf-three-browser.cjs",
-    "test:surf:four": "node tests/surf-four-browser.cjs"
+    "test:surf:four": "node tests/surf-four-browser.cjs",
+    "test:sort": "node tests/bucket-sort-browser.cjs",
+    "test:surf:seven": "node tests/surf-seven-browser.cjs",
+    "test:surf:eight": "node tests/surf-eight-browser.cjs",
+    "test:surf:nine": "node tests/surf-nine-browser.cjs",
+    "test:surf:ten": "node tests/surf-ten-browser.cjs",
+    "test:ex": "node tests/ex-chapter-browser.cjs"
   },
   "devDependencies": { "playwright": "1.62.1" }
 }
