@@ -24,7 +24,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-12').isEnabled(), true);
     assert.equal(await page.locator('#level-13').isEnabled(), true);
-    assert.equal(await page.locator('#level-33').isDisabled(), true);
+    assert.equal(await page.locator('#level-35').isDisabled(), true);
     await page.locator('#level-12').click();
     assert.equal((await state()).levelId, 12);
     assert.equal((await state()).duration, 60000);

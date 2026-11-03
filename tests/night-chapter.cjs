@@ -103,7 +103,7 @@ const { pathToFileURL } = require('node:url');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#chapter-2 .chapter-level:enabled').count(), 10);
-    assert.equal(await page.locator('#level-33').isDisabled(), true, 'Unfinished night levels remain locked.');
+    assert.equal(await page.locator('#level-35').isDisabled(), true, 'Unfinished night levels remain locked.');
     assert.equal(await page.locator('#chapter-pages').evaluate(stage => stage.classList.contains('is-sliding')), false);
     assert.equal(await page.locator('.night-fog span').first().evaluate(span => getComputedStyle(span).animationName), 'none');
     assert.deepEqual(errors, []);

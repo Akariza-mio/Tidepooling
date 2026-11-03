@@ -21,7 +21,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#select-level-button').click();
     await page.locator('#chapter-next').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-23').isEnabled(),true);
-    assert.equal(await page.locator('#level-33').isDisabled(),true);
+    assert.equal(await page.locator('#level-35').isDisabled(),true);
     await page.locator('#level-23').click();
     assert.equal(await page.locator('#play-number').innerText(),'03');
     assert.equal(await page.locator('#modal-art .notice-board-art').count(),1);

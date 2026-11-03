@@ -19,7 +19,7 @@ const { pathToFileURL } = require('node:url');
     const label = '配对失败会导致潮水上涨';
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-17').isEnabled(), true);
-    assert.equal(await page.locator('#level-33').isDisabled(), true);
+    assert.equal(await page.locator('#level-35').isDisabled(), true);
     await page.locator('#level-17').click();
     assert.equal((await state()).levelId, 17);
     assert.equal(await page.locator('#play-number').innerText(), '07');

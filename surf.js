@@ -8,6 +8,7 @@
       this.surfTime = 0;
       this.surfPhase = 'calm';
       this.surfTarget = null;
+      this.surfTargets = [];
       this.nextWaveAt = this.level.surf.interval;
       this.waveStartedAt = null;
       this.waveUntil = null;
@@ -30,9 +31,19 @@
         if (this.state !== 'playing' || this.surfTime < boundary) continue;
         if (this.surfPhase === 'calm') {
           const axes = this.level.surf.axes;
-          const axis = axes[Math.floor(this.random() * axes.length)];
-          const size = axis === 'row' ? this.level.rows : this.level.columns;
-          this.surfTarget = { axis, index: Math.floor(this.random() * size) };
+          if ((this.level.surf.targetCount ?? 1) > 1) {
+            const pool = axes.flatMap(axis => Array.from({ length: axis === 'row' ? this.level.rows : this.level.columns }, (_, index) => ({ axis, index })));
+            this.surfTargets = [];
+            for (let i = 0; i < this.level.surf.targetCount && pool.length; i++) {
+              this.surfTargets.push(pool.splice(Math.floor(this.random() * pool.length), 1)[0]);
+            }
+          } else {
+            // Keep the single-line draw unchanged for the first three levels.
+            const axis = axes[Math.floor(this.random() * axes.length)];
+            const size = axis === 'row' ? this.level.rows : this.level.columns;
+            this.surfTargets = [{ axis, index: Math.floor(this.random() * size) }];
+          }
+          this.surfTarget = this.surfTargets[0];
           this.surfPhase = 'warning';
         } else if (this.surfPhase === 'warning') {
           this.surfPhase = 'arriving';
@@ -54,6 +65,7 @@
         } else {
           this.surfPhase = 'calm';
           this.surfTarget = null;
+          this.surfTargets = [];
           this.waveUntil = null;
           this.waveStartedAt = null;
           this.waveRetreatUntil = null;
@@ -62,8 +74,8 @@
       }
     }
     isWashed(index) {
-      if (!['arriving', 'washing', 'retreating'].includes(this.surfPhase) || !this.surfTarget || !this.cards[index]) return false;
-      return (this.surfTarget.axis === 'row' ? Math.floor(index / this.level.columns) : index % this.level.columns) === this.surfTarget.index;
+      if (!['arriving', 'washing', 'retreating'].includes(this.surfPhase) || !this.cards[index]) return false;
+      return this.surfTargets.some(target => (target.axis === 'row' ? Math.floor(index / this.level.columns) : index % this.level.columns) === target.index);
     }
     select(index, now) {
       this.update(now);

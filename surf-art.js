@@ -56,8 +56,8 @@
       <path d="M187-35c-69 93 44 145-7 241s52 160 4 253 48 168 4 264-16 137 5 161" fill="none" stroke="#f3f1db" stroke-width="3" stroke-dasharray="35 16 8 21" stroke-linecap="round"/>
     </svg>`;
   }
-  function surfBand(axis = 'row') {
-    const id = 'surf-band-' + axis;
+  function surfBand(axis = 'row', suffix = '') {
+    const id = 'surf-band-' + axis + (suffix ? '-' + suffix : '');
     return `<svg class="surf-band-art" viewBox="${axis === 'column' ? '0 0 100 600' : '0 0 600 100'}" preserveAspectRatio="none" aria-hidden="true" focusable="false">
       <defs><linearGradient id="${id}-water" x2="0" y2="1"><stop stop-color="#b8d8d2"/><stop offset=".45" stop-color="#74adb7"/><stop offset="1" stop-color="#9fcac6"/></linearGradient>
       <linearGradient id="${id}-edge"><stop stop-color="white" stop-opacity="0"/><stop offset=".1" stop-color="white"/><stop offset=".9" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient>

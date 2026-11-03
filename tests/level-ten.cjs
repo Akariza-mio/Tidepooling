@@ -132,7 +132,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#unlock-switch').click();
     await page.locator('#settings-screen [data-menu]').click();
     await page.locator('#select-level-button').click();
-    assert.equal(await page.locator('.chapter-level:enabled').count(), 32);
+    assert.equal(await page.locator('.chapter-level:enabled').count(), 34);
     await page.locator('#level-10').click();
     assert.equal((await state()).levelId, 10);
     assert.equal((await state()).totalPairs, 32);

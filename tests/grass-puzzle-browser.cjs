@@ -68,7 +68,7 @@ const {pathToFileURL}=require('node:url');
     await action('下一关');assert.equal((await state()).levelId,26);
     assert.equal(await page.locator('#modal-conditions').innerText(),'总翻动次数不能超过15次');
     await action('我知道了');await page.locator('#pause-button').click();
-    await action('返回选关');assert.equal(await page.locator('#level-25').isEnabled(),true);assert.equal(await page.locator('#level-33').isDisabled(),true);
+    await action('返回选关');assert.equal(await page.locator('#level-25').isEnabled(),true);assert.equal(await page.locator('#level-35').isDisabled(),true);
     await page.locator('#level-25').click();await action('我知道了');await page.clock.fastForward(60001);await page.clock.runFor(700);
     assert.equal((await state()).failureReason,'timeout');assert.equal(await page.locator('#modal-heading').innerText(),'潮水先到了一步');
     await action('重新挑战');assert.deepEqual((await state()).grassPuzzle.grass,initial);await action('我知道了');

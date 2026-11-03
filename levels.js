@@ -624,6 +624,42 @@
         4, 4, 3, 1, 5, 0,
         1, 3, 1, 3, 1, 4
       ])
+    }),
+    Object.freeze({
+      id: 33,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      surf: Object.freeze({ interval: 15000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 3000, axes: Object.freeze(['row', 'column']) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'mismatch-limit', type: 'maxMismatches', checkAt: 'continuous', limit: 20, label: '配对失败的次数不能超过20次' })
+      ]),
+      layout: Object.freeze([
+        5, 0, 3, 3, 1, 1,
+        2, 5, 4, 0, 2, 0,
+        1, 0, 4, 5, 0, 1,
+        1, 2, 2, 3, 4, 3,
+        3, 3, 5, 4, 1, 4,
+        2, 5, 0, 5, 2, 4
+      ])
+    }),
+    Object.freeze({
+      id: 34,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      intro: 'doubleSurf',
+      surf: Object.freeze({ interval: 15000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 6000, targetCount: 2, axes: Object.freeze(['row', 'column']) }),
+      layout: Object.freeze([
+        1, 0, 1, 3, 2, 1,
+        0, 5, 2, 3, 5, 3,
+        1, 4, 5, 2, 0, 0,
+        2, 5, 4, 4, 0, 3,
+        4, 3, 1, 2, 5, 0,
+        4, 5, 2, 1, 4, 3
+      ])
     })
   ]);
   if (typeof module !== 'undefined' && module.exports) module.exports = levels;

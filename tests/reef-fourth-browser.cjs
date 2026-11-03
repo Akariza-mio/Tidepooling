@@ -22,7 +22,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#select-level-button').click();
     await page.locator('#chapter-next').click();await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-24').isEnabled(),true);
-    assert.equal(await page.locator('#level-33').isDisabled(),true);
+    assert.equal(await page.locator('#level-35').isDisabled(),true);
     await page.locator('#level-24').click();
     assert.equal(await page.locator('#play-number').innerText(),'04');
     assert.equal(await page.locator('.tile').count(),36);

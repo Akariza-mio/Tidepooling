@@ -17,7 +17,7 @@ const {pathToFileURL}=require('node:url');
     const initialGrass=[2,3,7,10,13,16,20,21,26,27];
     const grass=async()=>(await state()).seagrass.flatMap((card,i)=>card.grass?[i]:[]);
     await page.locator('#select-level-button').click();await page.locator('#chapter-next').click();await page.locator('#chapter-next').click();
-    assert.equal(await page.locator('#level-27').isEnabled(),true);assert.equal(await page.locator('#level-33').isDisabled(),true);
+    assert.equal(await page.locator('#level-27').isEnabled(),true);assert.equal(await page.locator('#level-35').isDisabled(),true);
     assert.equal(await page.locator('#level-27').evaluate(button=>button.classList.contains('is-minigame')),false);
     await page.locator('#level-27').click();
     assert.equal((await state()).mode,'matching');assert.equal((await state()).rows,6);assert.equal((await state()).columns,6);

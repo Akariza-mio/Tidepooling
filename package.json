@@ -9,7 +9,9 @@
     "test": "node scripts/test.cjs",
     "test:smoke": "node tests/portability-browser.cjs",
     "test:browser": "node tests/reef-ten-browser.cjs",
-    "test:surf": "node tests/surf-browser.cjs"
+    "test:surf": "node tests/surf-browser.cjs",
+    "test:surf:three": "node tests/surf-three-browser.cjs",
+    "test:surf:four": "node tests/surf-four-browser.cjs"
   },
   "devDependencies": { "playwright": "1.62.1" }
 }

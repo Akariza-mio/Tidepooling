@@ -26,7 +26,7 @@ const { pathToFileURL } = require('node:url');
     };
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#chapter-2 .chapter-level:enabled').count(), 10);
-    assert.equal(await page.locator('#level-33').isDisabled(), true);
+    assert.equal(await page.locator('#level-35').isDisabled(), true);
     await page.locator('#level-20').click();
     const initial = await state();
     assert.equal(initial.levelId, 20); assert.equal(initial.rows, 6); assert.equal(initial.columns, 6);

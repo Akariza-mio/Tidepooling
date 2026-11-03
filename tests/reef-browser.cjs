@@ -47,7 +47,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#chapter-3 .reef-emblem-art').count(), 1);
     assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), '三');
     assert.equal(await page.locator('#level-21').isEnabled(), true);
-    assert.equal(await page.locator('#level-33').isDisabled(), true);
+    assert.equal(await page.locator('#level-35').isDisabled(), true);
     for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
       await page.setViewportSize(viewport); await page.clock.runFor(60);
       const fits = await page.evaluate(() => {
@@ -98,9 +98,9 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#chapter-surf-scene').isVisible(), true);
     assert.equal(await page.locator('#chapter-reef-scene').isVisible(), false);
     assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), '四');
-    assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(), 2);
+    assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(), 4);
     assert.equal(await page.locator('#chapter-4 .is-minigame').count(), 2);
-    assert.equal(await page.evaluate(() => BeachLevels.length), 32);
+    assert.equal(await page.evaluate(() => BeachLevels.length), 34);
     for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
       await page.setViewportSize(viewport);
       assert.equal(await page.evaluate(() => {
@@ -164,6 +164,6 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#play-reef-scene').isVisible(), false);
     assert.equal(await page.locator('.seagrass-cover').count(), 0);
     assert.deepEqual(errors, []); assert.deepEqual(requests, []);
-    console.log('PASS: reef and surf scenery/emblems, five viewport layouts, bidirectional night/reef/surf transitions and wave bridge, input locks/cancellation/reduced motion, chapter-four/five boundary, 32 levels with surf-one/two opened, no chapter-two UI leaks. No images captured.');
+    console.log('PASS: reef and surf scenery/emblems, five viewport layouts, bidirectional night/reef/surf transitions and wave bridge, input locks/cancellation/reduced motion, chapter-four/five boundary, 34 levels with surf-one/two/three/four opened, no chapter-two UI leaks. No images captured.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

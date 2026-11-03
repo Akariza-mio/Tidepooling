@@ -425,6 +425,10 @@
         description: game.level.noRevisit ? '这次走过的格子将不能重复踏入' : '请在一定时间内寻找并拾起与屏幕上方展示对应的物品\n如若超时，物品会刷新，潮水会大幅上涨\n在游戏开始前，你可以暂时查看五种物品和障碍的位置\n随后雾会弥漫整个海滩，你的能见度会大大下降\n在涨潮前拾起全部物品，即可通关！\n注意：如果不小心拾起了与需求不符的物品，会直接失败！',
         emphasizeLastLine: !game.level.noRevisit,
         actions: [{ text: '我知道了', run: () => { closeModal(false); game.beginPreview(performance.now()); syncGame(); } }] });
+    } else if (game.level.intro === 'doubleSurf') {
+      openModal({ eyebrow: '', heading: '海浪会同时冲刷两处！', art: 'surf',
+        description: '每次来浪会同时冲刷两行、两列，或一行一列。\n留意两处预警，记住收获的位置，等浪退去再继续寻找。',
+        actions: [{ text: '我知道了', run: beginTimedGame }] });
     } else if (game.level.intro === 'surf') {
       openModal({ eyebrow: '', heading: '你来到了风浪更大的海湾！', art: 'surf',
         description: '海浪每隔一定时间会随机冲刷某些行或列\n在海浪冲刷时，你不能对被冲刷的行或列进行操作！\n并且，海浪还会使潮水略微上涨。',
@@ -676,47 +680,60 @@
       actions: [{ text: '我知道了', run: beginTimedGame }] });
   }
   function buildSurfField() {
-    const layer = document.createElement('div');
-    layer.className = 'board-surf';
-    layer.setAttribute('aria-hidden', 'true');
-    layer.hidden = true;
-    layer.innerHTML = '<div class="surf-warning"><span>!</span><span>!</span></div><div class="surf-visual"><div class="surf-band"></div></div>';
-    $('board').append(layer);
+    for (let index = 0; index < (game.level.surf.targetCount ?? 1); index++) {
+      const layer = document.createElement('div');
+      layer.className = 'board-surf';
+      layer.dataset.target = index;
+      layer.setAttribute('aria-hidden', 'true');
+      layer.hidden = true;
+      layer.innerHTML = '<div class="surf-warning"><span>!</span><span>!</span></div><div class="surf-visual"><div class="surf-band"></div></div>';
+      $('board').append(layer);
+    }
   }
   function layoutSurfField() {
-    const layer = $('board').querySelector('.board-surf');
-    if (!layer || !game.surfTarget) return;
-    const { axis, index } = game.surfTarget;
-    // Anchor to grid lines so resizing never leaves a stale strip of exposed sand.
-    layer.style.gridRow = axis === 'row' ? `${index + 1} / span 1` : '1 / -1';
-    layer.style.gridColumn = axis === 'column' ? `${index + 1} / span 1` : '1 / -1';
-    layer.classList.toggle('is-column', axis === 'column');
+    $('board').querySelectorAll('.board-surf').forEach((layer, targetIndex) => {
+      const target = game.surfTargets[targetIndex];
+      if (!target) return;
+      const { axis, index } = target;
+      // Anchor to grid lines so resizing never leaves stale exposed sand.
+      layer.style.gridRow = axis === 'row' ? `${index + 1} / span 1` : '1 / -1';
+      layer.style.gridColumn = axis === 'column' ? `${index + 1} / span 1` : '1 / -1';
+      layer.classList.toggle('is-column', axis === 'column');
+    });
   }
   function syncSurf() {
-    const layer = $('board').querySelector('.board-surf');
-    if (!layer) return;
-    layer.hidden = game.surfPhase === 'calm';
-    layer.dataset.phase = game.surfPhase;
+    const layers = $('board').querySelectorAll('.board-surf');
+    if (!layers.length) return;
     $('play-screen').classList.toggle('is-surf-paused', game.state !== 'playing' || !game.timerRunning);
-    const axis = game.surfTarget?.axis;
-    const band = layer.querySelector('.surf-band');
-    if (axis && band.dataset.axis !== axis) {
-      band.dataset.axis = axis;
-      band.innerHTML = BeachArt.surfBand(axis);
-    }
-    if (['arriving', 'washing', 'retreating'].includes(game.surfPhase)) {
+    const active = ['arriving', 'washing', 'retreating'].includes(game.surfPhase);
+    let travel = 0, opacity = 1;
+    if (active) {
       // Drive the long arrival/retreat with play time so pause freezes them exactly.
       const smooth = t => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
       const arrival = smooth((game.surfTime - game.waveStartedAt) / game.level.surf.arrival);
       const retreat = smooth((game.surfTime - game.waveUntil) / game.level.surf.departure);
-      const travel = surfReducedMotion.matches ? 0 : (retreat - (1 - arrival)) * 105;
-      band.style.transform = `${axis === 'column' ? 'translateY' : 'translateX'}(${travel.toFixed(3)}%)`;
-      band.style.opacity = surfReducedMotion.matches ? '1' : (arrival * (1 - retreat)).toFixed(3);
+      travel = surfReducedMotion.matches ? 0 : (retreat - (1 - arrival)) * 105;
+      opacity = surfReducedMotion.matches ? 1 : arrival * (1 - retreat);
     }
-    const marker = [game.surfPhase, axis, game.surfTarget?.index, game.nextWaveAt].join(':');
+    layers.forEach((layer, targetIndex) => {
+      const target = game.surfTargets[targetIndex];
+      layer.hidden = game.surfPhase === 'calm' || !target;
+      layer.dataset.phase = game.surfPhase;
+      if (!target) return;
+      const band = layer.querySelector('.surf-band');
+      if (band.dataset.axis !== target.axis) {
+        band.dataset.axis = target.axis;
+        band.innerHTML = BeachArt.surfBand(target.axis, 'target-' + targetIndex);
+      }
+      if (active) {
+        band.style.transform = `${target.axis === 'column' ? 'translateY' : 'translateX'}(${travel.toFixed(3)}%)`;
+        band.style.opacity = opacity.toFixed(3);
+      }
+    });
+    const marker = [game.surfPhase, ...game.surfTargets.map(target => target.axis + target.index), game.nextWaveAt].join(':');
     if (marker !== lastSurfMarker) {
       layoutSurfField();
-      if (game.surfPhase === 'warning') announce(`注意，第${game.surfTarget.index + 1}${axis === 'row' ? '行' : '列'}即将被海浪冲刷。`);
+      if (game.surfPhase === 'warning') announce(`注意，${game.surfTargets.map(target => `第${target.index + 1}${target.axis === 'row' ? '行' : '列'}`).join('、')}即将被海浪冲刷。`);
       lastSurfMarker = marker;
     }
     if (game.waveCount > lastSurfWave) {
@@ -730,7 +747,7 @@
     if (showProgress && condition.type === 'maxTurns') return `总翻动次数不能超过 ${condition.current} / ${condition.limit}次`;
     if (showProgress && condition.type === 'maxGrass') return `海草覆盖的格子不能超过 ${condition.current} / ${condition.limit} 格`;
     return showProgress && condition.type === 'maxMismatches'
-      ? `配对失败的次数不得超过 ${condition.current} / ${condition.limit}次` : condition.label;
+      ? condition.label.replace(/\d+(?=次)/, ` ${condition.current} / ${condition.limit}`) : condition.label;
   }
   function renderConditions(container, showProgress = true) {
     container.replaceChildren();
@@ -1296,6 +1313,6 @@
   requestAnimationFrame(frame);
   // Read-only diagnostics for local acceptance checks; no hidden in-game controls.
   window.beachDiagnostics = Object.freeze({
-    snapshot: () => ({ surf: game.level.surf ? { phase: game.surfPhase, target: game.surfTarget ? { ...game.surfTarget } : null, time: game.surfTime, nextWaveAt: game.nextWaveAt, until: game.waveUntil, startedAt: game.waveStartedAt, retreatUntil: game.waveRetreatUntil, count: game.waveCount, covered: game.cards.map(card => game.isWashed(card.index)) } : null, screen: currentScreen, levelId: game.level.id, seagrass: game.level.seagrass ? game.cards.map(card => ({ grass: card.tangled, locked: game.isGrassLocked(card), until: card.grassLockedUntil })) : null, mode: game.level.type || 'matching', grassPuzzle: isGrassPuzzle() ? { grass: game.cards.map(card => card.grass), remaining: game.grassCount, affected: [...game.lastAffected] } : null, journey: isJourney() ? { phase: game.phase, position: game.position, noRevisit: Boolean(game.level.noRevisit), visited: [...game.visited], targetKind: game.target?.kind ?? null, targetIndex: game.target?.index ?? null, targetRemaining: game.targetRemaining, targetHistory: [...game.targetHistory], penalties: game.penalties, wrongKind: game.wrongKind, collected: [...game.collected], collectedCount: game.collectedCount, totalTreasures: game.totalTreasures, previewSeconds: game.previewSeconds } : null, filledCount: isPuzzle() ? game.filledCount : null, values: isPuzzle() ? game.cards.map(card => card.value) : null, fixed: isPuzzle() ? game.cards.map(card => card.fixed) : null, conflicts: isPuzzle() ? [...game.conflicts] : null, rows: game.level.rows, columns: game.level.columns, totalPairs: game.totalPairs, state: game.state, failureReason: game.failureReason, conditions: game.conditionStates, lastMatchedKind: game.lastMatchedKind, pairs: game.pairs, mismatches: game.mismatches, turns: game.turns, elapsed: game.elapsed, duration: game.duration, bonusTime: game.bonusTime, remaining: game.remaining, progress: game.progress, displayedTide, flights: flights.length, bucketPairs: arrivedPairs, fps: measuredFps, statuses: game.cards.map(card => card.status), fog: game.cards.map(card => card.fog ? { ...card.fog } : null), activeTime: game.activeTime, modalOpen, timerRunning: game.timerRunning, tutorialStep: tutorial?.active ? tutorial.step : null, tutorialTarget: tutorial?.active ? tutorial.target : null })
+    snapshot: () => ({ surf: game.level.surf ? { phase: game.surfPhase, target: game.surfTarget ? { ...game.surfTarget } : null, targets: game.surfTargets.map(target => ({ ...target })), time: game.surfTime, nextWaveAt: game.nextWaveAt, until: game.waveUntil, startedAt: game.waveStartedAt, retreatUntil: game.waveRetreatUntil, count: game.waveCount, covered: game.cards.map(card => game.isWashed(card.index)) } : null, screen: currentScreen, levelId: game.level.id, seagrass: game.level.seagrass ? game.cards.map(card => ({ grass: card.tangled, locked: game.isGrassLocked(card), until: card.grassLockedUntil })) : null, mode: game.level.type || 'matching', grassPuzzle: isGrassPuzzle() ? { grass: game.cards.map(card => card.grass), remaining: game.grassCount, affected: [...game.lastAffected] } : null, journey: isJourney() ? { phase: game.phase, position: game.position, noRevisit: Boolean(game.level.noRevisit), visited: [...game.visited], targetKind: game.target?.kind ?? null, targetIndex: game.target?.index ?? null, targetRemaining: game.targetRemaining, targetHistory: [...game.targetHistory], penalties: game.penalties, wrongKind: game.wrongKind, collected: [...game.collected], collectedCount: game.collectedCount, totalTreasures: game.totalTreasures, previewSeconds: game.previewSeconds } : null, filledCount: isPuzzle() ? game.filledCount : null, values: isPuzzle() ? game.cards.map(card => card.value) : null, fixed: isPuzzle() ? game.cards.map(card => card.fixed) : null, conflicts: isPuzzle() ? [...game.conflicts] : null, rows: game.level.rows, columns: game.level.columns, totalPairs: game.totalPairs, state: game.state, failureReason: game.failureReason, conditions: game.conditionStates, lastMatchedKind: game.lastMatchedKind, pairs: game.pairs, mismatches: game.mismatches, turns: game.turns, elapsed: game.elapsed, duration: game.duration, bonusTime: game.bonusTime, remaining: game.remaining, progress: game.progress, displayedTide, flights: flights.length, bucketPairs: arrivedPairs, fps: measuredFps, statuses: game.cards.map(card => card.status), fog: game.cards.map(card => card.fog ? { ...card.fog } : null), activeTime: game.activeTime, modalOpen, timerRunning: game.timerRunning, tutorialStep: tutorial?.active ? tutorial.step : null, tutorialTarget: tutorial?.active ? tutorial.target : null })
   });
 })();
