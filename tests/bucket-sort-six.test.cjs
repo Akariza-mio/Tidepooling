@@ -7,7 +7,7 @@ const level = levels.find(level => level.id === 36);
 function create() { const game = new BucketSort({ level }); game.start(0); return game; }
 function move(game, from, to, now=0) { assert.equal(game.select(from,now),true);assert.equal(game.select(to,now),true); }
 test('sixth sorting level contains six kinds of four in eight buckets, starts without an intro and keeps fifth independent', () => {
-  const game=create();assert.equal(levels.length,40);assert.equal(levels.some(level=>level.id>=41),false);
+  const game=create();assert.equal(levels.length, 48);assert.equal(levels.some(level=>level.id >= 49),false);
   assert.equal(level.type,'bucketSort');assert.equal(level.intro,undefined);assert.equal(level.duration,60000);assert.equal(level.capacity,4);
   assert.equal(game.timerRunning,true);assert.equal(game.buckets.length,8);assert.equal(game.buckets.filter(bucket=>!bucket.length).length,2);
   assert.deepEqual([0,1,2,3,4,5].map(kind=>game.buckets.flat().filter(value=>value===kind).length),[4,4,4,4,4,4]);

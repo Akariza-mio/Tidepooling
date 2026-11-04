@@ -32,7 +32,7 @@ const { createServer } = require('../scripts/serve.cjs');
       await page.locator('#settings-button').click();await page.locator('#unlock-switch').click();
       await page.locator('#settings-screen [data-menu]').click();await page.locator('#select-level-button').click();
       assert.equal(await page.locator('.chapter-level:enabled').count(),40);
-      assert.equal(await page.locator('#level-41').isDisabled(),true);
+      assert.equal(await page.locator('#level-49').isDisabled(),true);
       await page.locator('#level-5').click(); await action('我知道了');
       assert.equal((await state()).mode,'diagonalPuzzle');
       await page.locator('.puzzle-cell').nth(1).click();assert.equal((await state()).filledCount,3);

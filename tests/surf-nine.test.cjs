@@ -5,7 +5,7 @@ function create(draws=[0,0]){let n=0;const game=new SurfGame({level,random:()=>d
 function mistakes(game,count){for(let i=0;i<count;i++){assert.equal(game.select(0,i*500),true);assert.equal(game.select(1,i*500),true);}game.update(count*500);}
 function finish(game,now){for(const kind of [0,1,2,3,4,5])for(const card of game.cards.filter(c=>c.value===kind&&c.status==='hidden'))assert.equal(game.select(card.index,now),true);}
 test('restored ninth level keeps its original fixed layout, six kinds, sixty seconds, double waves and only a twenty-mistake limit',()=>{
- const game=create();assert.equal(levels.length,40);assert.equal(levels.some(level=>level.id>=41),false);assert.equal(game.duration,60000);assert.equal(game.totalPairs,18);
+ const game=create();assert.equal(levels.length, 48);assert.equal(levels.some(level=>level.id >= 49),false);assert.equal(game.duration,60000);assert.equal(game.totalPairs,18);
  assert.equal(level.rows,6);assert.equal(level.columns,6);assert.deepEqual([0,1,2,3,4,5].map(kind=>level.layout.filter(v=>v===kind).length),[6,6,6,6,6,6]);
  assert.deepEqual(level.layout,[1,3,2,0,3,1,1,5,4,3,5,5,0,0,5,1,4,2,5,4,4,3,3,1,4,2,0,0,4,0,1,2,2,5,3,2]);
  assert.deepEqual(level.surf,levels.find(level=>level.id===38).surf);assert.deepEqual(game.conditions.map(c=>[c.type,c.limit]),[['maxMismatches',20]]);

@@ -17,7 +17,15 @@
     "test:surf:eight": "node tests/surf-eight-browser.cjs",
     "test:surf:nine": "node tests/surf-nine-browser.cjs",
     "test:surf:ten": "node tests/surf-ten-browser.cjs",
-    "test:ex": "node tests/ex-chapter-browser.cjs"
+    "test:ex": "node tests/ex-chapter-browser.cjs",
+    "test:ex:first": "node tests/ex-first-browser.cjs",
+    "test:ex:second": "node tests/ex-second-browser.cjs",
+    "test:ex:third": "node tests/ex-third-browser.cjs",
+    "test:ex:fourth": "node tests/ex-fourth-browser.cjs",
+    "test:ex:eighth": "node tests/ex-eighth-browser.cjs",
+    "test:arithmetic": "node tests/arithmetic-browser.cjs",
+    "test:ex:sixth": "node tests/ex-sixth-browser.cjs",
+    "test:slots": "node tests/slot-machine-browser.cjs"
   },
   "devDependencies": { "playwright": "1.62.1" }
 }

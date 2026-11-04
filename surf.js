@@ -31,10 +31,11 @@
         if (this.state !== 'playing' || this.surfTime < boundary) continue;
         if (this.surfPhase === 'calm') {
           const axes = this.level.surf.axes;
-          if ((this.level.surf.targetCount ?? 1) > 1) {
+          const targetCount = (this.level.surf.targetCount ?? 1) + (this.level.surf.targetIncrement ?? 0) * this.waveCount;
+          if (targetCount > 1) {
             const pool = axes.flatMap(axis => Array.from({ length: axis === 'row' ? this.level.rows : this.level.columns }, (_, index) => ({ axis, index })));
             this.surfTargets = [];
-            for (let i = 0; i < this.level.surf.targetCount && pool.length; i++) {
+            for (let i = 0; i < targetCount && pool.length; i++) {
               this.surfTargets.push(pool.splice(Math.floor(this.random() * pool.length), 1)[0]);
             }
           } else {

@@ -16,7 +16,7 @@ const label='在2秒内完成2次配对';
       const readDeck=()=>page.locator('.tile .seaside-item').evaluateAll(nodes=>nodes.map(n=>Number(n.dataset.kind)));
       const makePairs=deck=>[0,1,2,3,4,5].flatMap(kind=>{const cells=deck.flatMap((v,i)=>v===kind?[i]:[]);return [0,2,4].map(i=>({kind,cells:cells.slice(i,i+2)}));});
       await page.locator('#select-level-button').click();for(let i=0;i<3;i++)await page.locator('#chapter-next').click();
-      assert.equal(await page.locator('#level-41').isDisabled(),true);assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(),testing?10:1);
+      assert.equal(await page.locator('#level-49').isDisabled(),true);assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(),testing?10:1);
       await page.locator('#level-37').click();await action('我知道了');const seventh=makePairs(await readDeck()),octopus=seventh.find(p=>p.kind===3),conch=seventh.find(p=>p.kind===4),last=seventh.find(p=>p.kind===5);
       for(const pair of [...seventh.filter(p=>![octopus,conch,last].includes(p)),octopus,conch,last])for(const i of pair.cells)await tile(i).click();
       await page.clock.runFor(1000);await action('下一关');assert.equal((await state()).levelId,38);assert.equal(await page.locator('#play-number').innerText(),'08');

@@ -18,6 +18,7 @@
 .is-tangled .sand-cover { background: linear-gradient(145deg, #e3d7a9, #d5c797); }
 .is-grass-locked .sand-cover { background: linear-gradient(145deg, #e7dbec, #cfbddd); }
 .is-grass-locked { cursor: not-allowed; }
+.tile[data-fog="covered"].is-grass-locked { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .seagrass-cover { transition: none; } }
 
 /* Pulling one root switches the visible grass in a five-cell cross. */

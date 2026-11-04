@@ -82,6 +82,10 @@
         }
       }
       if (this.pending && this.activeTime >= this.pending.at) {
+        if (this.conditions.some(condition => condition.type === 'mismatchSwap')) {
+          const [a, b] = this.selected.map(index => this.cards[index]);
+          [a.value, b.value] = [b.value, a.value];
+        }
         this.selected.forEach(index => { this.cards[index].status = 'hidden'; });
         this.selected = [];
         this.pending = null;
@@ -110,7 +114,10 @@
           // beneath the lowest tide level. Each level uses its own time limit.
           this.bonusTime += Math.min(this.pairBonus, Math.max(0, this.elapsed - this.bonusTime));
           this.selected = [];
-          if (this.pairs === this.totalPairs) {
+          if (this.conditionStates.some(condition => condition.checkAt === 'continuous' && condition.failed)) {
+            this.state = 'lost';
+            this.failureReason = 'conditions';
+          } else if (this.pairs === this.totalPairs) {
             this.state = this.conditionStates.every(condition => condition.completed) ? 'won' : 'lost';
             if (this.state === 'lost') this.failureReason = 'conditions';
           }
@@ -122,7 +129,7 @@
           for (const source of sources) {
             source.grassLockedUntil = this.activeTime + 10000;
             for (const neighbor of this.cards) if (!neighbor.tangled && neighbor.status === 'hidden'
-              && !neighbor.fog?.covered && !this.isGrassLocked(neighbor) &&
+              && !this.isGrassLocked(neighbor) &&
               Math.abs(Math.floor(source.index / this.level.columns) - Math.floor(neighbor.index / this.level.columns))
               + Math.abs(source.index % this.level.columns - neighbor.index % this.level.columns) === 1) neighbor.tangled = true;
           }
@@ -173,6 +180,11 @@
     get conditionStates() {
       const allCollected = this.pairs === this.totalPairs && this.totalPairs > 0;
       return this.conditions.map(condition => {
+        if (condition.type === 'firstPairsKind') {
+          const first = this.pairKinds.slice(0, condition.count);
+          const failed = first.some(kind => kind !== condition.kind);
+          return { ...condition, current: first.length, completed: first.length === condition.count && !failed, failed };
+        }
         if (condition.type === 'pairKindFromEnd') {
           const index = this.totalPairs - condition.fromEnd;
           const completed = index >= 0 && this.pairKinds[index] === condition.kind;
@@ -183,7 +195,7 @@
             && this.pairTimes[index + condition.count - 1] - time <= condition.window);
           return { ...condition, completed, failed: allCollected && !completed };
         }
-        if (condition.type === 'mismatchTideRise') return { ...condition, completed: allCollected, failed: false };
+        if (condition.type === 'mismatchTideRise' || condition.type === 'mismatchSwap') return { ...condition, completed: allCollected, failed: false };
         if (condition.type === 'noPairBonus') return { ...condition, completed: allCollected && this.bonusTime === 0, failed: this.bonusTime > 0 };
         if (condition.type === 'minGrassMatches') {
           const completed = this.grassMatches >= condition.target;

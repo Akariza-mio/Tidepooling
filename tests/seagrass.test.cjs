@@ -26,7 +26,7 @@ test('the swapped first reef level uses only its eight marked cells and a fixed 
 });
 
 test('the swapped second reef level has the exact twelve red-circle cells and an independent fixed deck', () => {
-  assert.equal(levels.length, 40); assert.equal(levels.some(level => level.id >= 41), false);
+  assert.equal(levels.length, 48); assert.equal(levels.some(level => level.id >= 49), false);
   const level = levels.find(level => level.id === 22), game = new Game({ level }); game.start(0);
   assert.equal(level.rows, 6); assert.equal(level.columns, 6); assert.equal(game.duration, 60000);
   assert.equal(game.totalPairs, 18); assert.equal(level.intro, undefined);
@@ -102,12 +102,12 @@ test('propagation never resurrects collected items or blocks final victory', () 
   assert.equal(game.state, 'won'); assert.equal(game.pairs, 8);
 });
 
-test('existing grass, fog-covered cells and other unavailable positions are skipped', () => {
+test('grass spreads through covered fog while existing grass and collected cells are skipped', () => {
   const level = { ...fixture([5,6]), fog: { cells: [1], duration: 5000 } };
   const game = new Game({ level }); game.start(0);
   game.cards[6].grassLockedUntil = 6000;
   game.select(5, 0); game.select(4, 0);
-  assert.equal(game.cards[1].tangled, false, 'Covered fog is not a selectable ordinary cell.');
+  assert.equal(game.cards[1].tangled, true, 'Fog coverage does not prevent grass spreading.');
   assert.equal(game.cards[4].tangled, false, 'The currently open partner is not selectable.');
   assert.equal(game.cards[6].grassLockedUntil, 6000, 'Existing grass is unchanged.');
   assert.equal(game.cards[9].tangled, true, 'An adjacent closed ordinary cell is infected.');

@@ -143,6 +143,10 @@
   .play-screen .collection { min-height: 122px; margin-top: 20px; grid-template-columns: 122px minmax(0, 1fr); gap: 12px; }
   .harvest-bucket { width: 122px; height: 122px; }
 }
+@media (min-height: 581px) and (max-height: 760px) {
+  .play-screen.has-conditions:not(.is-dense-board) .collection { margin-top: 12px; }
+  .play-screen.has-conditions:not(.is-dense-board):not(.is-puzzle):not(.is-grass-puzzle):not(.is-journey):not(.is-bucket-sort) .board-wrap { width: min(100%, calc(100svh - 300px)); align-self: center; }
+}
 @media (max-width: 370px) {
   .play-screen .collection { grid-template-columns: 108px minmax(0, 1fr); min-height: 108px; gap: 9px; margin-left: 4px; margin-right: 4px; }
   .harvest-bucket { width: 108px; height: 108px; }
@@ -167,4 +171,5 @@
 }
 @media (orientation: landscape) and (max-height: 580px) {
   .play-screen.is-dense-board.has-conditions .board-wrap { width: min(100%, calc(100svh - 195px)); }
+  .play-screen.has-conditions:not(.is-dense-board):not(.is-puzzle):not(.is-grass-puzzle):not(.is-journey):not(.is-bucket-sort) .board-wrap { width: min(100%, calc(100svh - 195px)); }
 }

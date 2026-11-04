@@ -13,7 +13,7 @@ const label='配对失败会导致潮水上涨';
    await page.addInitScript(testing=>{if(testing)localStorage.setItem('beach-pairs-unlock-all','on');else localStorage.setItem('beach-pairs-completed-levels','[39]');window.surfDraws=[];Math.random=()=>window.surfDraws.length?window.surfDraws.shift():0;},testing);
    await page.goto(url);const state=()=>page.evaluate(()=>beachDiagnostics.snapshot()),action=name=>page.getByRole('button',{name,exact:true}).click(),tile=i=>page.locator('.tile').nth(i);
    const pair=async(a,b)=>{await tile(a).click();await tile(b).click();},readDeck=()=>page.locator('.tile .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind)));
-   await page.locator('#select-level-button').click();for(let i=0;i<3;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#level-41').isDisabled(),true);
+   await page.locator('#select-level-button').click();for(let i=0;i<3;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#level-49').isDisabled(),true);
    await page.locator('#level-39').click();await action('我知道了');const ninth=await readDeck();for(const kind of [0,1,2,3,4,5])for(let i=0;i<36;i++)if(ninth[i]===kind)await tile(i).click();
    await page.clock.runFor(1000);await action('下一关');assert.equal((await state()).levelId,40);assert.equal(await page.locator('#play-number').innerText(),'10');
    assert.deepEqual((await state()).conditions.map(c=>[c.type,c.penalty]),[['mismatchTideRise',3000]]);assert.equal(await page.locator('#modal-conditions').innerText(),label);assert.equal(await page.locator('#play-conditions').innerText(),label);
@@ -51,7 +51,7 @@ const label='配对失败会导致潮水上涨';
    assert.equal((await state()).mismatches,21);assert.equal((await state()).state,'playing');assert.equal((await state()).conditions[0].completed,false);
    for(const kind of [0,1,2,3,4,5])for(let i=0;i<36;i++)if(deck[i]===kind&&(await state()).statuses[i]==='hidden')await tile(i).click();
    assert.equal((await state()).state,'won');assert.equal((await state()).pairs,18);assert.equal((await state()).conditions[0].completed,true);await page.clock.runFor(1000);
-   assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),testing?null:'[39,40]');await action('下一关');assert.equal(await page.locator('#modal-heading').innerText(),'下一关即将开放');await action('返回选关');await page.locator('#level-40').click();assert.equal((await state()).mismatches,0);
+   assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),testing?null:'[39,40]');await action('下一关');assert.equal((await state()).levelId,41);assert.equal(await page.locator('#modal-conditions').innerText(),'配对失败的次数不得超过1次');await action('我知道了');await page.locator('#pause-button').click();await action('返回选关');await page.locator('#chapter-previous').click();await page.locator('#level-40').click();assert.equal((await state()).mismatches,0);
    assert.deepEqual(errors,[]);await context.close();
   }
   console.log('PASS: file/HTTP, ninth-to-tenth entry, triple rows/columns/mixed warnings and waves, unique SVG IDs, 5s arrival and independent 3s mismatch penalties, mask/invalid input/collected holes, pause/retry, five viewports, penalty timeout and 21-mistake victory without old cap, normal/test progress isolation. No screenshots.');

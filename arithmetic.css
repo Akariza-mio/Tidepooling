@@ -1,0 +1,56 @@
+/* A paper puzzle and large number keys, above the existing tide. */
+.play-screen.is-arithmetic { justify-content: flex-start; gap: 10px; }
+.is-arithmetic .board-wrap, .is-arithmetic .play-intro { display: none; }
+.arithmetic-panel { position: relative; z-index: 2; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.arithmetic-heading { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; }
+.arithmetic-heading span { font-size: 12px; color: #6e8a7e; }
+.arithmetic-progress { display: grid; grid-template-columns: repeat(10,1fr); gap: 6px; }
+.arithmetic-progress span { height: 5px; border-radius: 5px; background: #bcb19450; }
+.arithmetic-progress .is-done { background: #659e8d; }
+.arithmetic-progress .is-current { background: #e1b16b; }
+.arithmetic-paper { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; padding: 14px 12px; border: 1px solid #fff8e7; border-radius: 18px; background: #fff7e8e8; box-shadow: 0 4px 0 #c5b69045; }
+.arithmetic-note { margin: 0 0 8px; text-align: center; font-size: 11px; color: #8b977e; }
+.arithmetic-clues { display: flex; flex-direction: column; gap: 7px; }
+.arithmetic-equation { display: flex; justify-content: center; align-items: center; gap: 7px; min-height: 49px; font: 26px Georgia,serif; color: #446b64; white-space: nowrap; }
+.arithmetic-item { flex: none; display: inline-flex; width: 45px; height: 45px; align-items: center; justify-content: center; }
+.arithmetic-item svg { display: block; width: 100%; height: 100%; }
+.arithmetic-term { display: inline-flex; align-items: center; gap: 3px; }
+.arithmetic-coefficient { font-size: .72em; }
+.arithmetic-question { margin-top: 12px; padding-top: 11px; border-top: 1px dashed #c3c6aa; }
+.arithmetic-question .arithmetic-equation { color: #2d756c; font-weight: 600; }
+.arithmetic-order { margin: 5px 0 0; font-size: 10px; text-align: center; color: #8c977e; }
+.arithmetic-controls { flex: none; }
+.arithmetic-answer-row { display: grid; grid-template-columns: minmax(0,1fr) 100px; gap: 9px; margin-bottom: 9px; }
+.arithmetic-answer-row input { width: 100%; min-width: 0; height: 46px; border: 1px solid #9db8a3; border-radius: 12px; background: #fff9e9ed; text-align: center; color: #345f57; font: 26px Georgia,serif; outline-color: #287b7b; }
+.arithmetic-answer-row input::placeholder { font: 13px "PingFang SC",sans-serif; color: #95a28b; }
+.arithmetic-answer-row .button { padding: 8px; min-height: 46px; font-size: 15px; }
+.arithmetic-keypad { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+.arithmetic-key { min-height: 43px; border: 1px solid #fff4d9; border-radius: 11px; background: #f9e9cbed; box-shadow: 0 3px 0 #ccb58d77; font: 23px Georgia,serif; color: #446c60; }
+.arithmetic-key[data-value="clear"], .arithmetic-key[data-value="delete"] { font: 13px "PingFang SC",sans-serif; color: #83947c; }
+.arithmetic-feedback { margin: 9px 0 0; min-height: 18px; font-size: 11px; text-align: center; line-height: 1.5; color: #688b7a; }
+.arithmetic-feedback.is-wrong { color: #b27057; }
+@media (max-height: 700px), (max-width: 370px) {
+ .play-screen.is-arithmetic { gap: 7px; }
+ .arithmetic-panel { gap: 8px; }
+ .arithmetic-paper { padding: 9px 8px; }
+ .arithmetic-note { font-size: 10px; margin-bottom: 5px; }
+ .arithmetic-clues { gap: 2px; }
+ .arithmetic-equation { min-height: 36px; font-size: 22px; gap: 5px; }
+ .arithmetic-item { width: 34px; height: 34px; }
+ .arithmetic-question { margin-top: 7px; padding-top: 6px; }
+ .arithmetic-keypad { gap: 6px; }
+ .arithmetic-key { min-height: 34px; font-size: 21px; }
+ .arithmetic-answer-row { margin-bottom: 7px; }
+ .arithmetic-answer-row input, .arithmetic-answer-row .button { height: 39px; min-height: 39px; }
+ .arithmetic-feedback { margin-top: 6px; font-size: 10px; min-height: 16px; }
+}
+@media (orientation: landscape) and (max-height: 580px) {
+ .game-shell:has(#play-screen.is-arithmetic:not([hidden])) { width: min(100vw,680px); }
+ .arithmetic-panel { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); grid-template-rows: auto 5px minmax(0,1fr); column-gap: 16px; row-gap: 6px; }
+ .arithmetic-heading, .arithmetic-progress { grid-column: 1 / -1; }
+ .arithmetic-paper { grid-column: 1; grid-row: 3; }
+ .arithmetic-controls { grid-column: 2; grid-row: 3; align-self: center; }
+ .arithmetic-equation { min-height: 32px; font-size: 21px; }
+ .arithmetic-item { width: 31px; height: 31px; }
+ .arithmetic-key { min-height: 32px; }
+}

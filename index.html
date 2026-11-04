@@ -16,12 +16,16 @@
   <link rel="stylesheet" href="reef.css">
   <link rel="stylesheet" href="surf.css">
   <link rel="stylesheet" href="bucket-sort.css">
+  <link rel="stylesheet" href="slot-machine.css">
+  <link rel="stylesheet" href="arithmetic.css">
   <script src="levels.js" defer></script>
   <script src="core.js" defer></script>
   <script src="surf.js" defer></script>
   <script src="puzzle.js" defer></script>
   <script src="grass-puzzle.js" defer></script>
   <script src="bucket-sort.js" defer></script>
+  <script src="slot-machine.js" defer></script>
+  <script src="arithmetic.js" defer></script>
   <script src="journey.js" defer></script>
   <script src="art.js" defer></script>
   <script src="reef-art.js" defer></script>
@@ -123,7 +127,18 @@
       <p class="journey-hint" id="journey-hint" role="status" hidden></p>
       <div class="tutorial-coach" id="tutorial-coach" hidden><p id="tutorial-message" role="status" aria-live="polite"></p><button class="button button-secondary" id="tutorial-next" hidden>继续教学</button></div>
       <svg class="tutorial-tide-arrow" id="tutorial-tide-arrow" viewBox="0 0 30 44" hidden aria-hidden="true"><path d="M11 3h8v22h8L15 40 3 25h8Z"/></svg>
+      <section class="slot-machine-panel" id="slot-machine-panel" hidden aria-label="三槽老虎机">
+        <div class="slot-machine-controls"><div class="slot-reels" id="slot-reels"><div class="slot-reel"><span class="slot-reel-item"></span></div><div class="slot-reel"><span class="slot-reel-item"></span></div><div class="slot-reel"><span class="slot-reel-item"></span></div></div><div class="slot-lever-wrap"><button class="slot-lever" id="slot-lever" type="button" aria-label="拉动拉杆" aria-describedby="slot-lever-count"><span class="slot-lever-base" aria-hidden="true"><span class="slot-handle"></span></span><span>拉动拉杆</span></button><p class="slot-lever-count" id="slot-lever-count" aria-live="polite">可用 <strong id="slot-credits">0</strong> 次</p></div></div>
+        <p class="slot-feedback" id="slot-feedback" role="status" aria-live="polite"></p>
+      </section>
+      <section class="arithmetic-panel" id="arithmetic-panel" hidden aria-label="物品速算题">
+        <header class="arithmetic-heading"><span id="arithmetic-round" aria-live="polite">第1轮 / 共10轮</span></header>
+        <div class="arithmetic-progress" id="arithmetic-progress" aria-label="已完成0轮"></div>
+        <div class="arithmetic-paper"><p class="arithmetic-note">根据本轮公式，算出问号处的数</p><div class="arithmetic-clues" id="arithmetic-clues"></div><div class="arithmetic-question" id="arithmetic-question"></div><p class="arithmetic-order" id="arithmetic-order">每轮物品的数值独立</p></div>
+        <form class="arithmetic-controls" id="arithmetic-form" autocomplete="off"><div class="arithmetic-answer-row"><input id="arithmetic-answer" type="text" inputmode="numeric" maxlength="3" aria-label="输入本轮答案" placeholder="输入答案"><button class="button button-primary" id="arithmetic-submit" type="submit">确认</button></div><div class="arithmetic-keypad" id="arithmetic-keypad" role="group" aria-label="数字键盘"></div><p class="arithmetic-feedback" id="arithmetic-feedback" role="status" aria-live="polite"></p></form>
+      </section>
       <div class="board-wrap"><div class="board" id="board" aria-label="4行4列赶海配对棋盘"></div><div class="board-caption"><span class="caption-dot"></span>水下的沙格也可以继续翻开</div></div>
+      <section class="slot-machine-progress" id="slot-machine-progress" hidden aria-label="配对及抽取进度"><span>已配对 <strong id="slot-count">0 / 32</strong> 对</span><span>已抽 <span id="slot-spins">0</span> 次</span></section>
       <section class="puzzle-controls" id="puzzle-controls" hidden aria-label="填图工具"><div class="puzzle-toolbar" id="puzzle-toolbar" role="group" aria-label="选择物品或拾起工具"></div><p id="puzzle-feedback" role="status" aria-live="polite">选择物品，再点格子填入；拾起可改错</p></section>
       <section class="grass-puzzle-panel" id="grass-puzzle-panel" hidden aria-label="拔草解结进度"><div class="grass-puzzle-progress"><span>剩余海草 <strong id="grass-puzzle-count">14</strong> 格</span><span>已拨动 <strong id="grass-puzzle-moves">0</strong> 次</span></div><p>有草变沙地，无草长海草 · 清空全部海草即可通关</p></section>
       <section class="sort-panel" id="sort-panel" hidden aria-label="分类装桶进度"><div class="sort-progress"><span>已整理 <strong id="sort-count">0 / 4</strong> 桶</span><span>移动 <strong id="sort-moves">0</strong> 次</span><button type="button" class="sort-undo" id="sort-undo" disabled>撤回一步</button></div><p id="sort-feedback" role="status" aria-live="polite"></p></section>

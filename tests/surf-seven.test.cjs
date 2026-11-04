@@ -15,7 +15,7 @@ function order(lastKind=5) {
 }
 function match(game,pair,now=0) { for(const index of pair.cells)assert.equal(game.select(index,now),true); }
 test('seventh level restores an independent balanced six-kind 6x6 matching deck and double surf configuration',()=>{
-  const game=create();assert.equal(levels.length,40);assert.equal(levels.some(level=>level.id>=41),false);
+  const game=create();assert.equal(levels.length, 48);assert.equal(levels.some(level=>level.id >= 49),false);
   assert.equal(level.type,undefined);assert.equal(level.rows,6);assert.equal(level.columns,6);assert.equal(game.duration,60000);assert.equal(game.totalPairs,18);
   assert.deepEqual([0,1,2,3,4,5].map(kind=>level.layout.filter(value=>value===kind).length),[6,6,6,6,6,6]);
   assert.notDeepEqual(level.layout,levels.find(level=>level.id===34).layout);assert.deepEqual(level.surf,levels.find(level=>level.id===34).surf);

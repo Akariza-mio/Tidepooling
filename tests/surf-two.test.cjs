@@ -16,7 +16,7 @@ function pair(game, now) {
   return false;
 }
 test('surf two is an independent fixed 6x6, sixty-second deck with six of each kind and only a rolling three-pair condition', () => {
-  const game = create(); assert.equal(levels.length, 40); assert.equal(levels.some(item => item.id >= 41), false);
+  const game = create(); assert.equal(levels.length, 48); assert.equal(levels.some(item => item.id >= 49), false);
   assert.equal(level.rows, 6); assert.equal(level.columns, 6); assert.equal(level.duration, 60000); assert.equal(game.totalPairs, 18);
   assert.deepEqual([0,1,2,3,4,5].map(kind => level.layout.filter(value => value === kind).length), [6,6,6,6,6,6]);
   assert.deepEqual(level.surf, levels.find(item => item.id === 31).surf);

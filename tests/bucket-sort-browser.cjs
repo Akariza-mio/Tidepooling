@@ -26,7 +26,7 @@ const sixthSolution = require('./bucket-sort-six-solution.cjs');
       await page.locator('#select-level-button').click();
       for(let i=0;i<3;i++)await page.locator('#chapter-next').click();
       assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(),10);
-      assert.equal(await page.locator('#level-41').isDisabled(),true);
+      assert.equal(await page.locator('#level-49').isDisabled(),true);
       assert.equal(await page.locator('#level-35').evaluate(el=>el.classList.contains('is-minigame')),true);
       await page.locator('#level-35').click();
       assert.equal((await state()).levelId,35);assert.equal((await state()).mode,'bucketSort');assert.equal((await state()).surf,null);

@@ -27,7 +27,7 @@ const labels=['倒数第三对配对必须是八爪鱼','倒数第二对配对�
         assert.deepEqual(await page.locator(`#${id} .condition-item-icon .seaside-item`).evaluateAll(nodes=>nodes.map(node=>Number(node.dataset.kind))),[3,4]);
       };
       await page.locator('#select-level-button').click();for(let i=0;i<3;i++)await page.locator('#chapter-next').click();
-      assert.equal(await page.locator('#level-41').isDisabled(),true);
+      assert.equal(await page.locator('#level-49').isDisabled(),true);
       assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(),testing?10:1);
       assert.equal(await page.locator('#level-37').evaluate(node=>node.classList.contains('is-minigame')),false);
       await page.locator('#level-36').click();assert.equal((await state()).modalOpen,false);

@@ -3,7 +3,8 @@ const assert = require('node:assert/strict');
 const Game = require('../core.js');
 const levels = require('../levels.js');
 function pair(game, now) {
-  const a = game.cards.find(card => card.status === 'hidden');
+  const opening = game.conditions.find(condition => condition.type === 'firstPairsKind' && game.pairs < condition.count);
+  const a = game.cards.find(card => card.status === 'hidden' && (!opening || card.value === opening.kind));
   const b = game.cards.find(card => card.index !== a.index && card.status === 'hidden' && card.value === a.value);
   for (const card of [a, b]) {
     game.clearFog(card.index, now);

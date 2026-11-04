@@ -1,6 +1,15 @@
 /* Authored layouts and item pools. Only levels marked randomize shuffle on entry. */
 (function (root) {
   'use strict';
+  const mathItem = kind => Object.freeze({ kind });
+  const mathNumber = number => Object.freeze({ number });
+  const mathOp = (op, left, right) => Object.freeze({ op, left, right });
+  const mathRound = (values, clues, target) => Object.freeze({
+    values: Object.freeze(values),
+    clues: Object.freeze(clues.map(([terms, total]) => Object.freeze({
+      terms: Object.freeze(terms.map(([kind, coefficient = 1]) => Object.freeze({ kind, coefficient }))), total
+    }))), target
+  });
   const levels = Object.freeze([
     Object.freeze({
       id: 1,
@@ -770,6 +779,155 @@
         4, 3, 1, 2, 2, 0,
         4, 3, 3, 0, 4, 3,
         4, 5, 1, 5, 0, 4
+      ])
+    }),
+    Object.freeze({
+      id: 41,
+      rows: 4,
+      columns: 4,
+      duration: 60000,
+      pairBonus: 5000,
+      conditions: Object.freeze([
+        Object.freeze({ id: 'mismatch-limit', type: 'maxMismatches', checkAt: 'continuous', limit: 1, label: '配对失败的次数不得超过1次' })
+      ]),
+      layout: Object.freeze([
+        2, 4, 0, 1,
+        1, 0, 4, 2,
+        4, 2, 1, 0,
+        0, 1, 2, 4
+      ])
+    }),
+    Object.freeze({
+      id: 42,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      conditions: Object.freeze([
+        Object.freeze({ id: 'eighteen-pairs-in-fifteen-seconds', type: 'timedPairs', checkAt: 'continuous', count: 18, window: 15000, label: '在15秒内完成18次配对' })
+      ]),
+      layout: Object.freeze([
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1
+      ])
+    }),
+    Object.freeze({
+      id: 43,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      fog: Object.freeze({ cells: Object.freeze(Array.from({ length: 36 }, (_, index) => index)), duration: 5000 }),
+      seagrass: Object.freeze({ cells: Object.freeze([9, 10, 14, 16, 18, 31]) }),
+      layout: Object.freeze([
+        0, 2, 1, 4, 0, 1,
+        4, 1, 2, 0, 2, 4,
+        2, 0, 4, 1, 1, 0,
+        1, 4, 0, 2, 4, 2,
+        0, 1, 2, 0, 1, 4,
+        1, 0, 4, 2, 0, 1
+      ])
+    }),
+    Object.freeze({
+      id: 44,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      surf: Object.freeze({ interval: 15000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 5000, targetCount: 1, targetIncrement: 1, axes: Object.freeze(['row', 'column']) }),
+      layout: Object.freeze([
+        2, 1, 5, 0, 4, 2,
+        0, 4, 1, 2, 0, 5,
+        1, 2, 0, 5, 1, 4,
+        4, 0, 2, 1, 5, 0,
+        2, 5, 4, 1, 0, 2,
+        1, 0, 1, 4, 2, 5
+      ])
+    }),
+    Object.freeze({
+      id: 45,
+      type: 'slotMachine',
+      intro: 'slotMachine',
+      rows: 8,
+      columns: 8,
+      duration: 120000,
+      pairBonus: 0,
+      kinds: Object.freeze([0, 1, 2, 4, 5]),
+      reelStops: Object.freeze([500, 750, 1000]),
+      deliveryDuration: 360,
+      layout: Object.freeze([
+        0, 4, 0, 0, 4, 1, 1, 2,
+        0, 1, 1, 5, 5, 5, 0, 1,
+        5, 2, 2, 2, 1, 1, 4, 5,
+        2, 2, 2, 2, 4, 5, 1, 4,
+        5, 4, 2, 5, 0, 0, 1, 2,
+        4, 4, 5, 1, 2, 0, 0, 1,
+        2, 4, 4, 5, 1, 5, 1, 4,
+        0, 5, 0, 0, 0, 1, 4, 0
+      ])
+    }),
+    Object.freeze({
+      id: 46,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      seagrass: Object.freeze({ cells: Object.freeze([2, 8, 14, 20, 26, 32]) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'mismatch-swap', type: 'mismatchSwap', label: '配对失败会使物品位置互换' })
+      ]),
+      layout: Object.freeze([
+        4, 5, 3, 4, 5, 0,
+        3, 2, 3, 3, 1, 4,
+        1, 5, 5, 2, 1, 0,
+        1, 2, 5, 2, 4, 4,
+        1, 4, 3, 5, 0, 1,
+        0, 0, 3, 2, 0, 2
+      ])
+    }),
+    Object.freeze({
+      id: 47,
+      type: 'arithmetic',
+      rows: 1,
+      columns: 1,
+      duration: 120000,
+      pairBonus: 0,
+      wrongPenalty: 5000,
+      layout: Object.freeze([]),
+      rounds: Object.freeze([
+        mathRound({1:5}, [[[[1,2]],10]], mathItem(1)),
+        mathRound({2:6}, [[[[2,3]],18]], mathOp('+',mathItem(2),mathNumber(2))),
+        mathRound({0:6,1:4}, [[[[0,2]],12],[[[0],[1]],10]], mathItem(1)),
+        mathRound({4:7,2:5}, [[[[4,3]],21],[[[4],[2,2]],17]], mathOp('+',mathItem(4),mathItem(2))),
+        mathRound({1:8,5:6}, [[[[1,2]],16],[[[1],[5,2]],20]], mathOp('+',mathOp('*',mathNumber(2),mathItem(1)),mathItem(5))),
+        mathRound({0:6,2:5,4:4}, [[[[0,3]],18],[[[0],[2]],11],[[[2],[4]],9]], mathOp('+',mathOp('+',mathItem(0),mathItem(2)),mathItem(4))),
+        mathRound({3:7,1:5,5:4}, [[[[3,2]],14],[[[1,2],[3]],17],[[[5],[1]],9]], mathOp('+',mathOp('+',mathItem(3),mathItem(1)),mathOp('*',mathNumber(2),mathItem(5)))),
+        mathRound({2:5,4:6,0:4}, [[[[2,3]],15],[[[2],[4,2]],17],[[[4],[0]],10]], mathOp('+',mathOp('*',mathItem(2),mathItem(4)),mathItem(0))),
+        mathRound({5:8,1:7,3:5}, [[[[5,2]],16],[[[5],[1]],15],[[[3,2],[1]],17]], mathOp('+',mathItem(5),mathOp('*',mathItem(1),mathItem(3)))),
+        mathRound({1:6,2:5,4:4}, [[[[1,3]],18],[[[1],[2,2]],16],[[[2],[4]],9]], mathOp('*',mathOp('+',mathItem(1),mathItem(2)),mathItem(4)))
+      ])
+    }),
+    Object.freeze({
+      id: 48,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      fog: Object.freeze({ cells: Object.freeze([1, 3, 5, 6, 8, 10, 13, 15, 17, 18, 20, 22, 25, 27, 29, 30, 32, 34]), duration: 5000 }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'first-four-conches', type: 'firstPairsKind', checkAt: 'continuous', count: 4, kind: 4, label: '前四组配对必须是海螺', itemRefs: Object.freeze([Object.freeze({ text: '海螺', kind: 4 })]) })
+      ]),
+      layout: Object.freeze([
+        4, 2, 5, 0, 5, 3,
+        1, 4, 3, 0, 4, 3,
+        1, 2, 3, 4, 2, 5,
+        1, 0, 4, 2, 0, 1,
+        1, 4, 2, 5, 0, 2,
+        0, 3, 4, 1, 3, 4
       ])
     })
   ]);

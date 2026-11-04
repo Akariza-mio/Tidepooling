@@ -25,7 +25,8 @@
 /* Hidden chapters and the menu do not spend time animating the bay. */
 #level-screen[hidden] .chapter-surf-scene *, #play-screen[hidden] .chapter-surf-scene *, .chapter-surf-scene[hidden] *, .is-surf-paused .chapter-surf-scene * { animation-play-state: paused; }
 .play-screen.is-surf-play { isolation: isolate; background: #e6e9d7; }
-.is-surf-play .board { position: relative; grid-template-rows: repeat(var(--board-rows), minmax(0, 1fr)); border-color: #a0b5a255; background: #91b0a222; }
+.board.has-surf { position: relative; grid-template-rows: repeat(var(--board-rows), minmax(0, 1fr)); }
+.is-surf-play .board { border-color: #a0b5a255; background: #91b0a222; }
 .board-surf { position: absolute; inset: -3px; z-index: 7; pointer-events: none; }
 .surf-warning, .surf-band { position: absolute; inset: 0; }
 .surf-warning { border: 2px dashed #bd804c; border-radius: 10px; background: #fbe8ac24; box-shadow: 0 0 0 2px #fff2c185; animation: surf-warning-pulse .9s ease-in-out infinite; }
