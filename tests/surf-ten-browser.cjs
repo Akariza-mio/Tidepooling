@@ -13,7 +13,7 @@ const label='配对失败会导致潮水上涨';
    await page.addInitScript(testing=>{if(testing)localStorage.setItem('beach-pairs-unlock-all','on');else localStorage.setItem('beach-pairs-completed-levels','[39]');window.surfDraws=[];Math.random=()=>window.surfDraws.length?window.surfDraws.shift():0;},testing);
    await page.goto(url);const state=()=>page.evaluate(()=>beachDiagnostics.snapshot()),action=name=>page.getByRole('button',{name,exact:true}).click(),tile=i=>page.locator('.tile').nth(i);
    const pair=async(a,b)=>{await tile(a).click();await tile(b).click();},readDeck=()=>page.locator('.tile .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind)));
-   await page.locator('#select-level-button').click();for(let i=0;i<3;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#level-49').isDisabled(),true);
+   await page.locator('#select-level-button').click();for(let i=0;i<3;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#level-50').isDisabled(),!testing);
    await page.locator('#level-39').click();await action('我知道了');const ninth=await readDeck();for(const kind of [0,1,2,3,4,5])for(let i=0;i<36;i++)if(ninth[i]===kind)await tile(i).click();
    await page.clock.runFor(1000);await action('下一关');assert.equal((await state()).levelId,40);assert.equal(await page.locator('#play-number').innerText(),'10');
    assert.deepEqual((await state()).conditions.map(c=>[c.type,c.penalty]),[['mismatchTideRise',3000]]);assert.equal(await page.locator('#modal-conditions').innerText(),label);assert.equal(await page.locator('#play-conditions').innerText(),label);

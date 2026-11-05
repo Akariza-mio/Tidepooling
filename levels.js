@@ -929,6 +929,38 @@
         1, 4, 2, 5, 0, 2,
         0, 3, 4, 1, 3, 4
       ])
+    }),
+    Object.freeze({
+      id: 49,
+      rows: 6,
+      columns: 6,
+      duration: 10000,
+      pairBonus: 2000,
+      startCountdown: 3000,
+      layout: Object.freeze([
+        0, 1, 1, 0, 0, 0,
+        1, 4, 2, 4, 2, 0,
+        4, 1, 1, 2, 2, 4,
+        0, 4, 0, 0, 1, 4,
+        0, 2, 2, 2, 0, 1,
+        1, 2, 1, 4, 4, 1
+      ])
+    }),
+    Object.freeze({
+      id: 50,
+      rows: 1,
+      columns: 2,
+      duration: 60000,
+      untimed: true,
+      pairBonus: 0,
+      layout: Object.freeze([6, 6]),
+      endingMessage: Object.freeze([
+        '感谢你的时间和精力！',
+        '此游戏是一个大学生拷问AI半个月得出的成果',
+        '希望能让玩的人得到快乐，体会到一点我的小巧思',
+        '特别感谢：开发时的测试者和为我提出建议的人',
+        'and you.'
+      ])
     })
   ]);
   if (typeof module !== 'undefined' && module.exports) module.exports = levels;

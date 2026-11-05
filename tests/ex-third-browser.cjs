@@ -17,7 +17,7 @@ const { pathToFileURL } = require('node:url'), { createServer } = require('../sc
       const action = name => page.getByRole('button', { name, exact: true }).click(), tile = i => page.locator('.tile').nth(i);
       const reveal = async i => { if ((await state()).fog[i].covered) await tile(i).click(); await tile(i).click(); };
       await page.locator('#select-level-button').click(); for (let i = 0; i < 4; i++) await page.locator('#chapter-next').click();
-      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 8 : 1); assert.equal(await page.locator('#level-49').isDisabled(), true);
+      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 10 : 1); assert.equal(await page.locator('#level-50').isDisabled(), !testing);
       await page.locator('#level-42').click(); assert.equal(await page.locator('#modal-conditions').innerText(), '在15秒内完成18次配对'); await action('我知道了');
       for (let i = 0; i < 36; i++) await tile(i).click(); await page.clock.runFor(1000); await action('下一关');
       let snap = await state(); assert.equal(snap.levelId, 43); assert.equal(snap.modalOpen, false); assert.equal(snap.remaining, 60000);
@@ -51,7 +51,7 @@ const { pathToFileURL } = require('node:url'), { createServer } = require('../sc
       assert.equal((await state()).state, 'won'); assert.equal((await state()).pairs, 18); await page.clock.runFor(1000);
       assert.equal(await page.evaluate(() => localStorage.getItem('beach-pairs-completed-levels')), testing ? '[42]' : '[42,43]');
       await action('下一关'); assert.equal((await state()).levelId,44); assert.equal((await state()).modalOpen,false); assert.equal((await state()).timerRunning,true); await page.locator('#pause-button').click(); await action('返回选关');
-      assert.equal(await page.locator('#level-43').isEnabled(), true); assert.equal(await page.locator('#level-49').isDisabled(), true);
+      assert.equal(await page.locator('#level-43').isEnabled(), true); assert.equal(await page.locator('#level-50').isDisabled(), !testing);
       assert.deepEqual(errors, []); await context.close();
     }
     console.log('PASS: EX third file/HTTP, 42→43, full fog/six fixed scattered grass cells, covered spread, independent locks and refog, hidden-state labels and clickable refogged holes/locks, pause/retry, viewports, victory and progress isolation. No screenshots.');

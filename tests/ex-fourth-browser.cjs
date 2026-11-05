@@ -10,7 +10,7 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    await page.clock.install({time:new Date('2026-11-04T00:00:00Z')});await page.clock.pauseAt(new Date('2026-11-04T00:00:01Z'));
    await page.addInitScript(testing=>{localStorage.setItem('beach-pairs-completed-levels','[43]');if(testing)localStorage.setItem('beach-pairs-unlock-all','on');window.waveDraws=[];Math.random=()=>window.waveDraws.shift()??0;},testing);
    await page.goto(url);const state=()=>page.evaluate(()=>beachDiagnostics.snapshot()),action=name=>page.getByRole('button',{name,exact:true}).click(),tile=i=>page.locator('.tile').nth(i);
-   await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?8:1);assert.equal(await page.locator('#level-49').isDisabled(),true);
+   await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:1);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
    await page.locator('#level-43').click();const third=await page.locator('.tile .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind)));
    for(const kind of [0,1,2,4])for(let i=0;i<36;i++)if(third[i]===kind){await tile(i).click();await tile(i).click();}
    await page.clock.runFor(1000);await action('下一关');assert.equal((await state()).levelId,44);assert.equal(await page.locator('#play-number').innerText(),'04');

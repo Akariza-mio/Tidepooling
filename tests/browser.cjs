@@ -21,7 +21,7 @@ const { pathToFileURL } = require('node:url');
   await page.goto(url);
   await page.locator('#start-button').waitFor();
   assert.equal(await page.locator('#menu-screen').isVisible(), true);
-  assert.equal((await page.locator('#menu-screen').innerText()).replace(/\s+/g, ' ').trim(), '游戏名称 开始游戏 选择关卡 设置');
+  assert.equal((await page.locator('#menu-screen').innerText()).replace(/\s+/g, ' ').trim(), '赶赶嗨嗨！ 开始游戏 选择关卡 设置');
   assert.equal(await page.locator('#menu-screen button').count(), 3);
   const settingsOffset = await page.locator('#settings-button').evaluate(button => {
     const bounds = button.getBoundingClientRect();

@@ -27,7 +27,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#select-level-button').click();
     for (let i = 0; i < 3; i++) await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(), 10);
-    assert.equal(await page.locator('#level-49').isDisabled(), true);
+    assert.equal(await page.locator('#level-50').isDisabled(), false);
     await page.locator('#level-33').click(); await action('我知道了');
     const third = await page.locator('.tile .seaside-item').evaluateAll(items => items.map(item => Number(item.dataset.kind)));
     for (const kind of [0,1,2,3,4,5]) for (let i = 0; i < third.length; i++) if (third[i] === kind) await tile(i).click();

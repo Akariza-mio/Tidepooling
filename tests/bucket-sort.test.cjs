@@ -8,7 +8,7 @@ function create(custom = level) { const game = new BucketSort({ level: custom })
 function move(game, from, to, now = 0) { assert.equal(game.source, null); assert.equal(game.select(from, now), true); assert.equal(game.select(to, now), true); }
 test('fifth level uses four kinds, six buckets, two empty buffers and an immutable fixed deck', () => {
   const game = create();
-  assert.equal(levels.length, 48); assert.equal(levels.some(level => level.id >= 49), false);
+  assert.equal(levels.length, 50); assert.equal(levels.some(level => level.id > 50), false);
   assert.equal(level.type, 'bucketSort'); assert.equal(game.capacity, 4); assert.equal(game.duration, 60000);
   assert.equal(game.buckets.length, 6); assert.equal(game.buckets.filter(bucket => !bucket.length).length, 2);
   assert.deepEqual(game.buckets.flat(), level.layout);

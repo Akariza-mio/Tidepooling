@@ -11,7 +11,7 @@ function create(options = {}) {
 const collect = (game, indices, now) => indices.forEach(index => assert.equal(game.select(index, now), true));
 
 test('surf one has a fixed five-kind 6x6 deck, sixty seconds and no inherited grass or conditions', () => {
-  assert.equal(levels.length, 48); assert.equal(levels.some(item => item.id >= 49), false);
+  assert.equal(levels.length, 50); assert.equal(levels.some(item => item.id > 50), false);
   const game = create();
   assert.equal(game.duration, 60000); assert.equal(game.totalPairs, 18);
   assert.deepEqual([0,1,2,4,5].map(kind => level.layout.filter(value => value === kind).length), [8,8,8,6,6]);

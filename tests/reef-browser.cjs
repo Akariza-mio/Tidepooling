@@ -47,7 +47,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#chapter-3 .reef-emblem-art').count(), 1);
     assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), '三');
     assert.equal(await page.locator('#level-21').isEnabled(), true);
-    assert.equal(await page.locator('#level-49').isDisabled(), true);
+    assert.equal(await page.locator('#level-50').isDisabled(), false);
     for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
       await page.setViewportSize(viewport); await page.clock.runFor(60);
       const fits = await page.evaluate(() => {
@@ -100,7 +100,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), '四');
     assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(), 10);
     assert.equal(await page.locator('#chapter-4 .is-minigame').count(), 2);
-    assert.equal(await page.evaluate(() => BeachLevels.length), 48);
+    assert.equal(await page.evaluate(() => BeachLevels.length), 50);
     for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
       await page.setViewportSize(viewport);
       assert.equal(await page.evaluate(() => {

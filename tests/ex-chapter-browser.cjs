@@ -31,8 +31,8 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    assert.equal(await page.locator('#chapter-day-scene').isVisible(),true);assert.equal(await page.locator('#chapter-surf-scene').isVisible(),false);assert.equal(await page.locator('#chapter-day-scene').innerHTML(),day);
    assert.equal(await page.locator('#chapter-5 .harvest-emblem-art').count(),1);assert.equal(await page.locator('#chapter-5 .harvest-emblem-art .seaside-item').count(),4);
    const ids=await page.locator('#chapter-5 [id]').evaluateAll(ns=>ns.map(n=>n.id));assert.equal(ids.length,new Set(ids).size);
-   assert.equal(await page.locator('#chapter-5 .chapter-level').count(),10);assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),8);assert.equal(await page.locator('#chapter-5 .is-minigame').count(),2);
-   assert.equal(await page.evaluate(()=>BeachLevels.length),48);assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),'[1]');
+   assert.equal(await page.locator('#chapter-5 .chapter-level').count(),10);assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),10);assert.equal(await page.locator('#chapter-5 .is-minigame').count(),2);
+   assert.equal(await page.evaluate(()=>BeachLevels.length),50);assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),'[1]');
    for(const viewport of [{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:1280,height:720},{width:844,height:390}]){
     await page.setViewportSize(viewport);assert.equal(await page.evaluate(()=>{
      const app=document.querySelector('#app').getBoundingClientRect(),scene=document.querySelector('#chapter-day-scene').getBoundingClientRect(),pager=document.querySelector('.chapter-pagination').getBoundingClientRect();
@@ -56,6 +56,6 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),0);assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),'[1]');
    assert.deepEqual(errors,[]);await context.close();
   }
-  console.log('PASS: file/HTTP, Challenge EX name/indicator and filled-bucket art, reused daylight, both 1s wave-bridged transitions and midpoint/input locks, cleanup in both directions, reduced motion, five viewports, 48 implemented levels, first eight EX available in testing and remaining placeholders locked, unchanged progress. No screenshots.');
+  console.log('PASS: file/HTTP, Challenge EX name/indicator and filled-bucket art, reused daylight, both 1s wave-bridged transitions and midpoint/input locks, cleanup in both directions, reduced motion, five viewports, 50 implemented levels, all ten EX available in testing, unchanged progress. No screenshots.');
  }finally{if(browser)await browser.close();server.closeAllConnections();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});

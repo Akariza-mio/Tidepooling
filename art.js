@@ -7,9 +7,10 @@
     ['#f2d18d', '#bc9050', '#fff1bd'],
     ['#c8b8d8', '#8b75a3', '#f2dff2'],
     ['#e6bba1', '#ae8068', '#fff0d9'],
-    ['#b9d6e2', '#709bac', '#eaf6ef']
+    ['#b9d6e2', '#709bac', '#eaf6ef'],
+    ['#eda6ad', '#c86b80', '#ffe5df']
   ];
-  const names = ['扇贝', '螃蟹', '小虾', '八爪鱼', '海螺', '鱼儿'];
+  const names = ['扇贝', '螃蟹', '小虾', '八爪鱼', '海螺', '鱼儿', '爱心'];
   const shapes = [
     // Keep the original pink scallop illustration unchanged.
     '<path d="M49 83C29 77 11 56 12 36 13 26 22 26 25 22 31 15 35 21 39 15 44 8 56 8 61 15 65 21 70 15 76 22 79 27 88 26 89 36 91 54 72 78 52 83Z"/><g class="ribs"><path d="M49 79 21 32M50 78 32 24M50 78 44 17M51 78 57 17M52 79 69 25M53 79 81 33"/></g><path class="highlight" d="M19 40Q48 25 81 40M25 57Q51 45 76 57"/>',
@@ -25,6 +26,7 @@
     '<path d="m55 12 8 17-4 10 13 11-3 13 11 11-10 11-34 1-15-10 8-14-3-11 14-13-1-11Z"/><path class="ribs" d="m42 29 20 1m-21 9 18 1M29 53l20-5M38 73C27 55 55 43 67 57c15 19-12 34-23 20-9-12 10-23 16-12 5 9-8 15-10 6M25 75l13 7"/><path class="highlight" d="m52 21-5 8M35 49l8-6M31 65l-3 7"/>',
     '<path d="m62 42 21-15q7-3 5 5l-4 17 5 18q1 8-6 5L62 59Z"/><path d="m39 34 9-12q2-3 5 0l8 12m-21 30 9 13q3 4 6-1l6-12"/><path d="M16 50c7-17 26-25 43-18 11 4 19 11 19 18s-8 15-19 19c-17 6-36-2-43-19Z"/><path class="ribs" d="M44 37q-8 13 0 26m9-20q5-3 9 0m-9 9q5-3 9 0m11-9 10-8m-10 21 11 8"/><circle fill="#fffaf0" stroke-width="1.2" cx="30" cy="44" r="6"/><circle class="eyes" cx="29" cy="44" r="2.8"/><circle fill="#fffaf1" stroke="none" cx="28.4" cy="43.1" r=".8"/><path class="smile" d="M21 52q3 4 7 0"/><ellipse class="blush" cx="33" cy="55" rx="4.5" ry="2.6"/><path class="highlight" d="M38 35q10-4 20 1"/>'
   );
+  shapes.push('<path d="M50 85C42 78 13 59 13 36c0-19 24-27 37-8 13-19 37-11 37 8 0 23-29 42-37 49Z"/><path class="highlight" d="M23 39c-1-11 10-16 17-8"/>');
   function item(index, suffix = '') {
     const [base, dark, light] = palettes[index];
     const id = 's' + index + '-' + suffix;

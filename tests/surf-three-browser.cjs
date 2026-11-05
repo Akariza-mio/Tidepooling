@@ -21,7 +21,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#select-level-button').click();
     for (let i = 0; i < 3; i++) await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(), 10);
-    assert.equal(await page.locator('#level-49').isDisabled(), true);
+    assert.equal(await page.locator('#level-50').isDisabled(), false);
     // Enter through the second level's real victory/next-level flow.
     await page.locator('#level-32').click(); await action('我知道了');
     const second = await page.locator('.tile .seaside-item').evaluateAll(items => items.map(item => Number(item.dataset.kind)));
@@ -83,7 +83,7 @@ const { pathToFileURL } = require('node:url');
     await action('下一关'); assert.equal((await state()).levelId, 34);
     assert.deepEqual((await state()).conditions, []);
     await action('我知道了'); await page.locator('#pause-button').click(); await action('返回选关'); assert.equal(await page.locator('#level-33').isEnabled(), true);
-    assert.equal(await page.locator('#level-49').isDisabled(), true);
+    assert.equal(await page.locator('#level-50').isDisabled(), false);
     assert.deepEqual(errors, []); assert.deepEqual(requests, []);
     console.log('PASS: second-to-third entry, six-kind fixed board, three condition placements, intro/pause/retry, 15s wave warning/arrival, invalid/washed input exclusion, immediate 21st-mistake red cross during collection, 20-mistake victory and progress isolation. No images captured.');
   } finally { await browser.close(); }

@@ -17,7 +17,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#start-button').waitFor();
     await page.clock.runFor(60);
     assert.equal(await page.locator('#menu-art').count(), 0);
-    assert.equal((await page.locator('#menu-screen').innerText()).replace(/\s+/g, ' ').trim(), '游戏名称 开始游戏 选择关卡 设置');
+    assert.equal((await page.locator('#menu-screen').innerText()).replace(/\s+/g, ' ').trim(), '赶赶嗨嗨！ 开始游戏 选择关卡 设置');
     const pattern = await page.locator('#menu-pattern-scroll').evaluate(el => decodeURIComponent(el.style.backgroundImage));
     for (let kind = 0; kind < 6; kind++) assert.ok(pattern.includes(`data-kind="${kind}"`));
     assert.equal(await page.locator('.menu-panel').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 248, 233)');

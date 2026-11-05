@@ -12,7 +12,7 @@ function pair(game, now) {
   }
 }
 for (const level of levels.filter(level => !level.type && !level.surf && level.pairBonus > 0)) test(`level ${level.id} discards overflow across repeated rewards and has no hidden bank`, () => {
-  const game = new Game({ level }); game.start(0);
+  const game = new Game({ level: level.startCountdown ? { ...level, startCountdown: 0 } : level }); game.start(0);
   game.update(1000); assert.equal(game.remaining, level.duration - 1000);
   pair(game, 1000); assert.equal(game.remaining, level.duration);
   pair(game, 1000); pair(game, 1000); assert.equal(game.remaining, level.duration);

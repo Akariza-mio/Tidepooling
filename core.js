@@ -10,6 +10,7 @@
       this.revealDuration = options.revealDuration ?? 500;
       this.random = options.random ?? Math.random;
       this.state = 'idle';
+      this.countdownRemaining = 0;
       this.cards = [];
       this.elapsed = 0;
       this.activeTime = 0;
@@ -49,7 +50,8 @@
       this.pairTimes = [];
       this.pairKinds = [];
       this.activeTime = 0;
-      this.timerRunning = true;
+      this.countdownRemaining = this.level.startCountdown ?? 0;
+      this.timerRunning = this.countdownRemaining === 0 && !this.level.untimed;
       this.lastMatchedKind = null;
       this.failureReason = null;
       this.selected = [];
@@ -59,9 +61,17 @@
     }
     update(now) {
       if (this.state !== 'playing') return;
-      const delta = Math.max(0, now - this.lastNow);
+      let delta = Math.max(0, now - this.lastNow);
+      if (this.countdownRemaining > 0) {
+        const seconds = Math.ceil(this.countdownRemaining / 1000);
+        const preparation = Math.min(delta, this.countdownRemaining);
+        this.countdownRemaining -= preparation;
+        delta -= preparation;
+        if (this.countdownRemaining === 0) this.timerRunning = !this.level.untimed;
+        if (Math.ceil(this.countdownRemaining / 1000) !== seconds) this.version++;
+      }
       this.activeTime += delta;
-      if (this.timerRunning) this.elapsed = Math.min(this.duration + this.bonusTime, this.elapsed + delta);
+      if (this.timerRunning && !this.level.untimed) this.elapsed = Math.min(this.duration + this.bonusTime, this.elapsed + delta);
       this.lastNow = now;
       if (this.remaining <= 0) {
         this.state = 'lost';
@@ -95,7 +105,7 @@
     select(index, now) {
       this.update(now);
       const card = this.cards[index];
-      if (this.state !== 'playing' || this.pending || !card || this.isGrassLocked(card) || card.fog?.covered || card.status !== 'hidden') return false;
+      if (this.state !== 'playing' || this.countdownRemaining > 0 || this.pending || !card || this.isGrassLocked(card) || card.fog?.covered || card.status !== 'hidden') return false;
       card.status = 'open';
       this.selected.push(index);
       this.version++;
@@ -167,7 +177,7 @@
     }
     setTimerRunning(running, now) {
       this.update(now);
-      this.timerRunning = running;
+      this.timerRunning = running && !this.level.untimed;
       this.version++;
     }
     resume(now) {

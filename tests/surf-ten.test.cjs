@@ -6,7 +6,7 @@ function mismatch(game,now){assert.equal(game.select(0,now),true);assert.equal(g
 function pair(game,now,exclude=[]){const a=game.cards.find(a=>!exclude.includes(a.index)&&a.status==='hidden'&&!game.isWashed(a.index)&&game.cards.some(b=>b.index!==a.index&&!exclude.includes(b.index)&&b.value===a.value&&b.status==='hidden'&&!game.isWashed(b.index)));assert.ok(a);const b=game.cards.find(b=>b.index!==a.index&&!exclude.includes(b.index)&&b.value===a.value&&b.status==='hidden'&&!game.isWashed(b.index));game.select(a.index,now);game.select(b.index,now);}
 function finish(game,now){for(const kind of [0,1,2,3,4,5])for(const c of game.cards.filter(c=>c.value===kind&&c.status==='hidden'))assert.equal(game.select(c.index,now),true);}
 test('tenth level uses 6x6 six balanced kinds, sixty seconds, three unique lines and only a three-second mismatch penalty',()=>{
- const game=create();assert.equal(levels.length, 48);assert.equal(game.duration,60000);assert.equal(game.totalPairs,18);assert.equal(level.rows,6);assert.equal(level.columns,6);
+ const game=create();assert.equal(levels.length, 50);assert.equal(game.duration,60000);assert.equal(game.totalPairs,18);assert.equal(level.rows,6);assert.equal(level.columns,6);
  assert.deepEqual([0,1,2,3,4,5].map(kind=>level.layout.filter(v=>v===kind).length),[6,6,6,6,6,6]);
  assert.equal(level.surf.targetCount,3);assert.equal(level.surf.penalty,5000);assert.equal(level.surf.interval,15000);assert.equal(level.surf.duration,5000);
  assert.deepEqual(game.conditions.map(c=>[c.type,c.penalty]),[['mismatchTideRise',3000]]);assert.equal(game.conditions[0].label,'配对失败会导致潮水上涨');

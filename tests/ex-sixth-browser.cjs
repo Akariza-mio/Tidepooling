@@ -15,7 +15,7 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    const intro=async()=>{assert.equal(await page.locator('#modal-conditions').innerText(),'配对失败会使物品位置互换');await action('我知道了');};
    const restart=async()=>{await page.locator('#pause-button').click();await action('重新开始');assert.equal((await state()).remaining,60000);await intro();};
    await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();
-   assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?8:1);assert.equal(await page.locator('#level-49').isDisabled(),true);
+   assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:1);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
    if(testing) await page.locator('#level-46').click();
    else {
     assert.equal(await page.locator('#level-46').isDisabled(),true);await page.locator('#level-45').click();await action('我知道了');
@@ -42,7 +42,7 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    await page.setViewportSize({width:390,height:844});
    for(let kind=0;kind<6;kind++)for(let i=0;i<36;i++)if(original[i]===kind)await tile(i).click();assert.equal((await state()).state,'won');assert.equal((await state()).pairs,18);assert.equal((await state()).conditions[0].completed,true);await page.clock.runFor(1000);
    assert.equal(await page.locator('#modal-heading').innerText(),'海的礼物，收好啦。');assert.equal(await page.locator('#modal-art .bucket-find').count(),18);assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),testing?'[45]':'[45,46]');
-   await action('下一关');assert.equal((await state()).levelId,47);assert.equal((await state()).mode,'arithmetic');assert.equal((await state()).modalOpen,false);assert.equal((await state()).timerRunning,true);await page.locator('#pause-button').click();await action('返回选关');assert.equal(await page.locator('#level-46').isEnabled(),true);assert.equal(await page.locator('#level-49').isDisabled(),true);
+   await action('下一关');assert.equal((await state()).levelId,47);assert.equal((await state()).mode,'arithmetic');assert.equal((await state()).modalOpen,false);assert.equal((await state()).timerRunning,true);await page.locator('#pause-button').click();await action('返回选关');assert.equal(await page.locator('#level-46').isEnabled(),true);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
    await page.locator('#level-46').click();await intro();await page.clock.fastForward(60000);assert.equal((await state()).failureReason,'timeout');await action('重新挑战');assert.equal((await state()).remaining,60000);await intro();assert.deepEqual(await deck(),original);
    const ids=await page.locator('#board [id]').evaluateAll(ns=>ns.map(n=>n.id));assert.equal(ids.length,new Set(ids).size);assert.deepEqual(errors,[]);assert.deepEqual(external,[]);await context.close();
   }

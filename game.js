@@ -300,6 +300,7 @@
     screens.forEach(screen => { screen.hidden = screen.id !== id + '-screen'; });
     canvas.style.display = id === 'play' ? 'block' : 'none';
     hideTideDanger();
+    if (id !== 'play') $('start-countdown').hidden = true;
     if (id === 'level') selectChapter(currentChapter);
     focusScreen(id);
   }
@@ -328,6 +329,7 @@
     $('play-screen').classList.toggle('is-grass-puzzle', isGrassPuzzle());
     $('play-screen').classList.toggle('is-bucket-sort', isBucketSort());
     $('play-screen').classList.toggle('is-slot-machine', isSlotMachine());
+    $('play-screen').classList.toggle('is-finale', Boolean(game.level.endingMessage));
     $('play-screen').classList.toggle('is-arithmetic', isArithmetic());
     $('arithmetic-panel').hidden = !isArithmetic();
     $('arithmetic-panel').dataset.round = '';
@@ -403,7 +405,7 @@
             const pair = game.cards.filter(c => c.status === 'matched' && previousStates[c.index] !== 'matched');
             const awardedTime = game.bonusTime - oldBonus;
             collectPair(pair, awardedTime);
-            const rewardMessage = game.pairBonus === 0 ? '本关配对不奖励时间' : awardedTime === game.pairBonus ? '增加5秒' : '潮水已退到底';
+            const rewardMessage = game.pairBonus === 0 ? '本关配对不奖励时间' : awardedTime > 0 ? `增加${Math.round(awardedTime / 100) / 10}秒` : '潮水已退到底';
             announce(`找到一对${BeachArt.names[card.value]}，${rewardMessage}，已经收集${game.pairs}对。`);
           }
           else if (game.mismatches > oldMismatches && game.conditions.some(condition => condition.type === 'mismatchSwap')) {
@@ -1068,10 +1070,20 @@
   function appendSeagrassArt(button, index) {
     button.insertAdjacentHTML('beforeend', `<span class="seagrass-cover" aria-hidden="true">${BeachArt.seagrass('card-' + index)}${BeachArt.lockedSeagrass('card-' + index)}</span>`);
   }
+  function syncStartCountdown() {
+    const overlay = $('start-countdown');
+    const seconds = Math.ceil(game.countdownRemaining / 1000);
+    const visible = seconds > 0 && game.state === 'playing';
+    const wasVisible = !overlay.hidden;
+    overlay.hidden = !visible;
+    if (visible && $('start-countdown-number').textContent !== String(seconds)) $('start-countdown-number').textContent = seconds;
+    if (wasVisible && seconds === 0 && game.state === 'playing') announce('准备结束，可以开始翻格了。');
+  }
   function syncGame() {
     if (game.level.surf) syncSurf();
     if (lastVersion === game.version) return;
     lastVersion = game.version;
+    syncStartCountdown();
     if (isSlotMachine()) syncSlotMachine();
     if (isArithmetic()) { syncArithmetic(); return; }
     if (isBucketSort()) { syncBucketSort(); return; }
@@ -1126,6 +1138,7 @@
           ? `${position}，未翻开的沙格` : `${position}，${BeachArt.names[card.value]}${card.status === 'matched' ? '，已收集' : ''}`);
       }
       if (isSlotMachine()) element.disabled = game.state !== 'playing' || game.phase !== 'idle' || card.status !== 'hidden';
+      if (game.level.startCountdown) element.disabled = game.state !== 'playing' || game.countdownRemaining > 0 || card.status !== 'hidden';
       previousStates[i] = card.status;
     });
     $('pairs-count').textContent = game.pairs;
@@ -1201,7 +1214,7 @@
       container.innerHTML = BeachArt.washedBucket();
     } else container.innerHTML = BeachArt.item(art, 'modal');
   }
-  function openModal({ eyebrow, heading, description, emphasizeLastLine = false, art = 0, result = false, immediateResult = false, artBelowHeading = false, fogIntro = false, showConditions = false, conditionProgress = true, actions }) {
+  function openModal({ eyebrow, heading, description, emphasizeLastLine = false, art = 0, result = false, immediateResult = false, artBelowHeading = false, fogIntro = false, showConditions = false, conditionProgress = true, ending = false, actions }) {
     previousFocus = document.activeElement;
     modalOpen = true;
     $('modal-eyebrow').textContent = eyebrow;
@@ -1215,6 +1228,7 @@
       $('modal-description').replaceChildren(document.createTextNode(lines.join('\n') + '\n'), warning);
     }
     renderModalArt(art);
+    $('modal-card').classList.toggle('ending-card', ending);
     $('modal-card').classList.toggle('result-card', result);
     $('modal-card').classList.toggle('immediate-result', immediateResult);
     $('modal-card').classList.toggle('species-card', artBelowHeading);
@@ -1267,8 +1281,14 @@
           if (game.level.id === 1) localStorage.setItem('beach-pairs-level-one', 'won');
         } catch (_) { /* In-memory progress still permits replay this session. */ }
       }
-      announce(isArithmetic() ? '挑战成功！十轮速算全部完成。' : isBucketSort() ? '挑战成功！所有收获都分好类了。' : isGrassPuzzle() ? '挑战成功！海草已全部清空。' : isJourney() ? '挑战成功！五种目标全部找到。' : isPuzzle() ? '挑战成功！棋盘已填满，横、纵和两条对角线均无重复。' : `通关成功！${game.totalPairs}对赶海收获全部收集完成。`);
+      announce(game.level.endingMessage ? game.level.endingMessage[0] : isArithmetic() ? '挑战成功！十轮速算全部完成。' : isBucketSort() ? '挑战成功！所有收获都分好类了。' : isGrassPuzzle() ? '挑战成功！海草已全部清空。' : isJourney() ? '挑战成功！五种目标全部找到。' : isPuzzle() ? '挑战成功！棋盘已填满，横、纵和两条对角线均无重复。' : `通关成功！${game.totalPairs}对赶海收获全部收集完成。`);
     } else announce(game.failureReason === 'wrongTarget' ? '碰到了当前目标以外的物品，本次挑战结束。' : conditionFailure ? '未完成全部的条件，本次挑战未通过。' : '潮水已经漫过沙滩，本次赶海结束。');
+    if (won && game.level.endingMessage) {
+      openModal({ eyebrow: '', heading: game.level.endingMessage[0], description: game.level.endingMessage.slice(1).join('\n'),
+        art: 6, result: true, ending: true,
+        actions: [{ text: '返回主菜单', run: () => showScreen('menu') }, { text: '返回选关', run: () => showScreen('level') }] });
+      return;
+    }
     if (isArithmetic()) {
       openModal({ eyebrow: won ? '10轮推算，一路解开谜底' : '潮起潮落，总有下一次',
         heading: won ? '挑战成功！' : '潮水先到了一步',
@@ -1352,7 +1372,7 @@
     $('tide-danger').style.opacity = '0';
   }
   function updateTideDanger(frameMs) {
-    if (game.state !== 'playing' || modalOpen) { hideTideDanger(); return; }
+    if (game.state !== 'playing' || modalOpen || game.countdownRemaining > 0 || game.level.untimed) { hideTideDanger(); return; }
     const warningWindow = 10000;
     const urgency = Math.max(0, Math.min(1, 1 - game.remaining / warningWindow));
     const target = game.remaining <= warningWindow ? .42 + .58 * urgency : 0;
@@ -1526,6 +1546,6 @@
   requestAnimationFrame(frame);
   // Read-only diagnostics for local acceptance checks; no hidden in-game controls.
   window.beachDiagnostics = Object.freeze({
-    snapshot: () => ({ arithmetic: isArithmetic() ? { completed: game.completed, total: game.totalRounds, round: game.roundIndex + 1, wrongAnswers: game.wrongAnswers, feedback: game.feedback } : null, slotMachine: isSlotMachine() ? { phase: game.phase, spins: game.spins, reels: game.displayReels, stopped: game.stoppedReels, credits: game.credits, manualPairs: game.manualPairs, autoPairs: game.autoPairs, result: game.result ? { ...game.result, indices: [...game.result.indices] } : null, collected: game.collectedCount, total: game.totalItems, matchProgress: game.matchProgress, feedback: game.feedback } : null, surf: game.level.surf ? { phase: game.surfPhase, target: game.surfTarget ? { ...game.surfTarget } : null, targets: game.surfTargets.map(target => ({ ...target })), time: game.surfTime, nextWaveAt: game.nextWaveAt, until: game.waveUntil, startedAt: game.waveStartedAt, retreatUntil: game.waveRetreatUntil, count: game.waveCount, covered: game.cards.map(card => game.isWashed(card.index)) } : null, screen: currentScreen, levelId: game.level.id, seagrass: game.level.seagrass ? game.cards.map(card => ({ grass: card.tangled, locked: game.isGrassLocked(card), until: card.grassLockedUntil })) : null, mode: game.level.type || 'matching', bucketSort: isBucketSort() ? { buckets: game.buckets.map(bucket => [...bucket]), source: game.source, capacity: game.capacity, sorted: game.sortedCount, history: game.history.length, feedback: game.feedback } : null, grassPuzzle: isGrassPuzzle() ? { grass: game.cards.map(card => card.grass), remaining: game.grassCount, affected: [...game.lastAffected] } : null, journey: isJourney() ? { phase: game.phase, position: game.position, noRevisit: Boolean(game.level.noRevisit), visited: [...game.visited], targetKind: game.target?.kind ?? null, targetIndex: game.target?.index ?? null, targetRemaining: game.targetRemaining, targetHistory: [...game.targetHistory], penalties: game.penalties, wrongKind: game.wrongKind, collected: [...game.collected], collectedCount: game.collectedCount, totalTreasures: game.totalTreasures, previewSeconds: game.previewSeconds } : null, filledCount: isPuzzle() ? game.filledCount : null, values: isPuzzle() ? game.cards.map(card => card.value) : null, fixed: isPuzzle() ? game.cards.map(card => card.fixed) : null, conflicts: isPuzzle() ? [...game.conflicts] : null, rows: game.level.rows, columns: game.level.columns, totalPairs: game.totalPairs, state: game.state, failureReason: game.failureReason, conditions: game.conditionStates, lastMatchedKind: game.lastMatchedKind, pairs: game.pairs, mismatches: game.mismatches, turns: game.turns, elapsed: game.elapsed, duration: game.duration, bonusTime: game.bonusTime, remaining: game.remaining, progress: game.progress, displayedTide, flights: flights.length, bucketPairs: arrivedPairs, fps: measuredFps, statuses: game.cards.map(card => card.status), fog: game.cards.map(card => card.fog ? { ...card.fog } : null), activeTime: game.activeTime, modalOpen, timerRunning: game.timerRunning, tutorialStep: tutorial?.active ? tutorial.step : null, tutorialTarget: tutorial?.active ? tutorial.target : null })
+    snapshot: () => ({ countdownRemaining: game.countdownRemaining, arithmetic: isArithmetic() ? { completed: game.completed, total: game.totalRounds, round: game.roundIndex + 1, wrongAnswers: game.wrongAnswers, feedback: game.feedback } : null, slotMachine: isSlotMachine() ? { phase: game.phase, spins: game.spins, reels: game.displayReels, stopped: game.stoppedReels, credits: game.credits, manualPairs: game.manualPairs, autoPairs: game.autoPairs, result: game.result ? { ...game.result, indices: [...game.result.indices] } : null, collected: game.collectedCount, total: game.totalItems, matchProgress: game.matchProgress, feedback: game.feedback } : null, surf: game.level.surf ? { phase: game.surfPhase, target: game.surfTarget ? { ...game.surfTarget } : null, targets: game.surfTargets.map(target => ({ ...target })), time: game.surfTime, nextWaveAt: game.nextWaveAt, until: game.waveUntil, startedAt: game.waveStartedAt, retreatUntil: game.waveRetreatUntil, count: game.waveCount, covered: game.cards.map(card => game.isWashed(card.index)) } : null, screen: currentScreen, levelId: game.level.id, seagrass: game.level.seagrass ? game.cards.map(card => ({ grass: card.tangled, locked: game.isGrassLocked(card), until: card.grassLockedUntil })) : null, mode: game.level.type || 'matching', bucketSort: isBucketSort() ? { buckets: game.buckets.map(bucket => [...bucket]), source: game.source, capacity: game.capacity, sorted: game.sortedCount, history: game.history.length, feedback: game.feedback } : null, grassPuzzle: isGrassPuzzle() ? { grass: game.cards.map(card => card.grass), remaining: game.grassCount, affected: [...game.lastAffected] } : null, journey: isJourney() ? { phase: game.phase, position: game.position, noRevisit: Boolean(game.level.noRevisit), visited: [...game.visited], targetKind: game.target?.kind ?? null, targetIndex: game.target?.index ?? null, targetRemaining: game.targetRemaining, targetHistory: [...game.targetHistory], penalties: game.penalties, wrongKind: game.wrongKind, collected: [...game.collected], collectedCount: game.collectedCount, totalTreasures: game.totalTreasures, previewSeconds: game.previewSeconds } : null, filledCount: isPuzzle() ? game.filledCount : null, values: isPuzzle() ? game.cards.map(card => card.value) : null, fixed: isPuzzle() ? game.cards.map(card => card.fixed) : null, conflicts: isPuzzle() ? [...game.conflicts] : null, rows: game.level.rows, columns: game.level.columns, totalPairs: game.totalPairs, state: game.state, failureReason: game.failureReason, conditions: game.conditionStates, lastMatchedKind: game.lastMatchedKind, pairs: game.pairs, mismatches: game.mismatches, turns: game.turns, elapsed: game.elapsed, duration: game.duration, bonusTime: game.bonusTime, remaining: game.remaining, progress: game.progress, displayedTide, flights: flights.length, bucketPairs: arrivedPairs, fps: measuredFps, statuses: game.cards.map(card => card.status), fog: game.cards.map(card => card.fog ? { ...card.fog } : null), activeTime: game.activeTime, modalOpen, timerRunning: game.timerRunning, tutorialStep: tutorial?.active ? tutorial.step : null, tutorialTarget: tutorial?.active ? tutorial.target : null })
   });
 })();

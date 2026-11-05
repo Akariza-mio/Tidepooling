@@ -9,7 +9,7 @@ function create(draws = [0,0]) {
   game.start(0); return game;
 }
 test('surf four is a fixed balanced 6x6, six-kind, sixty-second matching level with two targets and no inherited conditions', () => {
-  const game = create(); assert.equal(levels.length, 48); assert.equal(levels.some(item => item.id >= 49), false);
+  const game = create(); assert.equal(levels.length, 50); assert.equal(levels.some(item => item.id > 50), false);
   assert.equal(level.rows, 6); assert.equal(level.columns, 6); assert.equal(game.duration, 60000); assert.equal(game.totalPairs, 18);
   assert.deepEqual([0,1,2,3,4,5].map(kind => level.layout.filter(value => value === kind).length), [6,6,6,6,6,6]);
   assert.notDeepEqual(level.layout, levels.find(item => item.id === 33).layout);

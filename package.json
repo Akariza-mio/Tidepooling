@@ -22,6 +22,8 @@
     "test:ex:second": "node tests/ex-second-browser.cjs",
     "test:ex:third": "node tests/ex-third-browser.cjs",
     "test:ex:fourth": "node tests/ex-fourth-browser.cjs",
+    "test:finale": "node tests/finale-browser.cjs",
+    "test:ex:ninth": "node tests/ex-ninth-browser.cjs",
     "test:ex:eighth": "node tests/ex-eighth-browser.cjs",
     "test:arithmetic": "node tests/arithmetic-browser.cjs",
     "test:ex:sixth": "node tests/ex-sixth-browser.cjs",
