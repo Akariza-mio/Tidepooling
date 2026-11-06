@@ -16,8 +16,8 @@ const Arithmetic=require('../arithmetic.js'),previous=require('../levels.js').fi
    const reveal=async i=>{if((await state()).fog[i]?.covered)await tile(i).click();await tile(i).click();};
    await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:1);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
    if(testing)await page.locator('#level-48').click();else{
-    assert.equal(await page.locator('#level-48').isDisabled(),true);await page.locator('#level-47').click();assert.equal((await state()).modalOpen,false);
-    for(const round of previous.rounds){await page.locator('#arithmetic-answer').fill(String(Arithmetic.evaluate(round.target,round.values)));await page.locator('#arithmetic-answer').press('Enter');}await page.clock.runFor(1000);await action('下一关');
+    assert.equal(await page.locator('#level-48').isDisabled(),true);await page.locator('#level-47').click();await action('我知道了');
+    for(let kind=0;kind<6;kind++)for(let i=0;i<36;i++)if(previous.layout[i]===kind)await tile(i).click();await page.clock.runFor(1000);await action('下一关');
    }
    let snap=await state();assert.equal(snap.levelId,48);assert.equal(snap.mode,'matching');assert.equal(snap.duration,60000);assert.equal(snap.totalPairs,18);assert.equal(snap.modalOpen,true);await page.clock.fastForward(30000);assert.equal((await state()).remaining,60000);await intro();
    const deck=await page.locator('.tile .shell-face > .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind)));
@@ -40,9 +40,9 @@ const Arithmetic=require('../arithmetic.js'),previous=require('../levels.js').fi
    for(const kind of [0,1,2,3,5])while((await state()).statuses.some((status,i)=>status==='hidden'&&deck[i]===kind))await pair(kind);assert.equal((await state()).state,'won');assert.equal((await state()).pairs,18);await page.clock.runFor(1000);
    assert.equal(await page.locator('#modal-heading').innerText(),'海的礼物，收好啦。');assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),testing?'[47]':'[47,48]');await action('下一关');assert.equal((await state()).levelId,49);assert.equal((await state()).duration,10000);assert.equal((await state()).countdownRemaining,3000);assert.equal((await state()).modalOpen,false);await page.locator('#pause-button').click();await action('返回选关');assert.equal(await page.locator('#level-48').isEnabled(),true);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
    await page.locator('#level-48').click();await intro();await page.clock.fastForward(60000);assert.equal((await state()).failureReason,'timeout');await action('重新挑战');await intro();assert.equal((await state()).remaining,60000);
-   await page.locator('#pause-button').click();await action('返回选关');await page.locator('#level-47').click();assert.equal((await state()).mode,'arithmetic');assert.equal((await state()).modalOpen,false);assert.equal(await page.locator('.fog-mask-cell').count(),0);assert.equal(await page.locator('#arithmetic-panel').isVisible(),true);
+   await page.locator('#pause-button').click();await action('返回选关');await page.locator('#level-47').click();assert.equal((await state()).mode,'matching');assert.equal((await state()).modalOpen,true);await action('我知道了');assert.equal(await page.locator('.fog-mask-cell').count(),0);assert.equal(await page.locator('#arithmetic-panel').isVisible(),false);assert.deepEqual((await state()).seagrass.flatMap((c,i)=>c.grass?[i]:[]),[2,8,14,20,26,32]);
    assert.deepEqual(errors,[]);assert.deepEqual(external,[]);await context.close();
   }
-  console.log('PASS: EX eighth file/HTTP, arithmetic→matching, checkerboard fog and mask geometry, eight conches, first-four success rule and immediate failure, pause/refog/retry/deadline, five viewports, full victory and progress isolation. No screenshots.');
+  console.log('PASS: EX eighth file/HTTP, swap-and-grass→fog matching, checkerboard fog and mask geometry, eight conches, first-four success rule and immediate failure, pause/refog/retry/deadline, five viewports, full victory and progress isolation. No screenshots.');
  }finally{if(browser)await browser.close();server.closeAllConnections();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});

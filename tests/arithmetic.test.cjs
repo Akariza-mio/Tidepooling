@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict');
-const ArithmeticGame=require('../arithmetic.js'),level=require('../levels.js').find(l=>l.id===47);
+const ArithmeticGame=require('../arithmetic.js'),level=require('../levels.js').find(l=>l.id===46);
 const create=()=>{const game=new ArithmeticGame({level});game.start(0);return game;};
 const answer=game=>ArithmeticGame.evaluate(game.round.target,game.round.values);
 test('ten increasing rounds have consistent clues and a unique positive integer solution',()=>{

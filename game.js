@@ -5,6 +5,7 @@
   const canvas = $('tide-canvas');
   const ctx = canvas.getContext('2d');
   const surfReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const touchRendering = matchMedia('(pointer: coarse)');
   let game = new MemoryGame({ level: BeachLevels[0] });
   const screens = Array.from(document.querySelectorAll('.screen'));
   let currentScreen = 'menu';
@@ -23,6 +24,8 @@
   let chapterTransition = null;
   let viewWidth = 0;
   let viewHeight = 0;
+  let tideClearTop = 0;
+  let tideNeedsPaint = true;
   let previousFrame = 0;
   let animationTime = 0;
   let renderedFrames = 0;
@@ -309,6 +312,7 @@
     startGame();
   }
   function startGame() {
+    tideNeedsPaint = true;
     if (tutorial) { tutorial.dispose(); tutorial = null; }
     currentChapter = Math.floor((game.level.id - 1) / 10);
     const now = performance.now();
@@ -1352,10 +1356,13 @@
     const box = app.getBoundingClientRect();
     viewWidth = box.width;
     viewHeight = box.height;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Water is a translucent decoration; avoid a full-screen 4x pixel buffer on phones.
+    const dpr = Math.min(window.devicePixelRatio || 1, touchRendering.matches ? 1 : 2);
     canvas.width = Math.round(viewWidth * dpr);
     canvas.height = Math.round(viewHeight * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    tideClearTop = 0;
+    tideNeedsPaint = true;
     refreshBucketTarget();
     if (currentScreen === 'play') drawTide(performance.now());
   }
@@ -1387,11 +1394,17 @@
   }
   function drawTide(now) {
     if (!ctx) return;
-    ctx.clearRect(0, 0, viewWidth, viewHeight);
+    if (!tideNeedsPaint && (modalOpen || game.state === 'paused')) return;
+    tideNeedsPaint = false;
     const progress = displayedTide;
     const y = viewHeight - 9 - progress * (viewHeight + 5);
     const phase = animationTime * .001;
     const amplitude = 5 + progress * 2;
+    // Only the current and previous water area can contain pixels to erase.
+    const nextTop = Math.max(0, y - amplitude - 8);
+    const clearTop = Math.min(tideClearTop, nextTop);
+    ctx.clearRect(0, clearTop, viewWidth, viewHeight - clearTop);
+    tideClearTop = nextTop;
     wavePath(y + 5, phase + .8, amplitude + 2);
     ctx.lineTo(viewWidth + 10, viewHeight + 10);
     ctx.lineTo(-10, viewHeight + 10);

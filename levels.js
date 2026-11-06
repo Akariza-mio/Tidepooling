@@ -838,7 +838,7 @@
       columns: 6,
       duration: 60000,
       pairBonus: 5000,
-      surf: Object.freeze({ interval: 15000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 5000, targetCount: 1, targetIncrement: 1, axes: Object.freeze(['row', 'column']) }),
+      surf: Object.freeze({ interval: 15000, warning: 3000, arrival: 1000, duration: 5000, departure: 1200, penalty: 5000, firstWaveAt: 3000, targetCount: 1, targetIncrement: 1, axes: Object.freeze(['row', 'column']) }),
       layout: Object.freeze([
         2, 1, 5, 0, 4, 2,
         0, 4, 1, 2, 0, 5,
@@ -872,25 +872,6 @@
     }),
     Object.freeze({
       id: 46,
-      rows: 6,
-      columns: 6,
-      duration: 60000,
-      pairBonus: 5000,
-      seagrass: Object.freeze({ cells: Object.freeze([2, 8, 14, 20, 26, 32]) }),
-      conditions: Object.freeze([
-        Object.freeze({ id: 'mismatch-swap', type: 'mismatchSwap', label: '配对失败会使物品位置互换' })
-      ]),
-      layout: Object.freeze([
-        4, 5, 3, 4, 5, 0,
-        3, 2, 3, 3, 1, 4,
-        1, 5, 5, 2, 1, 0,
-        1, 2, 5, 2, 4, 4,
-        1, 4, 3, 5, 0, 1,
-        0, 0, 3, 2, 0, 2
-      ])
-    }),
-    Object.freeze({
-      id: 47,
       type: 'arithmetic',
       rows: 1,
       columns: 1,
@@ -909,6 +890,25 @@
         mathRound({2:5,4:6,0:4}, [[[[2,3]],15],[[[2],[4,2]],17],[[[4],[0]],10]], mathOp('+',mathOp('*',mathItem(2),mathItem(4)),mathItem(0))),
         mathRound({5:8,1:7,3:5}, [[[[5,2]],16],[[[5],[1]],15],[[[3,2],[1]],17]], mathOp('+',mathItem(5),mathOp('*',mathItem(1),mathItem(3)))),
         mathRound({1:6,2:5,4:4}, [[[[1,3]],18],[[[1],[2,2]],16],[[[2],[4]],9]], mathOp('*',mathOp('+',mathItem(1),mathItem(2)),mathItem(4)))
+      ])
+    }),
+    Object.freeze({
+      id: 47,
+      rows: 6,
+      columns: 6,
+      duration: 60000,
+      pairBonus: 5000,
+      seagrass: Object.freeze({ cells: Object.freeze([2, 8, 14, 20, 26, 32]) }),
+      conditions: Object.freeze([
+        Object.freeze({ id: 'mismatch-swap', type: 'mismatchSwap', label: '配对失败会使物品位置互换' })
+      ]),
+      layout: Object.freeze([
+        4, 5, 3, 4, 5, 0,
+        3, 2, 3, 3, 1, 4,
+        1, 5, 5, 2, 1, 0,
+        1, 2, 5, 2, 4, 4,
+        1, 4, 3, 5, 0, 1,
+        0, 0, 3, 2, 0, 2
       ])
     }),
     Object.freeze({

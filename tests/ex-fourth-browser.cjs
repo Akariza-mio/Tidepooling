@@ -17,7 +17,8 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    assert.equal((await state()).modalOpen,false);assert.equal((await state()).timerRunning,true);
    const deck=await page.locator('.tile .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind)));
    assert.deepEqual([0,1,2,4,5].map(k=>deck.filter(v=>v===k).length),[8,8,8,6,6]);assert.deepEqual((await state()).conditions,[]);assert.equal((await state()).seagrass,null);assert.ok((await state()).fog.every(f=>f===null));
-   assert.equal((await state()).remaining,60000);await page.clock.runFor(30);assert.ok((await state()).remaining<60000);assert.ok((await state()).surf.time>0);
+   assert.equal((await state()).remaining,60000);assert.equal((await state()).surf.phase,'warning');assert.equal(await page.locator('.surf-warning:visible').count(),1);await page.clock.runFor(30);assert.ok((await state()).remaining<60000);assert.ok((await state()).surf.time>0);
+   const waveAt=n=>3000+(n-1)*15000;
    const advance=async time=>page.clock.fastForward(Math.max(0,time-(await state()).surf.time)+20);
    const checkWaveBounds=async selector=>{
     const measurements=await page.evaluate(selector=>{
@@ -37,7 +38,7 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    const fixtures=[[0,0],[0,.99],[.99,.99,0],[0,.99,0,.99]];
    const viewports=[{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:1280,height:720},{width:844,height:390}];
    for(let n=1;n<=4;n++){
-    await page.evaluate(draws=>window.waveDraws=draws,fixtures[n-1]);await advance(n*15000-2900);
+    await page.evaluate(draws=>window.waveDraws=draws,fixtures[n-1]);await advance(waveAt(n)-2900);
     assert.equal((await state()).surf.phase,'warning');assert.equal((await state()).surf.targets.length,n);assert.equal(await page.locator('.surf-warning:visible').count(),n);assert.equal(await page.locator('.board-surf').count(),n);
     await checkWaveBounds('.surf-warning');
     if(n===2){
@@ -53,23 +54,23 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
      await page.emulateMedia({reducedMotion:'reduce'});
     }
     const ids=await page.locator('.board-surf [id]').evaluateAll(ns=>ns.map(n=>n.id));assert.equal(new Set(ids).size,ids.length);
-    await advance(n*15000-100);const before=await state();await advance(n*15000+100);const arrived=await state();
+    await advance(waveAt(n)-100);const before=await state();await advance(waveAt(n)+100);const arrived=await state();
     assert.equal(arrived.surf.phase,'arriving');assert.equal(arrived.surf.count,n);assert.equal(before.remaining-arrived.remaining-(arrived.surf.time-before.surf.time),5000);
     assert.equal(new Set(arrived.surf.targets.map(t=>t.axis+t.index)).size,n);
     for(let i=0;i<36;i++)if(arrived.surf.covered[i]){await tile(i).dispatchEvent('click');assert.match(await tile(i).getAttribute('aria-label'),/海浪冲刷中/);}
     assert.equal((await state()).pairs,arrived.pairs);assert.equal((await state()).mismatches,0);
-    await advance(n*15000+1000);assert.equal((await state()).surf.phase,'washing');
+    await advance(waveAt(n)+1000);assert.equal((await state()).surf.phase,'washing');
     await checkWaveBounds('.surf-visual');
     await checkWaveBounds('.surf-band-art');
     if(n===4){for(const viewport of viewports){await page.setViewportSize(viewport);await page.clock.runFor(30);await checkWaveBounds('.surf-visual');await checkWaveBounds('.surf-band-art');}await page.setViewportSize({width:390,height:844});}
     if(n===2){await page.locator('#pause-button').click();const paused=await state();await page.clock.fastForward(30000);assert.deepEqual((await state()).surf,paused.surf);assert.equal((await state()).remaining,paused.remaining);await action('继续赶海');}
-    await advance(n*15000+5900);assert.equal((await state()).surf.phase,'washing');await advance(n*15000+6020);assert.equal((await state()).surf.phase,'retreating');await advance(n*15000+7220);assert.equal((await state()).surf.phase,'calm');
+    await advance(waveAt(n)+5900);assert.equal((await state()).surf.phase,'washing');await advance(waveAt(n)+6020);assert.equal((await state()).surf.phase,'retreating');await advance(waveAt(n)+7220);assert.equal((await state()).surf.phase,'calm');
     if(n<4){await collectPair();await collectPair();}
    }
    for(const kind of [0,1,2,4,5])for(let i=0;i<36;i++)if(deck[i]===kind&&(await state()).statuses[i]==='hidden')await tile(i).click();
    assert.equal((await state()).state,'won');assert.equal((await state()).pairs,18);await page.clock.runFor(1000);
    assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),testing?'[43]':'[43,44]');await action('下一关');assert.equal((await state()).levelId,45);assert.equal((await state()).mode,'slotMachine');assert.equal((await state()).duration,120000);assert.equal(await page.locator('#modal-heading').innerText(),'老虎机！');await action('我知道了');await page.locator('#pause-button').click();await action('返回选关');
-   await page.locator('#level-44').click();assert.equal((await state()).surf.count,0);assert.equal((await state()).remaining,60000);assert.equal(await page.locator('.board-surf').count(),1);assert.equal((await state()).modalOpen,false);await advance(12100);assert.equal((await state()).surf.targets.length,1);
+   await page.locator('#level-44').click();assert.equal((await state()).surf.count,0);assert.equal((await state()).remaining,60000);assert.equal(await page.locator('.board-surf').count(),1);assert.equal((await state()).modalOpen,false);assert.equal((await state()).surf.phase,'warning');assert.equal((await state()).surf.targets.length,1);await advance(3100);assert.equal((await state()).surf.phase,'arriving');
    await page.locator('#pause-button').click();await action('重新开始');assert.equal((await state()).modalOpen,false);assert.equal((await state()).timerRunning,true);assert.equal((await state()).surf.count,0);assert.equal((await state()).remaining,60000);assert.deepEqual(await page.locator('.tile .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind))),deck);
    assert.deepEqual(errors,[]);await context.close();
   }

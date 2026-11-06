@@ -1,10 +1,10 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const MemoryGame = require('../core.js'), levels = require('../levels.js');
-const level = levels.find(level => level.id === 46), grass = [2,8,14,20,26,32];
+const level = levels.find(level => level.id === 47), grass = [2,8,14,20,26,32];
 const create = () => { const game = new MemoryGame({level}); game.start(0); return game; };
 const values = game => game.cards.map(card => card.value);
 
-test('EX sixth has six kinds, a third column of grass, and only the mismatch-swap rule', () => {
+test('EX seventh has six kinds, a third column of grass, and only the mismatch-swap rule', () => {
   const game = create();
   assert.equal(level.rows,6); assert.equal(level.columns,6); assert.equal(game.duration,60000);
   assert.equal(game.totalPairs,18); assert.equal(game.pairBonus,5000);

@@ -39,10 +39,10 @@
   letter-spacing: .12em;
   text-indent: .12em;
   white-space: nowrap;
-  color: #4d8475;
-  -webkit-text-stroke: 5px #fff7e6;
-  paint-order: stroke fill;
-  text-shadow: 0 4px 0 #d9c9a6, 0 8px 16px #71836b2b;
+  color: #315f55;
+  -webkit-text-stroke: 0;
+  text-shadow: -1px -1px 0 #fff7e6, 1px -1px 0 #fff7e6,
+    -1px 1px 0 #fff7e6, 1px 1px 0 #fff7e6, 0 3px 0 #d9c9a6;
 }
 .menu-title::before {
   content: "";
@@ -118,7 +118,7 @@
   .menu-screen .menu-secondary { margin-top: 12px; }
 }
 @media (orientation: landscape) and (max-height: 580px) {
-  .menu-title { top: 32px; font-size: 32px; padding: 9px; -webkit-text-stroke-width: 4px; }
+  .menu-title { top: 32px; font-size: 32px; padding: 9px; }
   .menu-panel { margin-bottom: 24px; padding: 23px 20px 14px; }
   .menu-screen .menu-secondary { margin-top: 9px; }
   .menu-panel #select-level-button { margin-top: 12px; }

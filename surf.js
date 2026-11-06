@@ -9,11 +9,30 @@
       this.surfPhase = 'calm';
       this.surfTarget = null;
       this.surfTargets = [];
-      this.nextWaveAt = this.level.surf.interval;
+      this.nextWaveAt = this.level.surf.firstWaveAt ?? this.level.surf.interval;
       this.waveStartedAt = null;
       this.waveUntil = null;
       this.waveRetreatUntil = null;
       this.waveCount = 0;
+      if (this.nextWaveAt <= this.level.surf.warning) this.startWarning();
+    }
+    startWarning() {
+      const axes = this.level.surf.axes;
+      const targetCount = (this.level.surf.targetCount ?? 1) + (this.level.surf.targetIncrement ?? 0) * this.waveCount;
+      if (targetCount > 1) {
+        const pool = axes.flatMap(axis => Array.from({ length: axis === 'row' ? this.level.rows : this.level.columns }, (_, index) => ({ axis, index })));
+        this.surfTargets = [];
+        for (let i = 0; i < targetCount && pool.length; i++) {
+          this.surfTargets.push(pool.splice(Math.floor(this.random() * pool.length), 1)[0]);
+        }
+      } else {
+        // Keep the single-line draw unchanged for the first three levels.
+        const axis = axes[Math.floor(this.random() * axes.length)];
+        const size = axis === 'row' ? this.level.rows : this.level.columns;
+        this.surfTargets = [{ axis, index: Math.floor(this.random() * size) }];
+      }
+      this.surfTarget = this.surfTargets[0];
+      this.surfPhase = 'warning';
     }
     update(now) {
       if (this.state !== 'playing') return;
@@ -30,22 +49,7 @@
         this.surfTime += step;
         if (this.state !== 'playing' || this.surfTime < boundary) continue;
         if (this.surfPhase === 'calm') {
-          const axes = this.level.surf.axes;
-          const targetCount = (this.level.surf.targetCount ?? 1) + (this.level.surf.targetIncrement ?? 0) * this.waveCount;
-          if (targetCount > 1) {
-            const pool = axes.flatMap(axis => Array.from({ length: axis === 'row' ? this.level.rows : this.level.columns }, (_, index) => ({ axis, index })));
-            this.surfTargets = [];
-            for (let i = 0; i < targetCount && pool.length; i++) {
-              this.surfTargets.push(pool.splice(Math.floor(this.random() * pool.length), 1)[0]);
-            }
-          } else {
-            // Keep the single-line draw unchanged for the first three levels.
-            const axis = axes[Math.floor(this.random() * axes.length)];
-            const size = axis === 'row' ? this.level.rows : this.level.columns;
-            this.surfTargets = [{ axis, index: Math.floor(this.random() * size) }];
-          }
-          this.surfTarget = this.surfTargets[0];
-          this.surfPhase = 'warning';
+          this.startWarning();
         } else if (this.surfPhase === 'warning') {
           this.surfPhase = 'arriving';
           this.waveStartedAt = this.nextWaveAt;

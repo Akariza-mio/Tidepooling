@@ -181,6 +181,11 @@
 .is-finale .tile .shell-face svg { max-width: 105px; max-height: 105px; }
 .is-finale .board-caption { display: none; }
 .modal-card.ending-card { max-height: calc(100svh - 54px); overflow-y: auto; }
+/* Keep animation timing on touch devices, with fewer full-screen/filter passes. */
+@media (pointer: coarse) {
+  .modal-layer { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .tile .shell-face, .catch-flight, .bucket-find, .tile .seagrass-art { filter: none; }
+}
 .ending-card .modal-description { line-height: 2; }
 @media (orientation: landscape) and (max-height: 580px) {
   .play-screen.is-finale .board-wrap { width: min(100%,200px); }

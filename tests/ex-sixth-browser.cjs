@@ -9,19 +9,19 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),page=await context.newPage(),errors=[],external=[];
    page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url())&&new URL(r.url()).hostname!=='127.0.0.1')external.push(r.url());});
    await page.clock.install({time:new Date('2026-11-04T00:00:00Z')});await page.clock.pauseAt(new Date('2026-11-04T00:00:01Z'));
-   await page.addInitScript(testing=>{localStorage.setItem('beach-pairs-completed-levels','[45]');if(testing)localStorage.setItem('beach-pairs-unlock-all','on');},testing);
+   await page.addInitScript(testing=>{localStorage.setItem('beach-pairs-completed-levels','[46]');if(testing)localStorage.setItem('beach-pairs-unlock-all','on');},testing);
    await page.goto(url);const state=()=>page.evaluate(()=>beachDiagnostics.snapshot()),action=name=>page.getByRole('button',{name,exact:true}).click(),tile=i=>page.locator('.tile').nth(i);
    const deck=()=>page.locator('.tile .shell-face > .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind)));
    const intro=async()=>{assert.equal(await page.locator('#modal-conditions').innerText(),'配对失败会使物品位置互换');await action('我知道了');};
    const restart=async()=>{await page.locator('#pause-button').click();await action('重新开始');assert.equal((await state()).remaining,60000);await intro();};
    await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();
    assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:1);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
-   if(testing) await page.locator('#level-46').click();
+   if(testing) await page.locator('#level-47').click();
    else {
-    assert.equal(await page.locator('#level-46').isDisabled(),true);await page.locator('#level-45').click();await action('我知道了');
-    const previous=await deck();for(const kind of [0,1,2,4,5])for(let i=0;i<64;i++)if(previous[i]===kind)await tile(i).click();await page.clock.runFor(1000);await action('下一关');
+    assert.equal(await page.locator('#level-47').isDisabled(),true);await page.locator('#level-46').click();
+    const previous=require('../levels.js').find(l=>l.id===46),Arithmetic=require('../arithmetic.js');for(const r of previous.rounds){await page.locator('#arithmetic-answer').fill(String(Arithmetic.evaluate(r.target,r.values)));await page.locator('#arithmetic-answer').press('Enter');}await page.clock.runFor(1000);await action('下一关');
    }
-   let snap=await state();assert.equal(snap.levelId,46);assert.equal(snap.mode,'matching');assert.equal(snap.rows,6);assert.equal(snap.columns,6);
+   let snap=await state();assert.equal(snap.levelId,47);assert.equal(snap.mode,'matching');assert.equal(snap.rows,6);assert.equal(snap.columns,6);
    assert.equal(snap.duration,60000);assert.equal(snap.totalPairs,18);assert.equal(snap.modalOpen,true);await page.clock.fastForward(30000);assert.equal((await state()).remaining,60000);await intro();
    const original=await deck();assert.equal(original.length,36);assert.deepEqual(Array.from({length:6},(_,k)=>original.filter(v=>v===k).length),[6,6,6,6,6,6]);
    assert.deepEqual((await state()).seagrass.flatMap((c,i)=>c.grass?[i]:[]),[2,8,14,20,26,32]);assert.equal((await state()).fog.every(v=>v===null),true);assert.equal((await state()).surf,null);assert.equal((await state()).slotMachine,null);
@@ -41,11 +41,11 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    }
    await page.setViewportSize({width:390,height:844});
    for(let kind=0;kind<6;kind++)for(let i=0;i<36;i++)if(original[i]===kind)await tile(i).click();assert.equal((await state()).state,'won');assert.equal((await state()).pairs,18);assert.equal((await state()).conditions[0].completed,true);await page.clock.runFor(1000);
-   assert.equal(await page.locator('#modal-heading').innerText(),'海的礼物，收好啦。');assert.equal(await page.locator('#modal-art .bucket-find').count(),18);assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),testing?'[45]':'[45,46]');
-   await action('下一关');assert.equal((await state()).levelId,47);assert.equal((await state()).mode,'arithmetic');assert.equal((await state()).modalOpen,false);assert.equal((await state()).timerRunning,true);await page.locator('#pause-button').click();await action('返回选关');assert.equal(await page.locator('#level-46').isEnabled(),true);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
-   await page.locator('#level-46').click();await intro();await page.clock.fastForward(60000);assert.equal((await state()).failureReason,'timeout');await action('重新挑战');assert.equal((await state()).remaining,60000);await intro();assert.deepEqual(await deck(),original);
+   assert.equal(await page.locator('#modal-heading').innerText(),'海的礼物，收好啦。');assert.equal(await page.locator('#modal-art .bucket-find').count(),18);assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),testing?'[46]':'[46,47]');
+   await action('下一关');assert.equal((await state()).levelId,48);assert.equal((await state()).mode,'matching');assert.equal(await page.locator('#modal-conditions').innerText(),'前四组配对必须是海螺');await action('我知道了');await page.locator('#pause-button').click();await action('返回选关');assert.equal(await page.locator('#level-47').isEnabled(),true);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
+   await page.locator('#level-47').click();await intro();await page.clock.fastForward(60000);assert.equal((await state()).failureReason,'timeout');await action('重新挑战');assert.equal((await state()).remaining,60000);await intro();assert.deepEqual(await deck(),original);
    const ids=await page.locator('#board [id]').evaluateAll(ns=>ns.map(n=>n.id));assert.equal(ids.length,new Set(ids).size);assert.deepEqual(errors,[]);assert.deepEqual(external,[]);await context.close();
   }
-  console.log('PASS: EX sixth file/HTTP, swap timing and rendered items, original-cell grass spread/lock, capped reward, entry/pause/retry/deadline, five viewports, victory/progress isolation, arithmetic transition and locked upcoming levels. No screenshots.');
+  console.log('PASS: EX seventh file/HTTP, swap timing and rendered items, original-cell grass spread/lock, capped reward, entry/pause/retry/deadline, five viewports, victory/progress isolation, transition to eighth and locked upcoming levels. No screenshots.');
  }finally{if(browser)await browser.close();server.closeAllConnections();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});
