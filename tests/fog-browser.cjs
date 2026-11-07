@@ -143,7 +143,7 @@ const { pathToFileURL } = require('node:url');
     await action('返回选关');
     assert.equal(await page.locator('.chapter-page:visible h1').innerText(), '月下独捉');
     assert.equal(await page.locator('#level-11').isEnabled(), true);
-    assert.equal(await page.locator('#level-12').isDisabled(), true);
+    assert.equal(await page.locator('#level-12').isDisabled(), false);
     await page.locator('#level-11').click();
     await action('我知道了');
     await page.clock.fastForward(61000);

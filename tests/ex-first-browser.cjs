@@ -31,7 +31,7 @@ const label = '配对失败的次数不得超过1次';
       };
       await page.locator('#select-level-button').click();
       for (let i = 0; i < 4; i++) await page.locator('#chapter-next').click();
-      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 10 : 0);
+      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 10 : 1);
       assert.equal(await page.locator('#level-50').isDisabled(), !testing);
       await page.locator('#chapter-previous').click(); await page.locator('#level-40').click();
       await action('我知道了'); await collect(); await page.clock.runFor(1000); await action('下一关');
@@ -76,7 +76,7 @@ const label = '配对失败的次数不得超过1次';
       await action('下一关'); assert.equal((await state()).levelId, 42); assert.equal(await page.locator('#modal-conditions').innerText(), '在15秒内完成18次配对'); await action('我知道了'); await page.locator('#pause-button').click();
       await action('返回选关'); assert.equal(await page.locator('#level-41').isEnabled(), true);
       assert.equal(await page.locator('#level-50').isDisabled(), !testing);
-      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 10 : 1);
+      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 10 : 2);
       assert.deepEqual(errors, []); await context.close();
     }
     console.log('PASS: EX first level file/HTTP, chapter-four handoff, selection permissions, all condition placements, one allowed/two immediate failure, retry/pause, responsive board, victory and real/test progress isolation. No screenshots.');

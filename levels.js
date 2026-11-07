@@ -469,9 +469,9 @@
       columns: 6,
       duration: 60000,
       pairBonus: 5000,
-      seagrass: Object.freeze({ cells: Object.freeze([7, 16, 26]) }),
+      seagrass: Object.freeze({ cells: Object.freeze([7,16,17,21,27]) }),
       conditions: Object.freeze([
-        Object.freeze({ id: 'grass-limit', type: 'maxGrass', checkAt: 'continuous', limit: 10, label: '海草覆盖的格子不能超过10格' })
+        Object.freeze({ id: 'grass-limit', type: 'maxGrass', checkAt: 'continuous', limit: 5, label: '海草覆盖的格子不能超过5格' })
       ]),
       layout: Object.freeze([
         4, 2, 0, 0, 2, 1,

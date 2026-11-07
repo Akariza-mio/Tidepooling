@@ -14,9 +14,9 @@ const Arithmetic=require('../arithmetic.js'),previous=require('../levels.js').fi
    await page.goto(url);const state=()=>page.evaluate(()=>beachDiagnostics.snapshot()),action=name=>page.getByRole('button',{name,exact:true}).click(),tile=i=>page.locator('.tile').nth(i);
    const intro=async()=>{assert.equal(await page.locator('#modal-conditions').innerText(),label);assert.equal(await page.locator('#modal-conditions .seaside-item').count(),1);await action('我知道了');};
    const reveal=async i=>{if((await state()).fog[i]?.covered)await tile(i).click();await tile(i).click();};
-   await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:1);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
+   await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:2);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
    if(testing)await page.locator('#level-48').click();else{
-    assert.equal(await page.locator('#level-48').isDisabled(),true);await page.locator('#level-47').click();await action('我知道了');
+    assert.equal(await page.locator('#level-48').isDisabled(),false);await page.locator('#level-47').click();await action('我知道了');
     for(let kind=0;kind<6;kind++)for(let i=0;i<36;i++)if(previous.layout[i]===kind)await tile(i).click();await page.clock.runFor(1000);await action('下一关');
    }
    let snap=await state();assert.equal(snap.levelId,48);assert.equal(snap.mode,'matching');assert.equal(snap.duration,60000);assert.equal(snap.totalPairs,18);assert.equal(snap.modalOpen,true);await page.clock.fastForward(30000);assert.equal((await state()).remaining,60000);await intro();

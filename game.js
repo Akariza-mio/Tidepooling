@@ -9,6 +9,29 @@
   let game = new MemoryGame({ level: BeachLevels[0] });
   const screens = Array.from(document.querySelectorAll('.screen'));
   let currentScreen = 'menu';
+  const musicTracks = [$('theme-music'), $('level-music')];
+  let musicEnabled = true;
+  let musicUnlocked = false;
+  let musicPageHidden = false;
+  let musicTrack = null;
+  let musicAttempt = 0;
+  musicTracks.forEach(track => { track.volume = .35; });
+  function syncMusic() {
+    const target = musicEnabled && musicUnlocked && !document.hidden && !musicPageHidden
+      && !(currentScreen === 'play' && game.state === 'paused')
+      ? musicTracks[currentScreen === 'play' ? 1 : 0] : null;
+    musicTracks.forEach(track => { if (track !== target && !track.paused) track.pause(); });
+    if (musicTrack !== target) musicAttempt++;
+    musicTrack = target;
+    if (target && target.paused) {
+      // Play inside the click/key event. Rejected autoplay can retry on the next gesture.
+      const request = ++musicAttempt;
+      const attempt = target.play();
+      if (attempt) attempt.then(() => {
+        if (musicTrack !== target || !musicEnabled || document.hidden || musicPageHidden) target.pause();
+      }).catch(() => { if (request === musicAttempt && musicTrack === target) musicTrack = null; });
+    }
+  }
   let cardElements = [];
   let lastVersion = -1;
   let previousStates = [];
@@ -129,7 +152,7 @@
         button.id = id === 1 ? 'level-one' : 'level-' + id;
         button.innerHTML = `<span class="chapter-level-number">${String(slot + 1).padStart(2, '0')}</span><span class="chapter-level-copy"><span class="chapter-level-name">第${levelNumerals[slot]}关</span><span class="chapter-level-status"></span></span><span class="chapter-level-mark">${lock}</span>`;
         button.addEventListener('click', () => {
-          if (level && (unlockAll || completedLevels.has(id))) startLevel(level);
+          if (level && isLevelUnlocked(id)) startLevel(level);
         });
         grid.append(button);
       }
@@ -142,6 +165,9 @@
       $('chapter-indicators').append(indicator);
     });
     selectChapter(0);
+  }
+  function isLevelUnlocked(id) {
+    return unlockAll || completedLevels.has(id) || completedLevels.has(id - 1);
   }
   function selectChapter(chapter, moveFocus = false) {
     finishChapterTransition(false);
@@ -161,23 +187,23 @@
         const id = Number(button.dataset.level);
         const level = BeachLevels.find(item => item.id === id);
         const won = Boolean(level && completedLevels.has(id));
-        const available = Boolean(level && (won || unlockAll));
+        const available = Boolean(level && isLevelUnlocked(id));
         if (won) completed++;
         button.disabled = !available;
         button.classList.toggle('is-completed', won);
         button.classList.toggle('is-unlocked', available && !won);
-        button.querySelector('.chapter-level-status').textContent = won ? '已通关 · 重玩' : available ? '可挑战' : level ? '尚未通关' : '待开放';
+        button.querySelector('.chapter-level-status').textContent = won ? '已通关 · 重玩' : available ? unlockAll ? '可挑战' : '已解锁 · 可挑战' : level ? '尚未通关' : '待开放';
         button.querySelector('.chapter-level-mark').hidden = available;
       });
       page.querySelector('.chapter-progress').textContent = `已通关 ${completed} / 10`;
       page.querySelector('.chapter-note').hidden = unlockAll;
       const hasLevels = BeachLevels.some(level => Math.floor((level.id - 1) / 10) === index);
       page.querySelector('.chapter-note').textContent = unlockAll ? '' : hasLevels
-        ? completed ? `已通关 ${completed} 关，点击已点亮的关卡再次赶海。` : index === 0 ? '第一关从主页“开始游戏”进入，通关后可在此重玩。' : '通关上一大关后，继续探索这片海岸。'
+        ? completed ? `已通关 ${completed} 关，可重玩或挑战已解锁关卡。` : index === 0 ? '第一关从主页“开始游戏”进入，通关后解锁下一关。' : '通关上一大关后，继续探索这片海岸。'
         : '这片海岸尚待探索，关卡将陆续开放。';
     });
     $('chapter-help').hidden = unlockAll;
-    $('chapter-help').textContent = unlockAll ? '' : '已通关的关卡可重玩 · 新挑战从主页开始';
+    $('chapter-help').textContent = unlockAll ? '' : '已通关关卡可重玩 · 通关后解锁下一关';
     const animate = moveFocus && currentScreen === 'level' && Math.abs(previousChapter - currentChapter) === 1
       && Math.max(previousChapter, currentChapter) <= 4 && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (animate) {
@@ -299,7 +325,11 @@
     clearCollectionEffects();
     if (id !== 'play' && tutorial) { tutorial.dispose(); tutorial = null; }
     if (currentScreen === 'play' && id !== 'play') game.state = 'idle';
+    // A fresh visit from outside gameplay restarts level music. Next/retry stay
+    // on the play screen, so the same track can continue uninterrupted.
+    if (id === 'play' && currentScreen !== 'play') musicTracks[1].currentTime = 0;
     currentScreen = id;
+    syncMusic();
     screens.forEach(screen => { screen.hidden = screen.id !== id + '-screen'; });
     canvas.style.display = id === 'play' ? 'block' : 'none';
     hideTideDanger();
@@ -437,11 +467,11 @@
     syncGame();
     drawTide(performance.now());
     if (isSlotMachine() && game.level.intro === 'slotMachine') {
-      openModal({ eyebrow: '', heading: '老虎机！', art: 'notice-board',
-        description: '配对可以获得拉杆机会\n两个物品相同，则消除一对，三个相同则全部消除！',
+      openModal({ eyebrow: '', heading: '老虎机！', art: 'slot-intro',
+        description: '配对成功可以获得1次拉杆机会\n两个物品相同，则消除一对，三个相同则全部消除！',
         actions: [{ text: '我知道了', run: beginTimedGame }] });
     } else if (isBucketSort() && game.level.intro === 'bucketSort') {
-      openModal({ eyebrow: '', heading: '把收获分好类吧！', art: 'notice-board',
+      openModal({ eyebrow: '', heading: '把收获分好类吧！', art: 'sort-intro',
         description: '先点击一个桶，选中最上面的物品，再点击另一个桶放入。\n每次只能移动一件，且只能放进空桶或相同物品上方。\n每桶最多装四件，在涨潮前把每种收获分别装满一桶即可通关！',
         actions: [{ text: '我知道了', run: beginTimedGame }] });
     } else if (isGrassPuzzle()) {
@@ -462,7 +492,7 @@
         actions: [{ text: '我知道了', run: () => { closeModal(false); game.beginPreview(performance.now()); syncGame(); } }] });
     } else if (game.level.intro === 'doubleSurf') {
       openModal({ eyebrow: '', heading: '海浪会同时冲刷两处！', art: 'surf',
-        description: '每次来浪会同时冲刷两行、两列，或一行一列。\n留意两处预警，记住收获的位置，等浪退去再继续寻找。',
+        description: '每次来浪会同时冲刷两行、两列，或一行一列。',
         actions: [{ text: '我知道了', run: beginTimedGame }] });
     } else if (game.level.intro === 'surf') {
       openModal({ eyebrow: '', heading: '你来到了风浪更大的海湾！', art: 'surf',
@@ -1203,6 +1233,10 @@
     } else if (art === 'sort-result') {
       container.classList.add('modal-sort-art');
       container.innerHTML = `<div class="sort-result" style="--sort-kinds:${game.totalKinds}">${game.buckets.filter(bucket => bucket.length).map((bucket, i) => `<span>${bucket.map((kind, slot) => BeachArt.item(kind, `sort-result-${i}-${slot}`)).join('')}</span>`).join('')}</div>`;
+    } else if (art === 'slot-intro') {
+      container.innerHTML = BeachArt.slotMachineEmblem('intro');
+    } else if (art === 'sort-intro') {
+      container.innerHTML = BeachArt.harvestEmblem('sort-intro', [0, 2, 1, 4]);
     } else if (art === 'notice-board') {
       container.innerHTML = BeachArt.noticeBoard();
     } else if (art === 'fog') {
@@ -1264,10 +1298,12 @@
   function resumeGame() {
     closeModal();
     game.resume(performance.now());
+    syncMusic();
     syncGame();
   }
   function pauseGame() {
     if (currentScreen !== 'play' || modalOpen || !game.pause(performance.now())) { syncGame(); return; }
+    syncMusic();
     syncGame();
     hideTideDanger();
     openModal({ eyebrow: '把这一刻，留在沙滩上', heading: '歇一歇，潮水等等', description: isArithmetic() ? `游戏已暂停\n已完成 ${game.completed} / ${game.totalRounds} 轮` : isSlotMachine() ? `游戏已暂停\n已配对 ${game.pairs} / ${game.totalPairs} 对，拉杆机会 ${game.credits} 次` : isBucketSort() ? `游戏已暂停\n已整理 ${game.sortedCount} / ${game.totalKinds} 桶，已移动 ${game.turns} 次` : isGrassPuzzle() ? `游戏已暂停\n剩余海草 ${game.grassCount} 格，已拨动 ${game.turns} 次` : isJourney() ? `游戏已暂停\n当前已拾取 ${game.collectedCount} / ${game.totalTreasures} 件收获` : isPuzzle() ? `游戏已暂停\n当前已填 ${game.filledCount} / ${game.cards.length} 格` : `游戏已暂停\n当前已收集 ${game.pairs} / ${game.totalPairs} 对`, art: null, showConditions: true,
@@ -1523,12 +1559,13 @@
   $('chapter-previous').addEventListener('click', () => selectChapter(currentChapter - 1, true));
   $('chapter-next').addEventListener('click', () => selectChapter(currentChapter + 1, true));
   $('settings-button').addEventListener('click', () => showScreen('settings'));
-  // Audio remains interface-only; free testing does not mutate genuine progress.
+  // The sound-effects switch is separate from background music and testing progress.
   document.querySelectorAll('.setting-switch').forEach(button => {
     button.addEventListener('click', () => {
       const enabled = button.getAttribute('aria-checked') !== 'true';
       button.setAttribute('aria-checked', String(enabled));
       button.querySelector('.switch-state').textContent = enabled ? 'ON' : 'OFF';
+      if (button.id === 'music-switch') { musicEnabled = enabled; syncMusic(); }
       if (button.id === 'unlock-switch') {
         unlockAll = enabled;
         try { localStorage.setItem('beach-pairs-unlock-all', enabled ? 'on' : 'off'); } catch (_) { /* Session-only fallback. */ }
@@ -1539,8 +1576,20 @@
   });
   document.querySelectorAll('[data-menu]').forEach(button => button.addEventListener('click', () => showScreen('menu')));
   $('pause-button').addEventListener('click', pauseGame);
-  document.addEventListener('visibilitychange', () => { if (document.hidden && game.state === 'playing') pauseGame(); });
-  window.addEventListener('pagehide', () => { if (game.state === 'playing' && !modalOpen) game.pause(performance.now()); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && game.state === 'playing') pauseGame();
+    syncMusic();
+  });
+  window.addEventListener('pagehide', () => {
+    musicPageHidden = true;
+    if (game.state === 'playing' && !modalOpen) game.pause(performance.now());
+    syncMusic();
+  });
+  window.addEventListener('pageshow', () => { musicPageHidden = false; syncMusic(); });
+  for (const eventName of ['click', 'keydown']) document.addEventListener(eventName, () => {
+    musicUnlocked = true;
+    syncMusic();
+  });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') {
       if (modalOpen && game.state === 'paused') resumeGame();

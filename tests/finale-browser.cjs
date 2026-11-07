@@ -13,9 +13,9 @@ const message=['感谢你的时间和精力！','此游戏是一个大学生拷�
    await page.addInitScript(testing=>{localStorage.setItem('beach-pairs-completed-levels','[49]');if(testing)localStorage.setItem('beach-pairs-unlock-all','on');},testing);
    await page.goto(url);const state=()=>page.evaluate(()=>beachDiagnostics.snapshot()),action=name=>page.getByRole('button',{name,exact:true}).click(),tile=i=>page.locator('.tile').nth(i);
    const viewports=[{width:320,height:568},{width:390,height:844},{width:430,height:932},{width:1280,height:720},{width:844,height:390}];
-   await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:1);assert.equal(await page.evaluate(()=>BeachLevels.length),50);
+   await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:2);assert.equal(await page.evaluate(()=>BeachLevels.length),50);
    if(testing)await page.locator('#level-50').click();else{
-    assert.equal(await page.locator('#level-50').isDisabled(),true);await page.locator('#level-49').click();await page.clock.fastForward(3000);const deck=await page.locator('.tile .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind)));
+    assert.equal(await page.locator('#level-50').isDisabled(),false);await page.locator('#level-49').click();await page.clock.fastForward(3000);const deck=await page.locator('.tile .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind)));
     for(const kind of [0,1,2,4])for(let i=0;i<36;i++)if(deck[i]===kind)await tile(i).click();await page.clock.runFor(1000);await action('下一关');
    }
    let snap=await state();assert.equal(snap.levelId,50);assert.equal(snap.rows,1);assert.equal(snap.columns,2);assert.equal(snap.totalPairs,1);assert.equal(snap.timerRunning,false);assert.equal(snap.modalOpen,false);assert.equal(snap.countdownRemaining,0);assert.equal(await page.locator('.tile').count(),2);assert.deepEqual(await page.locator('.tile .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind))),[6,6]);

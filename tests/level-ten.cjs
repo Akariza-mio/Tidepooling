@@ -119,7 +119,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#chapter-previous').click();
     await page.locator('#chapter-pages:not(.is-sliding)').waitFor({ state: 'attached' });
     assert.equal(await page.locator('#level-10').isEnabled(), true);
-    assert.equal(await page.locator('#level-11').isDisabled(), true);
+    assert.equal(await page.locator('#level-11').isDisabled(), false);
     await page.locator('#level-10').click();
     await action('我知道了');
     await page.clock.fastForward(121000);

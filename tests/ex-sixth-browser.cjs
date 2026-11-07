@@ -15,10 +15,10 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    const intro=async()=>{assert.equal(await page.locator('#modal-conditions').innerText(),'配对失败会使物品位置互换');await action('我知道了');};
    const restart=async()=>{await page.locator('#pause-button').click();await action('重新开始');assert.equal((await state()).remaining,60000);await intro();};
    await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();
-   assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:1);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
+   assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:2);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
    if(testing) await page.locator('#level-47').click();
    else {
-    assert.equal(await page.locator('#level-47').isDisabled(),true);await page.locator('#level-46').click();
+    assert.equal(await page.locator('#level-47').isDisabled(),false);await page.locator('#level-46').click();
     const previous=require('../levels.js').find(l=>l.id===46),Arithmetic=require('../arithmetic.js');for(const r of previous.rounds){await page.locator('#arithmetic-answer').fill(String(Arithmetic.evaluate(r.target,r.values)));await page.locator('#arithmetic-answer').press('Enter');}await page.clock.runFor(1000);await action('下一关');
    }
    let snap=await state();assert.equal(snap.levelId,47);assert.equal(snap.mode,'matching');assert.equal(snap.rows,6);assert.equal(snap.columns,6);

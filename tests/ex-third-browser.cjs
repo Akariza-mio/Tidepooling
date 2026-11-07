@@ -17,7 +17,7 @@ const { pathToFileURL } = require('node:url'), { createServer } = require('../sc
       const action = name => page.getByRole('button', { name, exact: true }).click(), tile = i => page.locator('.tile').nth(i);
       const reveal = async i => { if ((await state()).fog[i].covered) await tile(i).click(); await tile(i).click(); };
       await page.locator('#select-level-button').click(); for (let i = 0; i < 4; i++) await page.locator('#chapter-next').click();
-      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 10 : 1); assert.equal(await page.locator('#level-50').isDisabled(), !testing);
+      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 10 : 2); assert.equal(await page.locator('#level-50').isDisabled(), !testing);
       await page.locator('#level-42').click(); assert.equal(await page.locator('#modal-conditions').innerText(), '在15秒内完成18次配对'); await action('我知道了');
       for (let i = 0; i < 36; i++) await tile(i).click(); await page.clock.runFor(1000); await action('下一关');
       let snap = await state(); assert.equal(snap.levelId, 43); assert.equal(snap.modalOpen, false); assert.equal(snap.remaining, 60000);

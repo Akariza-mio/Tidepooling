@@ -118,7 +118,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#pause-button').click();
     await action('返回选关');
     assert.equal(await page.locator('#level-9').isEnabled(), true);
-    assert.equal(await page.locator('#level-10').isDisabled(), true);
+    assert.equal(await page.locator('#level-10').isDisabled(), false);
     await page.locator('#level-9').click();
     await action('我知道了');
     await page.clock.fastForward(61000);

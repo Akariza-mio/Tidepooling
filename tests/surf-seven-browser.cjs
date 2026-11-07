@@ -28,7 +28,7 @@ const labels=['倒数第三对配对必须是八爪鱼','倒数第二对配对�
       };
       await page.locator('#select-level-button').click();for(let i=0;i<3;i++)await page.locator('#chapter-next').click();
       assert.equal(await page.locator('#level-50').isDisabled(),!testing);
-      assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(),testing?10:1);
+      assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(),testing?10:2);
       assert.equal(await page.locator('#level-37').evaluate(node=>node.classList.contains('is-minigame')),false);
       await page.locator('#level-36').click();assert.equal((await state()).modalOpen,false);
       for(const [from,to]of sixthSolution){await page.locator('.sort-bucket').nth(from).click();await page.locator('.sort-bucket').nth(to).click();}

@@ -77,8 +77,8 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#unlock-switch').click();
     await select();
     assert.equal(await page.locator('#level-one').isEnabled(), true);
-    assert.equal(await page.locator('#level-2').isDisabled(), true);
-    assert.equal(await page.locator('.chapter-level:enabled').count(), 1);
+    assert.equal(await page.locator('#level-2').isDisabled(), false);
+    assert.equal(await page.locator('.chapter-level:enabled').count(), 2);
     assert.equal(await page.locator('#chapter-1 .chapter-progress').innerText(), '已通关 1 / 10');
     assert.deepEqual(await progress(), genuine);
 

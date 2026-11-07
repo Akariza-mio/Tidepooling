@@ -153,7 +153,7 @@ async function win(page) {
     await normal.addInitScript(() => localStorage.setItem('beach-pairs-completed-levels', '[14]'));
     await normal.goto(url); await normal.emulateMedia({ reducedMotion: 'reduce' });
     await normal.locator('#select-level-button').click(); await normal.locator('#chapter-next').click();
-    assert.equal(await normal.locator('#level-15').isDisabled(), true);
+    assert.equal(await normal.locator('#level-15').isDisabled(), false);
     await normal.locator('#level-14').click(); await action(normal, '我知道了');
     const deck = await normal.locator('.tile .seaside-item').evaluateAll(icons => icons.map(icon => Number(icon.dataset.kind)));
     for (const kind of [0, 2, 4, 5, 1]) for (let i = 0; i < deck.length; i++) if (deck[i] === kind) {

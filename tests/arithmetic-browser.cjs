@@ -16,9 +16,9 @@ const answers=level.rounds.map(r=>ArithmeticGame.evaluate(r.target,r.values));
    const solve=async number=>{await input.fill(String(number));await input.press('Enter');};
    const ready=async()=>{assert.equal((await state()).modalOpen,false);assert.equal((await state()).timerRunning,true);assert.equal(await page.locator('#arithmetic-panel h2').count(),0);};
    const restart=async()=>{await page.locator('#pause-button').click();await action('重新开始');assert.equal((await state()).remaining,120000);await ready();};
-   await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:1);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
+   await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),testing?10:2);assert.equal(await page.locator('#level-50').isDisabled(),!testing);
    if(testing)await page.locator('#level-46').click();else{
-    assert.equal(await page.locator('#level-46').isDisabled(),true);await page.locator('#level-45').click();await action('我知道了');
+    assert.equal(await page.locator('#level-46').isDisabled(),false);await page.locator('#level-45').click();await action('我知道了');
     const deck=await page.locator('.tile .seaside-item').evaluateAll(ns=>ns.map(n=>Number(n.dataset.kind)));for(let kind=0;kind<6;kind++)for(let i=0;i<64;i++)if(deck[i]===kind)await page.locator('.tile').nth(i).click();await page.clock.runFor(1000);await action('下一关');
    }
    let snap=await state();assert.equal(snap.levelId,46);assert.equal(snap.mode,'arithmetic');assert.equal(snap.duration,120000);assert.equal(snap.arithmetic.total,10);assert.equal(snap.arithmetic.completed,0);assert.equal(snap.modalOpen,false);

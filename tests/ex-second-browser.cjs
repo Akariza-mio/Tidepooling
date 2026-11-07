@@ -26,7 +26,7 @@ const label = '在15秒内完成18次配对';
       const collect = async (start = 0) => { for (let i = start; i < 36; i++) await tile(i).click(); };
       await page.locator('#select-level-button').click();
       for (let i = 0; i < 4; i++) await page.locator('#chapter-next').click();
-      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 10 : 1);
+      assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(), testing ? 10 : 2);
       assert.equal(await page.locator('#level-50').isDisabled(), !testing);
       await page.locator('#level-41').click(); await action('我知道了');
       const values = await page.locator('.tile .seaside-item').evaluateAll(nodes => nodes.map(n => Number(n.dataset.kind)));

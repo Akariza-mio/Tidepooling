@@ -265,7 +265,7 @@ const sixthSolution = [0, 2, 5, 1, 4, 1, 4, 0, 2, 5, 2, 5, 1, 4, 0, 4, 0, 2, 5, 
     assert.equal(await page.locator('#level-6').isEnabled(), true);
     assert.equal(await page.locator('#level-7').isEnabled(), true);
     assert.equal(await page.locator('#level-8').isEnabled(), true);
-    assert.equal(await page.locator('#level-9').isDisabled(), true);
+    assert.equal(await page.locator('#level-9').isDisabled(), false);
     assert.equal(await redCards(), true, 'Completed minigames retain the coral design.');
     await page.locator('#level-6').click();
     await action(page, '我知道了');

@@ -86,7 +86,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.evaluate(() => beachDiagnostics.snapshot().state), 'won');
     await page.getByRole('button', { name: '返回选关', exact: true }).click();
     assert.equal(await page.locator('#level-one').isEnabled(), true);
-    assert.equal(await page.locator('.chapter-level:enabled').count(), 1);
+    assert.equal(await page.locator('.chapter-level:enabled').count(), 2);
     assert.equal(await page.locator('#chapter-1 .chapter-progress').innerText(), '已通关 1 / 10');
     if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.join(preview, '19-chapter-completed.png'), animations: 'disabled' });
     await page.reload();

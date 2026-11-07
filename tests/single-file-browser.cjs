@@ -5,20 +5,25 @@ const { pathToFileURL } = require('node:url');
 const { chromium } = require('./browser-support.cjs');
 
 (async () => {
-  const html = fs.readFileSync(path.join(__dirname, '../release/demo_v1_single.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '../release/index1.html'), 'utf8');
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beach-single-'));
   const entry = path.join(directory, 'index.html');
   fs.writeFileSync(entry, html);
   const browser = await chromium.launch();
   try {
-    for (const opaque of [false, true]) {
+    for (const opaque of process.env.BEACH_SINGLE_OPAQUE_ONLY === '1' ? [true] : [false, true]) {
       const context = await browser.newContext({ offline: true, reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });
       const page = await context.newPage(), errors = [], dependencies = [];
       page.on('pageerror', error => errors.push(error.message));
       page.on('request', request => { if (request.resourceType() !== 'document' && !request.url().startsWith('data:')) dependencies.push(request.url()); });
       await page.clock.install({ time: new Date('2026-11-06T00:00:00Z') });
       await page.clock.pauseAt(new Date('2026-11-06T00:00:01Z'));
-      await page.goto(opaque ? 'data:text/html;base64,' + Buffer.from(html).toString('base64') : pathToFileURL(entry).href);
+      if (opaque) {
+        // Keep the navigation URL small even when embedded music makes HTML >10MB.
+        await page.goto('data:text/html,<script>addEventListener("message",e=>{document.open();document.write(e.data);document.close()},{once:true})</script>');
+        await page.evaluate(contents => window.postMessage(contents, '*'), html);
+        await page.locator('#start-button').waitFor();
+      } else await page.goto(pathToFileURL(entry).href);
       assert.equal(await page.title(), '赶赶嗨嗨！');
       assert.equal(await page.locator('.menu-panel').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(255, 248, 233)');
       assert.equal(await page.locator('.beach-grass').first().evaluate(node => getComputedStyle(node).position), 'absolute');
@@ -58,4 +63,4 @@ const { chromium } = require('./browser-support.cjs');
       await context.close();
     }
   } finally { await browser.close(); fs.rmSync(directory, { recursive: true, force: true }); }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+})().catch(error => { console.error(String(error.message).slice(0, 1500)); process.exitCode = 1; });

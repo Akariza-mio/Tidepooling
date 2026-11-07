@@ -7,6 +7,8 @@
   "scripts": {
     "build:single": "node scripts/build-single.cjs",
     "test:single": "node tests/single-file-browser.cjs",
+    "test:music": "node tests/music-browser.cjs",
+    "test:progression": "node tests/progression-browser.cjs",
     "test:mobile-rendering": "node tests/mobile-rendering-browser.cjs",
     "start": "node scripts/serve.cjs",
     "test": "node scripts/test.cjs",

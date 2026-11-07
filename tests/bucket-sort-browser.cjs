@@ -119,7 +119,7 @@ const sixthSolution = require('./bucket-sort-six-solution.cjs');
     await page.clock.install();await page.addInitScript(()=>localStorage.setItem('beach-pairs-completed-levels','[34]'));
     await page.goto(pathToFileURL(path.join(root,'index.html')).href);
     await page.locator('#select-level-button').click();for(let i=0;i<3;i++)await page.locator('#chapter-next').click();
-    assert.equal(await page.locator('#level-35').isDisabled(),true);await page.locator('#level-34').click();await page.getByRole('button',{name:'我知道了',exact:true}).click();
+    assert.equal(await page.locator('#level-35').isDisabled(),false);await page.locator('#level-34').click();await page.getByRole('button',{name:'我知道了',exact:true}).click();
     const deck=await page.locator('.tile .seaside-item').evaluateAll(nodes=>nodes.map(node=>Number(node.dataset.kind)));
     for(const kind of [0,1,2,3,4,5])for(let i=0;i<deck.length;i++)if(deck[i]===kind)await page.locator('.tile').nth(i).click();
     await page.clock.runFor(1200);await page.getByRole('button',{name:'下一关',exact:true}).click();

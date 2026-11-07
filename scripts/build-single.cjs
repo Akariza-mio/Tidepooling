@@ -12,6 +12,13 @@ function buildSingleHtml(root = path.resolve(__dirname, '..')) {
     return fs.readFileSync(path.join(root, name), 'utf8');
   };
   let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  html = html.replace(/(<audio\b[^>]*\bsrc=")([^"]+)(")/g, (_, before, name, after) => {
+    if (path.isAbsolute(name) || name.includes('..') || /[?#:]|^\//.test(name) || path.extname(name).toLowerCase() !== '.mp3') {
+      throw new Error(`Only local MP3 audio can be embedded: ${name}`);
+    }
+    resources.push(name);
+    return before + 'data:audio/mpeg;base64,' + fs.readFileSync(path.join(root, name)).toString('base64') + after;
+  });
   html = html.replace(/<link\s+rel="stylesheet"\s+href="([^"]+)"\s*>/g, (_, name) => {
     const css = read(name);
     for (const match of css.matchAll(/url\(\s*["']?([^\s"')]+)/g)) {
@@ -35,7 +42,7 @@ function buildSingleHtml(root = path.resolve(__dirname, '..')) {
 }
 
 if (require.main === module) {
-  const output = path.resolve(process.argv[2] || path.join(__dirname, '../release/demo_v1_single.html'));
+  const output = path.resolve(process.argv[2] || path.join(__dirname, '../release/index1.html'));
   const { html, resources } = buildSingleHtml();
   fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, html);

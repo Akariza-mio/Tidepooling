@@ -32,7 +32,7 @@
     const id = 's' + index + '-' + suffix;
     return `<svg class="shell-art seaside-item" data-kind="${index}" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="${light}"/><stop offset=".55" stop-color="${base}"/><stop offset="1" stop-color="${dark}"/></linearGradient></defs><g fill="url(#${id})" stroke="${dark}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${shapes[index]}</g><style>.seaside-item .ribs{fill:none;stroke-width:2.3;opacity:.65}.seaside-item .highlight{fill:none;stroke:#fff9ee;stroke-width:2.8;opacity:.65}.seaside-item .eyes{fill:#4d5d58;stroke:none}.seaside-item .smile{fill:none;stroke:#647365;stroke-width:1.8}.seaside-item .blush{fill:#e8a1a0;stroke:none;opacity:.55}</style></svg>`;
   }
-  function harvestEmblem(suffix = '') {
+  function harvestEmblem(suffix = '', kinds = [0, 3, 1, 4]) {
     const id = 'harvest-emblem-' + suffix;
     const find = (kind, x, y, size) => item(kind, `${id}-${kind}`)
       .replace('class="shell-art seaside-item"', 'class="seaside-item"')
@@ -45,12 +45,30 @@
       <path d="m24 60 11 58q35 17 70 0l11-58Z" fill="url(#${id}-body)" stroke="#719a88" stroke-width="2" stroke-linejoin="round"/>
       <ellipse cx="70" cy="60" rx="46" ry="12" fill="#739e8a"/>
       <ellipse cx="70" cy="59" rx="39" ry="8" fill="#4f7f72"/>
-      ${find(0, 23, 32, 50)}${find(3, 81, 34, 39)}${find(1, 53, 23, 55)}${find(4, 44, 46, 40)}
+      ${find(kinds[0], 23, 32, 50)}${find(kinds[1], 81, 34, 39)}${find(kinds[2], 53, 23, 55)}${find(kinds[3], 44, 46, 40)}
       <path d="M27 68q43 19 86 0l-8 50q-35 17-70 0Z" fill="url(#${id}-body)" stroke="#719a88" stroke-width="2" stroke-linejoin="round"/>
       <path d="M25 61q45 21 90 0" fill="none" stroke="#f4f0d4" stroke-width="4" stroke-linecap="round"/>
       <path d="m35 78 6 31" stroke="#fff8df" stroke-width="4" stroke-linecap="round" opacity=".7"/>
       <path d="M42 118q28 10 56 0" fill="none" stroke="#e8edd1" stroke-width="2.5" stroke-linecap="round"/>
       <path d="m67 87 3-5 3 5 6 1-4 4 1 6-6-3-6 3 1-6-4-4Z" fill="#e6cf92" stroke="#bcaa77" stroke-width="1.2" stroke-linejoin="round"/>
+    </svg>`;
+  }
+  function slotMachineEmblem(suffix = '') {
+    const find = (x, i) => item(0, `slot-emblem-${suffix}-${i}`)
+      .replace('<svg ', `<svg x="${x}" y="59" width="25" height="32" `);
+    return `<svg class="slot-machine-emblem-art" viewBox="0 0 140 140" style="display:block;width:100%;height:100%" aria-hidden="true" focusable="false">
+      <ellipse cx="65" cy="123" rx="50" ry="6" fill="#b49c71" opacity=".15"/>
+      <path d="M23 49V34q42-27 79 0v15" fill="#a8c7b2" stroke="#6b9587" stroke-width="2"/>
+      <path d="m60 20 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1Z" fill="#f4d99a" stroke="#c0a679" stroke-width="1.2" stroke-linejoin="round"/>
+      <rect x="10" y="43" width="103" height="72" rx="13" fill="#80ab9c" stroke="#568878" stroke-width="2"/>
+      <rect x="16" y="51" width="91" height="49" rx="8" fill="#4d7d70"/>
+      <g fill="#fff0d1" stroke="#e4ce9f" stroke-width="1.4"><rect class="slot-emblem-window" x="19" y="55" width="27" height="40" rx="5"/><rect class="slot-emblem-window" x="48" y="55" width="27" height="40" rx="5"/><rect class="slot-emblem-window" x="77" y="55" width="27" height="40" rx="5"/></g>
+      ${find(20, 0)}${find(49, 1)}${find(78, 2)}
+      <path d="M115 87h10V52" fill="none" stroke="#568878" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M126 80V52" fill="none" stroke="#f5e4bd" stroke-width="2" stroke-linecap="round"/>
+      <circle class="slot-emblem-handle" cx="125" cy="45" r="9" fill="#e69a83" stroke="#c77b68" stroke-width="2"/>
+      <path d="M121 41q4-4 8 0" fill="none" stroke="#ffe9cb" stroke-width="2" stroke-linecap="round"/>
+      <rect x="42" y="104" width="40" height="4" rx="2" fill="#477c6c"/><path d="M20 115h83l4 7H16Z" fill="#b6cbb0" stroke="#739a87" stroke-width="1.5"/>
     </svg>`;
   }
   function washedBucket() {
@@ -90,5 +108,5 @@
     };
     return `<svg class="journey-symbol" viewBox="0 0 100 100" aria-hidden="true" focusable="false">${drawings[type] || drawings.footprints}</svg>`;
   }
-  root.BeachArt = { item, names, harvestEmblem, washedBucket, conditionFailure, noticeBoard, sandMatrices, moon, fog, fogField, journeySymbol };
+  root.BeachArt = { item, names, harvestEmblem, slotMachineEmblem, washedBucket, conditionFailure, noticeBoard, sandMatrices, moon, fog, fogField, journeySymbol };
 })(globalThis);

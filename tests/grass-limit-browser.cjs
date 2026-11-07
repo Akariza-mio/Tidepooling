@@ -20,7 +20,7 @@ const {pathToFileURL}=require('node:url');
     const fifthSolution=[0,4,5,7,10,11,12,15,18,23];
     const solution=[0,2,6,7,8,9,11,13,14,18,19,20];
     await page.locator('#select-level-button').click();await page.locator('#chapter-next').click();await page.locator('#chapter-next').click();
-    assert.equal(await page.locator('#level-26').isDisabled(),true);
+    assert.equal(await page.locator('#level-26').isDisabled(),false);
     await page.locator('#level-25').click();await action('我知道了');
     const fifthInitial=(await state()).grassPuzzle.grass;
     for(const i of fifthSolution)await tile(i).click();await page.clock.runFor(800);await action('下一关');
