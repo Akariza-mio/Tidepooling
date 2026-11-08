@@ -15,7 +15,128 @@
   let musicPageHidden = false;
   let musicTrack = null;
   let musicAttempt = 0;
-  musicTracks.forEach(track => { track.volume = .35; });
+  let soundEnabled = true;
+  let soundContext = null;
+  let soundOutput = null;
+  let sandSoundBuffer = null;
+  let waveSoundBuffer = null;
+  let lastMatchSound = -Infinity;
+  const soundVoices = new Set();
+  function stopEffects(suspend = false) {
+    for (const voice of soundVoices) {
+      try { voice.source.stop(); } catch (_) { /* The short sound may have ended. */ }
+      voice.nodes.forEach(node => node.disconnect());
+    }
+    soundVoices.clear();
+    lastMatchSound = -Infinity;
+    if (suspend && soundContext?.state === 'running') soundContext.suspend().catch(() => {});
+  }
+  function fillWaveTexture(samples, rate) {
+    // Broad overlapping swells and soft foam, without a sharp impact transient.
+    const swells = [[0, 1.45, .8], [.55, 1.55, .65], [1.15, 1.45, .45]];
+    let waterBody = 0;
+    for (let i = 0; i < samples.length; i++) {
+      const t = i / rate, noise = Math.random() * 2 - 1;
+      waterBody = waterBody * .96 + noise * .04;
+      let swell = 0;
+      for (const [onset, length, strength] of swells) {
+        const age = t - onset;
+        if (age > 0 && age < length) swell += strength * (.5 - .5 * Math.cos(2 * Math.PI * age / length));
+      }
+      const foam = .8 + .12 * Math.sin(2 * Math.PI * 9 * t) + .08 * Math.sin(2 * Math.PI * 17 * t);
+      samples[i] = (waterBody * 1.8 + noise * .38 * foam) * swell;
+    }
+    for (let drop = 0; drop < 36; drop++) {
+      const onset = .25 + Math.random() * 1.8, decay = .045 + Math.random() * .045;
+      const frequency = 300 + Math.random() * 650;
+      const amplitude = .025 + Math.random() * .025;
+      const first = Math.floor(onset * rate), last = Math.min(samples.length, first + Math.ceil(decay * 6 * rate));
+      for (let i = first; i < last; i++) {
+        const age = (i - first) / rate;
+        const envelope = (1 - Math.exp(-age / .018)) * Math.exp(-age / decay);
+        samples[i] += Math.sin(2 * Math.PI * frequency * (age + 2 * age * age)) * amplitude * envelope;
+      }
+    }
+  }
+  function playEffect(kind) {
+    if (!soundEnabled || document.hidden || musicPageHidden) return;
+    try {
+      if (!soundContext) {
+        const Audio = window.AudioContext || window.webkitAudioContext;
+        if (!Audio) return;
+        soundContext = new Audio({ latencyHint: 'interactive' });
+        soundOutput = soundContext.createGain();
+        soundOutput.gain.value = 1;
+        soundOutput.connect(soundContext.destination);
+      }
+      if (soundContext.state !== 'running' && soundContext.state !== 'closed') soundContext.resume().catch(() => {});
+      if (soundContext.state === 'closed') return;
+      const now = soundContext.currentTime;
+      if (kind === 'sand' || kind === 'wave') {
+        if (soundVoices.size >= 12) return;
+        // Cache the noise textures; the wave swells once, rather than looping.
+        const wave = kind === 'wave', duration = wave ? 2.6 : .15;
+        let buffer = wave ? waveSoundBuffer : sandSoundBuffer;
+        if (!buffer) {
+          const rate = wave ? Math.min(22050, soundContext.sampleRate) : soundContext.sampleRate;
+          buffer = soundContext.createBuffer(1, Math.ceil(rate * duration), rate);
+          const samples = buffer.getChannelData(0);
+          if (wave) fillWaveTexture(samples, rate);
+          else for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+          if (wave) waveSoundBuffer = buffer; else sandSoundBuffer = buffer;
+        }
+        const source = soundContext.createBufferSource(), filter = soundContext.createBiquadFilter(), gain = soundContext.createGain();
+        source.buffer = buffer;
+        filter.type = wave ? 'lowpass' : 'bandpass';
+        filter.Q.value = wave ? .6 : .65;
+        filter.frequency.setValueAtTime(wave ? 1800 : 2200, now);
+        if (wave) filter.frequency.exponentialRampToValueAtTime(3200, now + .7);
+        filter.frequency.exponentialRampToValueAtTime(wave ? 1200 : 800, now + duration);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(wave ? .5 : .22, now + (wave ? .45 : .012));
+        if (wave) {
+          gain.gain.linearRampToValueAtTime(.42, now + 1.2);
+          gain.gain.linearRampToValueAtTime(.25, now + 1.85);
+        }
+        gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+        source.connect(filter); filter.connect(gain); gain.connect(soundOutput);
+        const voice = { source, nodes: [source, filter, gain] };
+        soundVoices.add(voice);
+        source.onended = () => { voice.nodes.forEach(node => node.disconnect()); soundVoices.delete(voice); };
+        source.start(now); source.stop(now + duration);
+        return;
+      }
+      // A bulk slot-machine clear should sound like one reward, not many stacked bells.
+      if (kind === 'match' && now - lastMatchSound < .06) return;
+      if (kind === 'match') lastMatchSound = now;
+      const notes = {
+        match: [[660, 0, .20, .12], [880, .07, .24, .10]],
+        move: [[190, 0, .11, .20], [320, .014, .055, .04]],
+        bucket: [[430, 0, .13, .17], [970, 0, .065, .055], [1530, 0, .035, .025]],
+        lever: [[170, 0, .11, .18], [620, .055, .045, .09], [470, .11, .045, .075], [340, .18, .09, .11]],
+        wrong: [[392, 0, .14, .12], [294, .10, .19, .14]],
+        tap: [[520, 0, .055, .08]]
+      }[kind];
+      const pitchEndRatio = { match: .97, move: .42, bucket: .92, wrong: .98 }[kind] ?? .65;
+      for (const [frequency, delay, duration, volume] of notes) {
+        if (soundVoices.size >= 12) break;
+        const oscillator = soundContext.createOscillator(), gain = soundContext.createGain();
+        const start = now + delay, end = start + duration;
+        oscillator.type = kind === 'tap' || kind === 'lever' ? 'triangle' : 'sine';
+        oscillator.frequency.setValueAtTime(frequency, start);
+        oscillator.frequency.exponentialRampToValueAtTime(frequency * pitchEndRatio, end);
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(volume * 1.5, start + .006);
+        gain.gain.exponentialRampToValueAtTime(.0001, end);
+        oscillator.connect(gain); gain.connect(soundOutput);
+        const voice = { source: oscillator, nodes: [oscillator, gain] };
+        soundVoices.add(voice);
+        oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); soundVoices.delete(voice); };
+        oscillator.start(start); oscillator.stop(end + .01);
+      }
+    } catch (_) { /* Audio support/permission must never block game input. */ }
+  }
+  musicTracks.forEach(track => { track.volume = .22; });
   function syncMusic() {
     const target = musicEnabled && musicUnlocked && !document.hidden && !musicPageHidden
       && !(currentScreen === 'play' && game.state === 'paused')
@@ -434,6 +555,7 @@
         const oldMismatches = game.mismatches;
         const oldBonus = game.bonusTime;
         if (game.select(card.index, now)) {
+          playEffect('sand');
           scatterSand(button);
           if (game.pairs > oldPairs) {
             const pair = game.cards.filter(c => c.status === 'matched' && previousStates[c.index] !== 'matched');
@@ -610,8 +732,12 @@
         if (modalOpen) return;
         const count = game.collectedCount;
         const moved = game.move(card.index, performance.now());
+        if (moved) playEffect('move');
         if (moved || game.state === 'lost') announce(game.feedback);
-        if (game.collectedCount > count) announce(`拾到${BeachArt.names[game.level.treasures.find(item => item.index === card.index).kind]}，已收集${game.collectedCount}件。`);
+        if (game.collectedCount > count) {
+          playEffect('match');
+          announce(`拾到${BeachArt.names[game.level.treasures.find(item => item.index === card.index).kind]}，已收集${game.collectedCount}件。`);
+        }
         syncGame();
       });
       $('board').append(button);
@@ -626,7 +752,7 @@
       button.dataset.index = index;
       button.addEventListener('click', () => {
         if (modalOpen) return;
-        game.select(index, performance.now());
+        if (game.select(index, performance.now())) playEffect('bucket');
         syncGame();
       });
       $('board').append(button);
@@ -668,6 +794,7 @@
       button.addEventListener('click', () => {
         if (modalOpen) return;
         if (game.select(card.index, performance.now())) {
+          playEffect('sand');
           if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) game.lastAffected.forEach(index => {
             cardElements[index].animate([{ boxShadow: '0 0 0 3px #78a58bab, 0 0 14px #c3d69b99' }, { boxShadow: '0 0 0 0 #78a58b00' }], { duration: 260, easing: 'ease-out' });
           });
@@ -916,6 +1043,7 @@
     }
     if (game.waveCount > lastSurfWave) {
       lastSurfWave = game.waveCount;
+      playEffect('wave');
       tideRetreat = { from: displayedTide, start: animationTime, duration: 420 };
       announce('海浪来了，潮水上涨了。');
     }
@@ -1018,6 +1146,7 @@
     }
   }
   function collectPair(pair, awardedTime, pairNumber = game.pairs) {
+    playEffect('match');
     refreshBucketTarget();
     const layer = $('catch-effects').getBoundingClientRect();
     const group = { kind: pair[0].value, number: pairNumber, delivered: false };
@@ -1537,16 +1666,17 @@
     event.preventDefault();
     if (!isArithmetic() || modalOpen) return;
     const wrongBefore = game.wrongAnswers;
-    game.submit($('arithmetic-answer').value, performance.now());
-    if (game.wrongAnswers > wrongBefore && game.state === 'playing') {
-      tideRetreat = { from: displayedTide, start: animationTime, duration: 420 };
+    if (game.submit($('arithmetic-answer').value, performance.now())) playEffect('match');
+    if (game.wrongAnswers > wrongBefore) {
+      playEffect('wrong');
+      if (game.state === 'playing') tideRetreat = { from: displayedTide, start: animationTime, duration: 420 };
     }
     if (game.feedback !== 'invalid') $('arithmetic-answer').value = '';
     syncGame();
   });
   $('slot-lever').addEventListener('click', () => {
     if (modalOpen || !isSlotMachine()) return;
-    game.spin(performance.now());
+    if (game.spin(performance.now())) playEffect('lever');
     syncGame();
   });
   $('sort-undo').addEventListener('click', () => {
@@ -1566,6 +1696,10 @@
       button.setAttribute('aria-checked', String(enabled));
       button.querySelector('.switch-state').textContent = enabled ? 'ON' : 'OFF';
       if (button.id === 'music-switch') { musicEnabled = enabled; syncMusic(); }
+      if (button.id === 'sound-switch') {
+        soundEnabled = enabled;
+        if (enabled) playEffect('tap'); else stopEffects();
+      }
       if (button.id === 'unlock-switch') {
         unlockAll = enabled;
         try { localStorage.setItem('beach-pairs-unlock-all', enabled ? 'on' : 'off'); } catch (_) { /* Session-only fallback. */ }
@@ -1576,11 +1710,26 @@
   });
   document.querySelectorAll('[data-menu]').forEach(button => button.addEventListener('click', () => showScreen('menu')));
   $('pause-button').addEventListener('click', pauseGame);
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('button');
+    if (!button || button.disabled || button.getAttribute('aria-disabled') === 'true' || button.closest('[inert]')) return;
+    if (button.id === 'sound-switch') return; // Its updated state decides its feedback.
+    if (button.id === 'slot-lever') return; // The mechanism sounds only when a pull starts.
+    if (button.classList.contains('sort-bucket')) return; // Accepted bucket actions have a wooden knock.
+    if (button.classList.contains('tile')) {
+      if (game.state !== 'playing' || game.pending || game.countdownRemaining > 0) return;
+      // Board actions with their own sounds play them only after being accepted.
+      if (!isPuzzle()) return;
+    }
+    playEffect('tap');
+  }, true);
   document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopEffects(true);
     if (document.hidden && game.state === 'playing') pauseGame();
     syncMusic();
   });
   window.addEventListener('pagehide', () => {
+    stopEffects(true);
     musicPageHidden = true;
     if (game.state === 'playing' && !modalOpen) game.pause(performance.now());
     syncMusic();

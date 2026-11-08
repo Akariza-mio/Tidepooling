@@ -19,7 +19,7 @@ const { chromium } = require('./browser-support.cjs'), { createServer } = requir
       const playing = async id => {
         await page.waitForFunction(id => { const n = document.getElementById(id); return !n.paused && n.readyState >= 2 && n.currentTime > 0; }, id);
         const states = await audio(); assert.equal(states.filter(s => !s.paused).length, 1); assert.equal(states.find(s => !s.paused).id, id);
-        assert.ok(states.every(s => s.loop && s.volume === .35 && !s.error));
+        assert.ok(states.every(s => s.loop && s.volume === .22 && !s.error));
       };
       assert.ok((await audio()).every(s => s.paused));
       await page.locator('#settings-button').click(); await playing('theme-music');

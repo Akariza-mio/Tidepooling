@@ -875,7 +875,7 @@
       type: 'arithmetic',
       rows: 1,
       columns: 1,
-      duration: 120000,
+      duration: 90000,
       pairBonus: 0,
       wrongPenalty: 5000,
       layout: Object.freeze([]),

@@ -5,10 +5,10 @@
 .sort-rules { position: relative; z-index: 2; margin: 0; text-align: center; flex-shrink: 0; font-size: 11px; line-height: 1.7; color: #476f68; }
 .sort-bucket { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 6px 5px 19px; border: 2px solid #8dab98; border-top-width: 5px; border-radius: 12px 12px 22px 22px; background: linear-gradient(100deg, #ebeed6e6, #dae5c4e6 54%, #c2d3b7ee); box-shadow: inset 3px 0 0 #fff9e680, 0 4px 0 #839e8544; transition: border-color .15s, background .15s; }
 .sort-bucket::before { content: ''; position: absolute; width: 55%; height: 14px; border: 2px solid #9daa86; border-bottom: 0; border-radius: 18px 18px 0 0; left: 22.5%; top: -18px; pointer-events: none; }
-.sort-stack { display: flex; flex: 1; min-height: 0; flex-direction: column-reverse; gap: 2px; pointer-events: none; }
-.sort-slot { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; border-radius: 9px; background: #fffbea88; border: 1px solid #9cb09726; }
+.sort-stack { display: flex; flex: 1; width: 100%; min-width: 0; min-height: 0; align-self: stretch; align-items: stretch; flex-direction: column-reverse; gap: 2px; pointer-events: none; }
+.sort-slot { position: relative; flex: 1; width: 100%; min-width: 0; min-height: 0; display: grid; place-items: center; border-radius: 9px; background: #fffbea88; border: 1px solid #9cb09726; }
 .sort-slot.is-empty { background: #7d997a09; border-style: dashed; }
-.sort-slot svg { display: block; width: 100%; height: 100%; max-height: 57px; stroke: none; }
+.sort-slot svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-height: none; stroke: none; }
 .sort-number { position: absolute; bottom: 2px; left: 0; right: 0; color: #648476; font: 12px Georgia, serif; letter-spacing: 1px; }
 .sort-bucket.is-selected { border-color: #d99b59; background: #f5dfb9; box-shadow: 0 0 0 3px #f1b76950, 0 4px 0 #af976655; }
 .is-selected .sort-slot.is-top { background: #fff7df; outline: 2px solid #e0aa61; transform: translateY(-4px); filter: drop-shadow(0 3px 2px #a0763730); }
