@@ -163,7 +163,10 @@
 .chapter-pagination .icon-button { background: #fff8e9b0; border-color: #e3d4b9; }
 .chapter-pagination .icon-button:disabled { opacity: .3; }
 .chapter-indicators { display: flex; flex: 1; min-width: 0; justify-content: center; gap: 7px; pointer-events: none; user-select: none; }
-.chapter-indicator { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 32px; border-radius: 11px; color: #9c9b7e; font-size: 12px; }
+.chapter-indicator { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 38px; border-radius: 11px; }
+.chapter-indicator-art { display: block; width: 28px; height: 28px; opacity: .65; }
+.chapter-indicator-art > svg { display: block; width: 100%; height: 100%; }
+.chapter-indicator[aria-current="page"] .chapter-indicator-art { opacity: 1; }
 .chapter-indicator[aria-current="page"] { background: #5b8b79; color: #fffbe9; box-shadow: 0 2px 0 #477761; }
 .is-night-chapter .chapter-indicator { color: #e1e6d3; }
 .is-night-chapter .chapter-indicator[aria-current="page"] { background: #d1dcc4; color: #3c6266; box-shadow: 0 2px 0 #a9baaa; }
@@ -214,7 +217,8 @@
   .chapter-help { margin-top: 6px; font-size: 8px; }
   .chapter-pagination { gap: 12px; }
   .chapter-indicators { gap: 5px; }
-  .chapter-indicator { width: 26px; height: 30px; font-size: 11px; }
+  .chapter-indicator { width: 30px; height: 34px; }
+  .chapter-indicator-art { width: 25px; height: 25px; }
 }
 @media (orientation: landscape) and (max-height: 580px) {
   .chapter-heading h1 { font-size: 21px; }
@@ -222,7 +226,8 @@
   .chapter-heading { margin-bottom: 10px; }
   .chapter-level { min-height: 46px; }
   .chapter-indicators { gap: 3px; }
-  .chapter-indicator { width: 23px; height: 28px; font-size: 10px; }
+  .chapter-indicator { width: 25px; height: 28px; }
+  .chapter-indicator-art { width: 22px; height: 22px; }
   .chapter-note { margin-top: 11px; }
 }
 

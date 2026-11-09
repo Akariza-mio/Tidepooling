@@ -19,7 +19,7 @@ const action = (page, name) => page.getByRole('button', { name, exact: true }).c
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-16').isEnabled(), true);
-    assert.equal(await page.locator('#level-35').isDisabled(), true);
+    assert.equal(await page.locator('#level-35').isDisabled(), false);
     await page.locator('#level-16').click();
     assert.equal(await page.locator('#modal-heading').innerText(), '挑战！');
     assert.equal(await page.locator('#modal-description').innerText(), '这次走过的格子将不能重复踏入');
@@ -74,7 +74,7 @@ const action = (page, name) => page.getByRole('button', { name, exact: true }).c
     assert.equal(won.state, 'won'); assert.equal(won.bonusTime, 0);
     assert.equal(won.journey.visited.length, won.turns + 1);
     assert.equal(await page.locator('#modal-heading').innerText(), '目标全部找齐啦！');
-    assert.equal(await page.evaluate(() => localStorage.getItem('beach-pairs-completed-levels')), null);
+    assert.equal(await page.evaluate(() => localStorage.getItem('beach-pairs-completed-levels')) ,'[16]');
     await action(page, '下一关');
     assert.equal((await snapshot(page)).levelId, 17);
     assert.equal(await page.locator('#modal-conditions').innerText(), '配对失败会导致潮水上涨');

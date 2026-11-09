@@ -112,7 +112,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal((await state()).state, 'playing'); assert.equal((await state()).mismatches, 21);
     for (const kind of [0,1,2,3,4,5]) for (let i = 0; i < deck.length; i++) if (deck[i] === kind) await tile(i).click();
     await page.clock.runFor(1000); assert.equal((await state()).state, 'won'); assert.equal((await state()).pairs, 18);
-    assert.equal(await page.evaluate(() => localStorage.getItem('beach-pairs-completed-levels')), null);
+    assert.equal(await page.evaluate(() => localStorage.getItem('beach-pairs-completed-levels')) ,'[33,34]');
     await action('下一关'); assert.equal((await state()).levelId, 35);
     assert.equal(await page.locator('.sort-bucket').count(), 6);
     assert.equal(await page.locator('.board-surf').count(), 0);

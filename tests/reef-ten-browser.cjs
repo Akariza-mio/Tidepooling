@@ -19,7 +19,7 @@ const {pathToFileURL}=require('node:url');
     const grass=async()=>(await state()).seagrass.flatMap((card,i)=>card.grass?[i]:[]);
     await page.locator('#select-level-button').click();await page.locator('#chapter-next').click();await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#chapter-3 .chapter-level:enabled').count(),10);
-    assert.equal(await page.locator('#level-30').isEnabled(),true);assert.equal(await page.locator('#level-35').isDisabled(),true);
+    assert.equal(await page.locator('#level-30').isEnabled(),true);assert.equal(await page.locator('#level-35').isDisabled(),false);
     await page.locator('#level-30').click();
     assert.equal(await page.locator('#play-number').innerText(),'10');assert.equal(await page.locator('#modal-art .notice-board-art').count(),1);
     assert.equal(await page.locator('#modal-conditions').innerText(),label);assert.equal((await state()).conditions[0].penalty,3000);

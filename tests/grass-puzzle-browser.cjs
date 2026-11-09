@@ -68,7 +68,7 @@ const {pathToFileURL}=require('node:url');
     await action('下一关');assert.equal((await state()).levelId,26);
     assert.equal(await page.locator('#modal-conditions').innerText(),'总翻动次数不能超过15次');
     await action('我知道了');await page.locator('#pause-button').click();
-    await action('返回选关');assert.equal(await page.locator('#level-25').isEnabled(),true);assert.equal(await page.locator('#level-35').isDisabled(),true);
+    await action('返回选关');assert.equal(await page.locator('#level-25').isEnabled(),true);assert.equal(await page.locator('#level-35').isDisabled(),false);
     await page.locator('#level-25').click();await action('我知道了');await page.clock.fastForward(60001);await page.clock.runFor(700);
     assert.equal((await state()).failureReason,'timeout');assert.equal(await page.locator('#modal-heading').innerText(),'潮水先到了一步');
     await action('重新挑战');assert.deepEqual((await state()).grassPuzzle.grass,initial);await action('我知道了');
@@ -83,7 +83,7 @@ const {pathToFileURL}=require('node:url');
     await testing.locator('#level-25').click();await testing.getByRole('button',{name:'我知道了',exact:true}).click();
     for(const i of [1,3,5,7,12,13,14,15,18,20,21,24])await testing.locator('.grass-cell').nth(i).click();
     await testing.locator('#modal-heading').getByText('挑战成功！',{exact:true}).waitFor();
-    assert.equal(await testing.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),null);
+    assert.equal(await testing.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')) ,'[25]');
     assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);
     console.log('PASS: fourth-to-fifth progression, intro/frozen clock, reversible cross input, five layouts, underwater operation, pause/retry, alternate solves, victory/rewards, timeout, saved progress/test isolation and mode cleanup. No images captured.');
   }finally{await browser.close();}

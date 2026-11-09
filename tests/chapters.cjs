@@ -25,7 +25,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('.chapter-page').count(), 5);
     assert.equal(await page.locator('.chapter-level').count(), 50);
     assert.equal(await page.locator('.chapter-page:visible').count(), 1);
-    assert.equal(await page.locator('#level-one').isDisabled(), true);
+    assert.equal(await page.locator('#level-one').isDisabled(), false);
     assert.equal(await page.locator('#chapter-previous').isDisabled(), true);
     const names = ['初入浅滩', '月下独捉', '礁间寻宝', '踏浪而寻', '挑战EX'];
     for (let index = 0; index < 5; index++) {
@@ -34,9 +34,9 @@ const { pathToFileURL } = require('node:url');
       assert.equal(await chapter.locator('button').count(), 10);
       const ids = await chapter.locator('button').evaluateAll(buttons => buttons.map(button => Number(button.dataset.level)));
       assert.deepEqual(ids, Array.from({ length: 10 }, (_, slot) => index * 10 + slot + 1));
-      assert.equal(await chapter.locator('button:enabled').count(), 0);
+      assert.equal(await chapter.locator('button:enabled').count(), 10);
       assert.equal(await chapter.getAttribute('id'), 'chapter-' + (index + 1));
-      assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), ['一', '二', '三', '四', '五'][index]);
+      assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').getAttribute('aria-label'), `第${['一', '二', '三', '四', '五'][index]}大关，${names[index]}`);
       if (index === 0 || index === 4) {
         if (process.env.BEACH_CAPTURE_PREVIEWS === '1') await page.screenshot({ path: path.join(preview, `17-chapter-${index + 1}.png`), animations: 'disabled' });
       }
@@ -44,6 +44,7 @@ const { pathToFileURL } = require('node:url');
     }
     assert.equal(await page.locator('#chapter-next').isDisabled(), true);
     await page.locator('#chapter-previous').click();
+    await page.locator('#chapter-pages:not(.is-sliding)').waitFor({ state: 'attached' });
     assert.equal(await page.locator('.chapter-page:visible h1').innerText(), '踏浪而寻');
     for (let i = 0; i < 3; i++) { await page.locator('#chapter-previous').click(); await page.locator('#chapter-pages:not(.is-sliding)').waitFor({ state: 'attached' }); }
     assert.equal(await page.locator('#chapter-tabs').count(), 0);
@@ -72,7 +73,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('.tile').count(), 16);
     await page.locator('#pause-button').click();
     await page.getByRole('button', { name: '返回选关', exact: true }).click();
-    assert.equal(await page.locator('#level-one').isDisabled(), true, 'Starting or pausing must not award completion.');
+    assert.equal(await page.locator('#level-one').isDisabled(), false, 'All levels remain playable before completion.');
     await page.locator('#level-screen [data-menu]').click();
     await page.locator('#start-button').click();
     await page.getByRole('button', { name: '跳过教程', exact: true }).click();

@@ -16,14 +16,15 @@ test('fifth level uses four kinds, six buckets, two empty buffers and an immutab
   assert.equal(game.sortedCount, 0); assert.equal(game.totalPairs, 0); assert.deepEqual(game.conditions, []); assert.equal(level.surf, undefined);
   assert.ok(Object.isFrozen(level.buckets) && level.buckets.every(Object.isFrozen));
 });
-test('only one top item moves; wrong kinds, full buckets and empty sources leave the deck and counters intact', () => {
+test('only one top item moves; full or incompatible buckets can be selected directly without changing the deck', () => {
   const game = create(); const initial = structuredClone(game.buckets);
   assert.equal(game.select(4,0), false); assert.equal(game.select(0,0), true); assert.equal(game.source, 0);
-  assert.equal(game.select(1,0), false); assert.equal(game.source, 0); assert.deepEqual(game.buckets, initial); assert.equal(game.turns, 0);
+  assert.equal(game.select(1,0), true); assert.equal(game.source, 1); assert.deepEqual(game.buckets, initial); assert.equal(game.turns, 0); assert.equal(game.history.length,0);
+  assert.equal(game.select(0,0), true); assert.equal(game.source,0);
   assert.equal(game.select(4,0), true); assert.deepEqual(game.buckets[0],[0,1,2]); assert.deepEqual(game.buckets[4],[4]);
   assert.equal(game.turns, 1); assert.equal(game.source, null);
-  game.select(3,0); assert.equal(game.select(4,0), false); assert.match(game.feedback,/相同物品/); assert.equal(game.turns,1);
-  game.select(3,0); move(game,3,0); assert.deepEqual(game.buckets[0],[0,1,2,2]);
+  game.select(3,0); assert.equal(game.select(4,0), true); assert.equal(game.source,4); assert.equal(game.turns,1); assert.deepEqual(game.buckets[4],[4]);
+  game.select(4,0); move(game,3,0); assert.deepEqual(game.buckets[0],[0,1,2,2]);
   assert.equal(game.canMove(0,0),false); assert.equal(game.canMove(-1,0),false); assert.equal(game.canMove(0,99),false);
   const snapshot=structuredClone(game.buckets); for (const index of [-1,6,1.5,'0']) assert.equal(game.select(index,0),false);
   assert.deepEqual(game.buckets,snapshot);

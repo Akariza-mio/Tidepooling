@@ -698,7 +698,7 @@
         Object.freeze([0, 4, 1, 5]), Object.freeze([4, 1, 5, 2]),
         Object.freeze([1, 5, 2, 3]), Object.freeze([5, 2, 3, 0]),
         Object.freeze([2, 3, 0, 4]), Object.freeze([3, 0, 4, 1]),
-        Object.freeze([]), Object.freeze([])
+        Object.freeze([])
       ]),
       layout: Object.freeze([0, 4, 1, 5, 4, 1, 5, 2, 1, 5, 2, 3, 5, 2, 3, 0, 2, 3, 0, 4, 3, 0, 4, 1])
     }),
@@ -938,12 +938,12 @@
       pairBonus: 2000,
       startCountdown: 3000,
       layout: Object.freeze([
-        0, 1, 1, 0, 0, 0,
-        1, 4, 2, 4, 2, 0,
-        4, 1, 1, 2, 2, 4,
-        0, 4, 0, 0, 1, 4,
-        0, 2, 2, 2, 0, 1,
-        1, 2, 1, 4, 4, 1
+        0, 1, 3, 0, 3, 0,
+        1, 4, 2, 5, 3, 5,
+        4, 5, 1, 2, 2, 4,
+        0, 4, 3, 0, 1, 4,
+        5, 2, 5, 2, 0, 3,
+        1, 2, 5, 3, 4, 1
       ])
     }),
     Object.freeze({

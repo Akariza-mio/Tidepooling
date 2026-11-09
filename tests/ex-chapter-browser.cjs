@@ -52,8 +52,8 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/ser
    assert.equal(await page.locator('.chapter-page:visible h1').innerText(),'挑战EX');assert.equal(await page.locator('#chapter-pages').getAttribute('aria-busy'),null);assert.equal(await page.locator('#chapter-surf-bridge').isVisible(),false);
    await go('previous');assert.equal(await page.locator('#chapter-surf-scene').isVisible(),true);await go('next');
    // Turning testing off never opens the unimplemented EX levels.
-   await page.locator('#level-screen [data-menu]').click();await page.locator('#settings-button').click();await page.locator('#unlock-switch').click();await page.locator('#settings-screen [data-menu]').click();await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await go('next');
-   assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),0);assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),'[1]');
+   await page.locator('#level-screen [data-menu]').click();await page.locator('#settings-button').click();await page.locator('#settings-screen [data-menu]').click();await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await go('next');
+   assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),10);assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),'[1]');
    assert.deepEqual(errors,[]);await context.close();
   }
   console.log('PASS: file/HTTP, Challenge EX name/indicator and filled-bucket art, reused daylight, both 1s wave-bridged transitions and midpoint/input locks, cleanup in both directions, reduced motion, five viewports, 50 implemented levels, all ten EX available in testing, unchanged progress. No screenshots.');

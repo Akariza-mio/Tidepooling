@@ -21,7 +21,6 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#settings-screen .settings-return').count(), 0);
     assert.equal(await page.getByRole('switch').count(), 3);
     await capture('37-settings-single-return.png');
-    await page.locator('#unlock-switch').click();
     await page.locator('#settings-screen [data-menu]').click();
     await page.locator('#select-level-button').click();
     assert.equal(await page.locator('#level-3').isEnabled(), true);

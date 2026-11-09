@@ -29,8 +29,7 @@ const { createServer } = require('../scripts/serve.cjs');
       await page.locator('.tile').nth(0).click();await page.locator('.tile').nth(3).click();
       assert.equal((await state()).pairs,1);
       await back();await page.locator('#level-screen [data-menu]').click();
-      await page.locator('#settings-button').click();await page.locator('#unlock-switch').click();
-      await page.locator('#settings-screen [data-menu]').click();await page.locator('#select-level-button').click();
+      await page.locator('#settings-button').click();await page.locator('#settings-screen [data-menu]').click();await page.locator('#select-level-button').click();
       assert.equal(await page.locator('.chapter-level:enabled').count(),50);
       assert.equal(await page.locator('#level-50').isDisabled(),false);
       await page.locator('#level-5').click(); await action('我知道了');
@@ -89,7 +88,7 @@ const { createServer } = require('../scripts/serve.cjs');
 
 
       assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.deepEqual(failed,[]);
-      assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),null);
+      assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')) ,'[25]');
       await page.close();
       console.log(`PASS ${engine}: ${new URL(url).protocol} entry, matching, settings/unlock, picture puzzle, fog, journey, grass matching, grass puzzle victory and surf row/column warning/arrival and surf-two timed-pair condition and surf-three fifteen-second/mistake-limit rules and surf-four simultaneous double waves; no external dependencies.`);
     }

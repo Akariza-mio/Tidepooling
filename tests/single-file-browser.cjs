@@ -35,8 +35,7 @@ const { chromium } = require('./browser-support.cjs');
       assert.equal((await state()).pairs, 1);
       await page.locator('#pause-button').click(); await action('返回选关');
       await page.locator('#level-screen [data-menu]').click();
-      await page.locator('#settings-button').click(); await page.locator('#unlock-switch').click();
-      await page.locator('#settings-screen [data-menu]').click(); await page.locator('#select-level-button').click();
+      await page.locator('#settings-button').click(); await page.locator('#settings-screen [data-menu]').click(); await page.locator('#select-level-button').click();
       assert.equal(await page.locator('.chapter-level:enabled').count(), 50);
       let chapter = 1;
       for (const id of opaque ? [46, 47, 50] : Array.from({ length: 50 }, (_, i) => i + 1)) {
@@ -47,7 +46,7 @@ const { chromium } = require('./browser-support.cjs');
         const confirm = page.getByRole('button', { name: '我知道了', exact: true });
         if (await confirm.isVisible()) await confirm.click();
         assert.equal((await state()).levelId, id);
-        if (id === 46) { assert.equal((await state()).mode, 'arithmetic'); assert.equal((await state()).duration, 120000); }
+        if (id === 46) { assert.equal((await state()).mode, 'arithmetic'); assert.equal((await state()).duration, 90000); }
         if (id === 47) { assert.equal((await state()).conditions[0].type, 'mismatchSwap'); assert.deepEqual((await state()).seagrass.flatMap((c, i) => c.grass ? [i] : []), [2, 8, 14, 20, 26, 32]); }
         if (id === 50) {
           await page.clock.fastForward(180000); assert.equal((await state()).progress, 0);

@@ -40,12 +40,16 @@ const viewports = [{ width: 400, height: 730 }, { width: 320, height: 568 }, { w
                   }), stackWidth: s.width, expectedWidth: width };
               });
               const screen = r(document.getElementById('play-screen'));
-              return { measurements, contained: [...document.querySelectorAll('.sort-bucket,.sort-slot,#sort-panel')].every(node => {
+              const buckets = [...document.querySelectorAll('.sort-bucket')].map(r), board = r(document.getElementById('board'));
+              const centered = buckets.length !== 7 || (Math.abs((buckets[4].left + buckets[6].right) / 2 - (board.left + board.right) / 2) < 1
+                && buckets.slice(0,4).every(box => Math.abs(box.top - buckets[0].top) < 1)
+                && buckets.slice(4).every(box => Math.abs(box.top - buckets[4].top) < 1));
+              return { measurements, centered, contained: [...document.querySelectorAll('.sort-bucket,.sort-slot,#sort-panel')].every(node => {
                 const box = r(node); return box.left >= screen.left - 1 && box.right <= screen.right + 1 && box.top >= screen.top - 1 && box.bottom <= screen.bottom + 1;
               }), overflow: document.documentElement.scrollWidth > innerWidth };
             });
             assert.ok(geometry.measurements.every(m => m.filledWidth && m.slots), JSON.stringify({ id, shrink, viewport, ...geometry }));
-            assert.ok(geometry.contained && !geometry.overflow, JSON.stringify({ id, viewport, ...geometry }));
+            assert.ok(geometry.centered && geometry.contained && !geometry.overflow, JSON.stringify({ id, viewport, ...geometry }));
           }
           await style.evaluate(node => node.remove());
         }

@@ -129,10 +129,9 @@ const { pathToFileURL } = require('node:url');
     // The existing test-mode switch should also permit direct entry into level ten.
     await action('返回主菜单');
     await page.locator('#settings-button').click();
-    await page.locator('#unlock-switch').click();
     await page.locator('#settings-screen [data-menu]').click();
     await page.locator('#select-level-button').click();
-    assert.equal(await page.locator('.chapter-level:enabled').count(), 34);
+    assert.equal(await page.locator('.chapter-level:enabled').count(), 50);
     await page.locator('#level-10').click();
     assert.equal((await state()).levelId, 10);
     assert.equal((await state()).totalPairs, 32);

@@ -35,11 +35,7 @@
       if (this.source === index) {
         this.source = null;
         this.feedback = '已取消选择，可以改选其他桶。';
-      } else if (this.source === null) {
-        if (!this.buckets[index].length) { this.feedback = '这个桶是空的，请先选择装着物品的桶。'; return false; }
-        this.source = index;
-        this.feedback = '已选中桶顶物品，请点击亮起的桶放入；再点原桶可取消。';
-      } else if (this.canMove(this.source, index)) {
+      } else if (this.source !== null && this.canMove(this.source, index)) {
         const from = this.source, kind = this.buckets[from].pop();
         this.buckets[index].push(kind);
         this.history.push({ from, to: index, kind });
@@ -50,8 +46,9 @@
         this.feedback = '放好了！继续把相同的收获装在一起。';
         if (this.buckets.every((bucket, i) => !bucket.length || this.isSorted(i))) this.state = 'won';
       } else {
-        this.feedback = this.buckets[index].length === this.capacity ? '这个桶已经满了，请换一个桶。' : '只能放入空桶，或放在相同物品上方。';
-        return false;
+        if (!this.buckets[index].length) { this.feedback = '这个桶是空的，请先选择装着物品的桶。'; return false; }
+        this.source = index;
+        this.feedback = '已选中桶顶物品，点亮起的桶放入；也可点其他桶改选。';
       }
       return true;
     }

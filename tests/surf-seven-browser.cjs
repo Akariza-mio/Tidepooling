@@ -27,8 +27,8 @@ const labels=['倒数第三对配对必须是八爪鱼','倒数第二对配对�
         assert.deepEqual(await page.locator(`#${id} .condition-item-icon .seaside-item`).evaluateAll(nodes=>nodes.map(node=>Number(node.dataset.kind))),[3,4]);
       };
       await page.locator('#select-level-button').click();for(let i=0;i<3;i++)await page.locator('#chapter-next').click();
-      assert.equal(await page.locator('#level-50').isDisabled(),!testing);
-      assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(),testing?10:2);
+      assert.equal(await page.locator('#level-50').isDisabled(),false);
+      assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(),10);
       assert.equal(await page.locator('#level-37').evaluate(node=>node.classList.contains('is-minigame')),false);
       await page.locator('#level-36').click();assert.equal((await state()).modalOpen,false);
       for(const [from,to]of sixthSolution){await page.locator('.sort-bucket').nth(from).click();await page.locator('.sort-bucket').nth(to).click();}
@@ -75,7 +75,7 @@ const labels=['倒数第三对配对必须是八爪鱼','倒数第二对配对�
       assert.deepEqual(await page.locator('#modal-conditions .condition-item').evaluateAll(nodes=>nodes.map(node=>node.dataset.completed)),['true','false']);
       await page.clock.fastForward(30000);await action('继续赶海');await match(conch);assert.equal((await state()).pairs,17);assert.deepEqual(await checked(),[true,true]);
       await match(last);await page.clock.runFor(1000);assert.equal((await state()).state,'won');
-      assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),testing?null:'[36,37]');
+      assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),'[36,37]');
       await action('下一关');assert.equal((await state()).levelId,38);assert.equal((await state()).conditions.length,1);
       assert.equal(await page.locator('#modal-heading').innerText(),'本关胜利条件');assert.equal((await state()).conditions[0].label,'在2秒内完成2次配对');
       await action('我知道了');await page.locator('#pause-button').click();await action('返回选关');

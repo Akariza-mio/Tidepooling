@@ -18,7 +18,7 @@ const {pathToFileURL}=require('node:url');
     const label='至少在10个海草格上完成配对',live=n=>`${label}（${n} / 10）`;
     const grass=async()=>(await state()).seagrass.flatMap((card,i)=>card.grass?[i]:[]);
     await page.locator('#select-level-button').click();await page.locator('#chapter-next').click();await page.locator('#chapter-next').click();
-    assert.equal(await page.locator('#level-29').isEnabled(),true);assert.equal(await page.locator('#level-35').isDisabled(),true);
+    assert.equal(await page.locator('#level-29').isEnabled(),true);assert.equal(await page.locator('#level-35').isDisabled(),false);
     await page.locator('#level-29').click();
     assert.equal((await state()).rows,6);assert.equal((await state()).columns,6);assert.equal((await state()).duration,60000);
     assert.equal(await page.locator('#play-number').innerText(),'09');assert.equal(await page.locator('#modal-art .notice-board-art').count(),1);

@@ -34,6 +34,7 @@
     "test:ex:ninth": "node tests/ex-ninth-browser.cjs",
     "test:ex:eighth": "node tests/ex-eighth-browser.cjs",
     "test:arithmetic": "node tests/arithmetic-browser.cjs",
+    "test:arithmetic:embed": "node tests/arithmetic-embed-browser.cjs",
     "test:ex:sixth": "node tests/ex-sixth-browser.cjs",
     "test:slots": "node tests/slot-machine-browser.cjs"
   },

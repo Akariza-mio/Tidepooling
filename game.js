@@ -160,7 +160,6 @@
   let modalOpen = false;
   let previousFocus = null;
   const completedLevels = new Set();
-  let unlockAll = false;
   const chapterNames = ['初入浅滩', '月下独捉', '礁间寻宝', '踏浪而寻', '挑战EX'];
   const chapterNumerals = ['一', '二', '三', '四', '五'];
   const levelNumerals = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
@@ -213,9 +212,6 @@
   try {
     if (localStorage.getItem('beach-pairs-level-one') === 'won') completedLevels.add(1);
   } catch (_) { /* Keep progress in memory when storage is unavailable. */ }
-  try { unlockAll = localStorage.getItem('beach-pairs-unlock-all') === 'on'; } catch (_) { /* Session-only fallback. */ }
-  $('unlock-switch').setAttribute('aria-checked', String(unlockAll));
-  $('unlock-switch').querySelector('.switch-state').textContent = unlockAll ? 'ON' : 'OFF';
 
   buildMenuPattern();
   $('chapter-day-scene').append(document.querySelector('.landscape').cloneNode(true));
@@ -252,6 +248,13 @@
   function isSlotMachine() { return game.level.type === 'slotMachine'; }
   function isJourney() { return game.level.type === 'fogJourney'; }
 
+  function chapterEmblem(chapter, suffix) {
+    if (chapter === 1) return BeachArt.moon(suffix);
+    if (chapter === 2) return BeachArt.reefEmblem(suffix);
+    if (chapter === 3) return BeachArt.surfEmblem(suffix);
+    if (chapter === 4) return BeachArt.harvestEmblem(suffix);
+    return BeachArt.item(1, suffix);
+  }
   function buildChapterPages() {
     const lock = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
     chapterNames.forEach((name, chapter) => {
@@ -259,7 +262,7 @@
       page.className = 'chapter-page';
       page.id = 'chapter-' + (chapter + 1);
       page.setAttribute('aria-labelledby', 'chapter-heading-' + chapter);
-      const emblem = chapter === 1 ? BeachArt.moon('chapter-two') : chapter === 2 ? BeachArt.reefEmblem('chapter-three') : chapter === 3 ? BeachArt.surfEmblem('chapter-four') : chapter === 4 ? BeachArt.harvestEmblem('chapter-five') : BeachArt.item([1, 0, 4, 5, 3][chapter], 'chapter-' + chapter);
+      const emblem = chapterEmblem(chapter, 'chapter-heading-' + chapter);
       page.innerHTML = `<header class="chapter-heading"><span class="chapter-emblem" aria-hidden="true">${emblem}</span><p class="eyebrow">第${chapterNumerals[chapter]}大关 · 10 关</p><h1 id="chapter-heading-${chapter}">${name}</h1><p class="chapter-progress"></p></header><div class="chapter-grid"></div><p class="chapter-note"></p>`;
       const grid = page.querySelector('.chapter-grid');
       for (let slot = 0; slot < 10; slot++) {
@@ -280,7 +283,7 @@
       $('chapter-pages').append(page);
       const indicator = document.createElement('span');
       indicator.className = 'chapter-indicator';
-      indicator.textContent = chapterNumerals[chapter];
+      indicator.innerHTML = `<span class="chapter-indicator-art" aria-hidden="true">${chapterEmblem(chapter, 'chapter-indicator-' + chapter)}</span>`;
       indicator.setAttribute('role', 'listitem');
       indicator.setAttribute('aria-label', `第${chapterNumerals[chapter]}大关，${name}`);
       $('chapter-indicators').append(indicator);
@@ -288,7 +291,7 @@
     selectChapter(0);
   }
   function isLevelUnlocked(id) {
-    return unlockAll || completedLevels.has(id) || completedLevels.has(id - 1);
+    return BeachLevels.some(level => level.id === id);
   }
   function selectChapter(chapter, moveFocus = false) {
     finishChapterTransition(false);
@@ -313,18 +316,15 @@
         button.disabled = !available;
         button.classList.toggle('is-completed', won);
         button.classList.toggle('is-unlocked', available && !won);
-        button.querySelector('.chapter-level-status').textContent = won ? '已通关 · 重玩' : available ? unlockAll ? '可挑战' : '已解锁 · 可挑战' : level ? '尚未通关' : '待开放';
+        button.querySelector('.chapter-level-status').textContent = won ? '已通关 · 重玩' : available ? '可挑战' : '待开放';
         button.querySelector('.chapter-level-mark').hidden = available;
       });
       page.querySelector('.chapter-progress').textContent = `已通关 ${completed} / 10`;
-      page.querySelector('.chapter-note').hidden = unlockAll;
-      const hasLevels = BeachLevels.some(level => Math.floor((level.id - 1) / 10) === index);
-      page.querySelector('.chapter-note').textContent = unlockAll ? '' : hasLevels
-        ? completed ? `已通关 ${completed} 关，可重玩或挑战已解锁关卡。` : index === 0 ? '第一关从主页“开始游戏”进入，通关后解锁下一关。' : '通关上一大关后，继续探索这片海岸。'
-        : '这片海岸尚待探索，关卡将陆续开放。';
+      page.querySelector('.chapter-note').hidden = true;
+      page.querySelector('.chapter-note').textContent = '';
     });
-    $('chapter-help').hidden = unlockAll;
-    $('chapter-help').textContent = unlockAll ? '' : '已通关关卡可重玩 · 通关后解锁下一关';
+    $('chapter-help').hidden = true;
+    $('chapter-help').textContent = '';
     const animate = moveFocus && currentScreen === 'level' && Math.abs(previousChapter - currentChapter) === 1
       && Math.max(previousChapter, currentChapter) <= 4 && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (animate) {
@@ -745,6 +745,7 @@
     });
   }
   function buildBucketSortBoard() {
+    $('board').dataset.bucketCount = String(game.buckets.length);
     return game.buckets.map((bucket, index) => {
       const button = document.createElement('button');
       button.type = 'button';
@@ -1443,13 +1444,11 @@
     const conditionFailure = game.failureReason === 'conditions';
     hideTideDanger();
     if (won) {
-      if (!unlockAll) {
-        completedLevels.add(game.level.id);
-        try {
-          localStorage.setItem('beach-pairs-completed-levels', JSON.stringify([...completedLevels]));
-          if (game.level.id === 1) localStorage.setItem('beach-pairs-level-one', 'won');
-        } catch (_) { /* In-memory progress still permits replay this session. */ }
-      }
+      completedLevels.add(game.level.id);
+      try {
+        localStorage.setItem('beach-pairs-completed-levels', JSON.stringify([...completedLevels]));
+        if (game.level.id === 1) localStorage.setItem('beach-pairs-level-one', 'won');
+      } catch (_) { /* In-memory progress still permits replay this session. */ }
       announce(game.level.endingMessage ? game.level.endingMessage[0] : isArithmetic() ? '挑战成功！十轮速算全部完成。' : isBucketSort() ? '挑战成功！所有收获都分好类了。' : isGrassPuzzle() ? '挑战成功！海草已全部清空。' : isJourney() ? '挑战成功！五种目标全部找到。' : isPuzzle() ? '挑战成功！棋盘已填满，横、纵和两条对角线均无重复。' : `通关成功！${game.totalPairs}对赶海收获全部收集完成。`);
     } else announce(game.failureReason === 'wrongTarget' ? '碰到了当前目标以外的物品，本次挑战结束。' : conditionFailure ? '未完成全部的条件，本次挑战未通过。' : '潮水已经漫过沙滩，本次赶海结束。');
     if (won && game.level.endingMessage) {
@@ -1662,9 +1661,8 @@
     });
     $('arithmetic-keypad').append(button);
   }
-  $('arithmetic-form').addEventListener('submit', event => {
-    event.preventDefault();
-    if (!isArithmetic() || modalOpen) return;
+  function submitArithmeticAnswer() {
+    if (!isArithmetic() || modalOpen || game.state !== 'playing' || !game.timerRunning) return;
     const wrongBefore = game.wrongAnswers;
     if (game.submit($('arithmetic-answer').value, performance.now())) playEffect('match');
     if (game.wrongAnswers > wrongBefore) {
@@ -1673,6 +1671,13 @@
     }
     if (game.feedback !== 'invalid') $('arithmetic-answer').value = '';
     syncGame();
+  }
+  // Hosted previews can allow scripts while forbidding native form submission.
+  $('arithmetic-submit').addEventListener('click', submitArithmeticAnswer);
+  $('arithmetic-answer').addEventListener('keydown', event => {
+    if (event.key !== 'Enter' || event.isComposing) return;
+    event.preventDefault();
+    if (!event.repeat) $('arithmetic-submit').click();
   });
   $('slot-lever').addEventListener('click', () => {
     if (modalOpen || !isSlotMachine()) return;
@@ -1689,7 +1694,7 @@
   $('chapter-previous').addEventListener('click', () => selectChapter(currentChapter - 1, true));
   $('chapter-next').addEventListener('click', () => selectChapter(currentChapter + 1, true));
   $('settings-button').addEventListener('click', () => showScreen('settings'));
-  // The sound-effects switch is separate from background music and testing progress.
+  // Sound effects and background music have independent switches.
   document.querySelectorAll('.setting-switch').forEach(button => {
     button.addEventListener('click', () => {
       const enabled = button.getAttribute('aria-checked') !== 'true';
@@ -1699,12 +1704,6 @@
       if (button.id === 'sound-switch') {
         soundEnabled = enabled;
         if (enabled) playEffect('tap'); else stopEffects();
-      }
-      if (button.id === 'unlock-switch') {
-        unlockAll = enabled;
-        try { localStorage.setItem('beach-pairs-unlock-all', enabled ? 'on' : 'off'); } catch (_) { /* Session-only fallback. */ }
-        selectChapter(currentChapter);
-        announce(enabled ? '自由测试已开启，已开放关卡均可选择，测试通关不改变原有进度。' : '自由测试已关闭，已恢复原有通关进度。');
       }
     });
   });

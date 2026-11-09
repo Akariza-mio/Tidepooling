@@ -73,11 +73,11 @@ const {pathToFileURL}=require('node:url');
     await testing.addInitScript(()=>localStorage.setItem('beach-pairs-unlock-all','on'));
     await testing.goto(url);await testing.emulateMedia({reducedMotion:'reduce'});
     await testing.locator('#select-level-button').click();await testing.locator('#chapter-next').click();await testing.locator('#chapter-next').click();
-    assert.equal(await testing.locator('#level-26').isEnabled(),true);assert.equal(await testing.locator('#level-35').isDisabled(),true);
+    assert.equal(await testing.locator('#level-26').isEnabled(),true);assert.equal(await testing.locator('#level-35').isDisabled(),false);
     await testing.locator('#level-26').click();await testing.getByRole('button',{name:'我知道了',exact:true}).click();
     for(const i of solution)await testing.locator('.grass-cell').nth(i).click();
     await testing.getByRole('heading',{name:'挑战成功！',exact:true}).waitFor();
-    assert.equal(await testing.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),null);
+    assert.equal(await testing.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')) ,'[26]');
     assert.deepEqual(errors,[]);
     console.log('PASS: fifth-to-sixth progression, distinct fixed 5x5 board, all condition displays, one-click accounting, five layouts, pause/retry, 15/16 boundary, failure despite clearing, valid 14-move win, real/test progress and direct unlock. No images captured.');
   }finally{await browser.close();}

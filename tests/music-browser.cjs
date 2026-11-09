@@ -62,7 +62,7 @@ const { chromium } = require('./browser-support.cjs'), { createServer } = requir
       assert.deepEqual(await page.evaluate(() => window.musicContinuity), { paused: 0, sought: 0 });
       await page.locator('#pause-button').click(); await page.getByRole('button', { name: '返回选关', exact: true }).click();
       await page.locator('#level-screen [data-menu]').click(); await page.locator('#settings-button').click();
-      await page.locator('#unlock-switch').click(); await page.locator('#settings-screen [data-menu]').click();
+      await page.locator('#settings-screen [data-menu]').click();
       await page.locator('#select-level-button').click(); await page.locator('#level-3').click(); await playing('level-music');
       assert.ok((await audio())[1].time < 3, 'Re-entering a different level must restart its music.');
       await page.getByRole('button', { name: '我知道了', exact: true }).click();

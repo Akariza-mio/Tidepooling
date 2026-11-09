@@ -73,8 +73,7 @@ function routeToTarget(level,state){
    await action('继续赶海');await page.waitForFunction(()=>[...window.effectContexts][0].state==='running');
    assert.equal(await page.locator('#level-music').evaluate(n=>n.paused),true);assert.deepEqual(errors,[]);
    console.log(`PASS ${single?'standalone offline':'source'}: distinct button/sand/match sounds, accepted flips only with no duplicate tap tone, mute, music independence, one context, voice cleanup, background suspend/resume.`);
-   await page.locator('#pause-button').click();await action('返回选关');await page.locator('#level-screen [data-menu]').click();await page.locator('#settings-button').click();await page.locator('#unlock-switch').click();
-   await page.locator('#settings-screen [data-menu]').click();await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#select-level-button').click();await page.locator('#chapter-next').click();
+   await page.locator('#pause-button').click();await action('返回选关');await page.locator('#level-screen [data-menu]').click();await page.locator('#settings-button').click();await page.locator('#settings-screen [data-menu]').click();await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#select-level-button').click();await page.locator('#chapter-next').click();
    for(const id of [15,16]){
     await page.locator(`#level-${id}`).click();
     const introRecords=await records();await page.locator('.journey-cell').nth(17).dispatchEvent('click');assert.deepEqual(await records(),introRecords);

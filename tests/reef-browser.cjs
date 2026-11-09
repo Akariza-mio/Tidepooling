@@ -45,7 +45,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#chapter-night-scene').isVisible(), false);
     assert.equal(await page.locator('#chapter-reef-scene').isVisible(), true);
     assert.equal(await page.locator('#chapter-3 .reef-emblem-art').count(), 1);
-    assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), '三');
+    assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').getAttribute('aria-label'), '第三大关，礁间寻宝');
     assert.equal(await page.locator('#level-21').isEnabled(), true);
     assert.equal(await page.locator('#level-50').isDisabled(), false);
     for (const viewport of [{ width: 320, height: 568 }, { width: 390, height: 844 }, { width: 430, height: 932 }, { width: 1280, height: 720 }, { width: 844, height: 390 }]) {
@@ -97,7 +97,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#chapter-4 .surf-emblem-art').count(), 1);
     assert.equal(await page.locator('#chapter-surf-scene').isVisible(), true);
     assert.equal(await page.locator('#chapter-reef-scene').isVisible(), false);
-    assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').innerText(), '四');
+    assert.equal(await page.locator('#chapter-indicators [aria-current="page"]').getAttribute('aria-label'), '第四大关，踏浪而寻');
     assert.equal(await page.locator('#chapter-4 .chapter-level:enabled').count(), 10);
     assert.equal(await page.locator('#chapter-4 .is-minigame').count(), 2);
     assert.equal(await page.evaluate(() => BeachLevels.length), 50);

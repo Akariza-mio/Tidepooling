@@ -302,7 +302,7 @@ const sixthSolution = [0, 2, 5, 1, 4, 1, 4, 0, 2, 5, 2, 5, 1, 4, 0, 4, 0, 2, 5, 
       localStorage.setItem('beach-pairs-completed-levels', '[1]');
     });
     await testing.locator('#select-level-button').click();
-    assert.equal(await testing.locator('.chapter-level:enabled').count(), 34);
+    assert.equal(await testing.locator('.chapter-level:enabled').count(), 50);
     assert.equal(await testing.locator('#level-5').evaluate(button => button.classList.contains('is-unlocked') && getComputedStyle(button).backgroundColor !== getComputedStyle(document.getElementById('level-7')).backgroundColor), true);
     await testing.locator('#level-5').click();
     await action(testing, '我知道了');

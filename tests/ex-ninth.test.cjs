@@ -3,9 +3,9 @@ const Game=require('../core.js'),level=require('../levels.js').find(l=>l.id===49
 // Test replenishment separately from preparation; countdown cases below use the real level.
 const create=(preparing=false)=>{const game=new Game({level:preparing?level:{...level,startCountdown:0}});game.start(0);return game;};
 const pair=(game,now)=>{const a=game.cards.find(c=>c.status==='hidden'),b=game.cards.find(c=>c.index!==a.index&&c.status==='hidden'&&c.value===a.value);assert.equal(game.select(a.index,now),true);assert.equal(game.select(b.index,now),true);};
-test('EX ninth has a 6x6 four-kind board, ten seconds and three seconds of preparation',()=>{
+test('EX ninth has a 6x6 six-kind board, ten seconds and three seconds of preparation',()=>{
  const game=create(true);assert.equal(level.rows,6);assert.equal(level.columns,6);assert.equal(game.duration,10000);assert.equal(game.pairBonus,2000);assert.equal(game.totalPairs,18);assert.equal(level.startCountdown,3000);
- assert.deepEqual([0,1,2,4].map(k=>level.layout.filter(v=>v===k).length),[10,10,8,8]);assert.equal(new Set(level.layout).size,4);assert.deepEqual(game.conditions,[]);
+ assert.deepEqual([0,1,2,3,4,5].map(k=>level.layout.filter(v=>v===k).length),[6,6,6,6,6,6]);assert.equal(new Set(level.layout).size,6);assert.deepEqual(game.conditions,[]);
  for(const name of ['type','intro','fog','seagrass','surf','randomize'])assert.equal(level[name],undefined);
 });
 test('preparation shows 3-2-1, blocks flips and spends no main time before the exact start boundary',()=>{

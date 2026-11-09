@@ -51,7 +51,7 @@ async function win(page) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.locator('#select-level-button').click(); await page.locator('#chapter-next').click();
     assert.equal(await page.locator('#level-15').isEnabled(), true);
-    assert.equal(await page.locator('#level-35').isDisabled(), true);
+    assert.equal(await page.locator('#level-35').isDisabled(), false);
     await page.locator('#level-15').click();
     assert.equal((await snapshot(page)).journey.position, 24);
     assert.equal(await page.locator('.journey-cell').count(), 49);
@@ -140,7 +140,7 @@ async function win(page) {
     assert.equal(await page.locator('#modal-heading').innerText(), '目标全部找齐啦！');
     assert.equal(await page.locator('.journey-catch.is-picked').count(), 5);
     assert.equal(await page.locator('.journey-result-items .seaside-item').count(), 5);
-    assert.equal(await page.evaluate(() => localStorage.getItem('beach-pairs-completed-levels')), null);
+    assert.equal(await page.evaluate(() => localStorage.getItem('beach-pairs-completed-levels')) ,'[15]');
     await action(page, '下一关'); assert.equal(await page.locator('#modal-heading').innerText(), '挑战！');
     await action(page, '我知道了'); await page.locator('#pause-button').click();
     await action(page, '返回选关'); await page.locator('#level-14').click();

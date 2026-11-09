@@ -70,7 +70,7 @@
         <div class="chapter-indicators" id="chapter-indicators" role="list" aria-label="大关位置"></div>
         <button class="icon-button" id="chapter-next" aria-label="下一大关"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
       </nav>
-      <p class="chapter-help" id="chapter-help">已通关关卡可重玩 · 通关后解锁下一关</p>
+      <p class="chapter-help" id="chapter-help" hidden></p>
     </section>
 
     <section class="screen settings-screen" id="settings-screen" hidden aria-labelledby="settings-heading">
@@ -110,10 +110,6 @@
             <span class="setting-label" id="sound-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 4-6 5H2v6h3l6 5ZM15 8q4 4 0 8M18 5q7 7 0 14"/></svg>音效</span>
             <button type="button" class="setting-switch" id="sound-switch" role="switch" aria-checked="true" aria-labelledby="sound-label"><span class="switch-track" aria-hidden="true"></span><span class="switch-state" aria-hidden="true">ON</span><span class="switch-knob" aria-hidden="true"></span></button>
           </div>
-          <div class="setting-row">
-            <span class="setting-label" id="unlock-label"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M9 10V6a4 4 0 0 1 8 0M12 14v3"/></svg>一键解锁全部关卡</span>
-            <button type="button" class="setting-switch" id="unlock-switch" role="switch" aria-checked="false" aria-labelledby="unlock-label"><span class="switch-track" aria-hidden="true"></span><span class="switch-state" aria-hidden="true">OFF</span><span class="switch-knob" aria-hidden="true"></span></button>
-          </div>
         </div>
       </div>
     </section>
@@ -138,7 +134,7 @@
         <header class="arithmetic-heading"><span id="arithmetic-round" aria-live="polite">第1轮 / 共10轮</span></header>
         <div class="arithmetic-progress" id="arithmetic-progress" aria-label="已完成0轮"></div>
         <div class="arithmetic-paper"><p class="arithmetic-note">根据本轮公式，算出问号处的数</p><div class="arithmetic-clues" id="arithmetic-clues"></div><div class="arithmetic-question" id="arithmetic-question"></div><p class="arithmetic-order" id="arithmetic-order">每轮物品的数值独立</p></div>
-        <form class="arithmetic-controls" id="arithmetic-form" autocomplete="off"><div class="arithmetic-answer-row"><input id="arithmetic-answer" type="text" inputmode="numeric" maxlength="3" aria-label="输入本轮答案" placeholder="输入答案"><button class="button button-primary" id="arithmetic-submit" type="submit">确认</button></div><div class="arithmetic-keypad" id="arithmetic-keypad" role="group" aria-label="数字键盘"></div><p class="arithmetic-feedback" id="arithmetic-feedback" role="status" aria-live="polite"></p></form>
+        <div class="arithmetic-controls" id="arithmetic-form" role="group" aria-label="填写并确认答案"><div class="arithmetic-answer-row"><input id="arithmetic-answer" type="text" inputmode="numeric" autocomplete="off" maxlength="3" aria-label="输入本轮答案" placeholder="输入答案"><button class="button button-primary" id="arithmetic-submit" type="button">确认</button></div><div class="arithmetic-keypad" id="arithmetic-keypad" role="group" aria-label="数字键盘"></div><p class="arithmetic-feedback" id="arithmetic-feedback" role="status" aria-live="polite"></p></div>
       </section>
       <div class="board-wrap"><div class="board" id="board" aria-label="4行4列赶海配对棋盘"></div><div class="board-caption"><span class="caption-dot"></span>潮水线下的沙格也能继续翻开</div></div>
       <section class="slot-machine-progress" id="slot-machine-progress" hidden aria-label="配对及抽取进度"><span>已配对 <strong id="slot-count">0 / 32</strong> 对</span><span>已抽 <span id="slot-spins">0</span> 次</span></section>

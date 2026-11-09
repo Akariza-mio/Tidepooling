@@ -25,7 +25,7 @@ const { pathToFileURL } = require('node:url');
       await page.clock.runFor(700);
     }
     await page.locator('#select-level-button').click();
-    assert.equal(await page.locator('#level-2').isDisabled(), true);
+    assert.equal(await page.locator('#level-2').isDisabled(), false);
     await page.locator('#level-screen [data-menu]').click();
     await page.locator('#start-button').click();
     await page.getByRole('button', { name: '跳过教程', exact: true }).click();
