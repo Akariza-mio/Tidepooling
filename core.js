@@ -14,6 +14,7 @@
       this.cards = [];
       this.elapsed = 0;
       this.activeTime = 0;
+      this.playStartedAt = 0;
       this.timerRunning = true;
       this.bonusTime = 0;
       this.pairs = 0;
@@ -26,6 +27,7 @@
       this.pending = null;
       this.version = 0;
       this.lastMatchedKind = null;
+      this.winRemaining = null;
       this.failureReason = null;
     }
     start(now) {
@@ -50,9 +52,11 @@
       this.pairTimes = [];
       this.pairKinds = [];
       this.activeTime = 0;
+      this.playStartedAt = 0;
       this.countdownRemaining = this.level.startCountdown ?? 0;
       this.timerRunning = this.countdownRemaining === 0 && !this.level.untimed;
       this.lastMatchedKind = null;
+      this.winRemaining = null;
       this.failureReason = null;
       this.selected = [];
       this.pending = null;
@@ -120,6 +124,7 @@
           this.pairTimes.push(this.activeTime);
           this.pairKinds.push(a.value);
           this.lastMatchedKind = a.value;
+          const remainingBeforeReward = this.remaining;
           // Discard overflow now, so repeated matches cannot bank invisible time
           // beneath the lowest tide level. Each level uses its own time limit.
           this.bonusTime += Math.min(this.pairBonus, Math.max(0, this.elapsed - this.bonusTime));
@@ -129,6 +134,7 @@
             this.failureReason = 'conditions';
           } else if (this.pairs === this.totalPairs) {
             this.state = this.conditionStates.every(condition => condition.completed) ? 'won' : 'lost';
+            if (this.state === 'won') this.winRemaining = remainingBeforeReward;
             if (this.state === 'lost') this.failureReason = 'conditions';
           }
         } else {
@@ -177,6 +183,7 @@
     }
     setTimerRunning(running, now) {
       this.update(now);
+      if (running && !this.timerRunning && !this.level.untimed) this.playStartedAt = this.activeTime;
       this.timerRunning = running && !this.level.untimed;
       this.version++;
     }

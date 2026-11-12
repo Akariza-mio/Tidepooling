@@ -33,16 +33,13 @@
 .grass-puzzle-panel { position: relative; z-index: 2; flex-shrink: 0; width: 100%; padding: 16px; border: 1px solid #fff7de; border-radius: 19px; background: #fff7e6ee; box-shadow: 0 4px 0 #b6b08b40; margin-top: 14px; }
 .grass-puzzle-progress { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11px; color: #72856b; }
 .grass-puzzle-progress strong { font: 400 28px Georgia, serif; color: #477c67; margin: 0 4px; }
-.grass-puzzle-panel p { margin: 10px 0 0; text-align: center; font-size: 10px; line-height: 1.7; color: #879378; }
 @media (max-width: 370px), (max-height: 650px) {
   .grass-puzzle-panel { padding: 11px; margin-top: 10px; }
   .grass-puzzle-progress { font-size: 10px; }
   .grass-puzzle-progress strong { font-size: 24px; }
-  .grass-puzzle-panel p { font-size: 9px; margin-top: 6px; }
 }
 @media (orientation: landscape) and (max-height: 580px) {
   .grass-puzzle-panel { padding: 7px 10px; margin-top: 8px; border-radius: 12px; }
   .grass-puzzle-progress { font-size: 8px; }
   .grass-puzzle-progress strong { font-size: 19px; }
-  .grass-puzzle-panel p { font-size: 8px; margin-top: 4px; }
 }

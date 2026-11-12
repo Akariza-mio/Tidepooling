@@ -7,7 +7,9 @@
       super.start(now);
       this.reels = this.level.kinds.slice(0, 3);
       this.phase = 'idle';
-      this.spins = 0;
+      this.hasSpun = false;
+      this.noRewardStreak = 0;
+      this.fiveNoRewardPulls = false;
       this.credits = 0;
       this.manualPairs = 0;
       this.autoPairs = 0;
@@ -26,7 +28,7 @@
       this.phase = 'spinning';
       this.feedback = 'spinning';
       this.result = null;
-      this.spins++;
+      this.hasSpun = true;
       this.version++;
       return true;
     }
@@ -56,6 +58,8 @@
           const candidates = this.cards.filter(card => card.value === kind && card.status === 'hidden');
           const indices = (multiplicity === 3 ? candidates : candidates.slice(0, 2)).map(card => card.index);
           this.result = { kind: kind ?? null, multiplicity, indices, count: indices.length };
+          this.noRewardStreak = indices.length ? 0 : Math.min(5, this.noRewardStreak + 1);
+          if (this.noRewardStreak === 5) this.fiveNoRewardPulls = true;
           if (indices.length) {
             indices.forEach(index => { this.cards[index].status = 'open'; });
             this.phase = 'matching';
@@ -83,7 +87,7 @@
       if (this.phase !== 'spinning') return [...this.reels];
       const elapsed = this.activeTime - this.spinStartedAt;
       return this.reels.map((_, index) => elapsed >= this.level.reelStops[index] ? this.outcome[index]
-        : this.level.kinds[(this.spins + index + Math.floor(elapsed / 80)) % this.level.kinds.length]);
+        : this.level.kinds[(index + Math.floor(elapsed / 80)) % this.level.kinds.length]);
     }
     get stoppedReels() { return this.reels.map((_, index) => this.phase !== 'spinning' || this.activeTime - this.spinStartedAt >= this.level.reelStops[index]); }
     get matchProgress() { return this.phase === 'matching' ? Math.min(1, Math.max(0, 1 - (this.matchAt - this.activeTime) / this.level.deliveryDuration)) : 0; }

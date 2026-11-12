@@ -80,9 +80,9 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#chapter-night-scene').isVisible(), true);
     await page.locator('#level-screen [data-menu]').click();
     assert.equal(await page.locator('#chapter-night-scene').isVisible(), false);
-    await page.locator('#settings-button').click();
-    assert.equal(await page.locator('.settings-drift').isVisible(), true);
-    await page.locator('#settings-screen [data-menu]').click();
+    await page.locator('#guide-button').click(); await page.keyboard.press('Escape');
+    assert.equal(await page.locator('.settings-drift,#settings-screen').count(), 0);
+
     await page.locator('#select-level-button').click();
     assert.equal(await page.locator('#chapter-night-scene').isVisible(), false);
     assert.equal(await page.locator('#chapter-help').isVisible(), false);

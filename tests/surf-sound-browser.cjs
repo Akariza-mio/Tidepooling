@@ -75,14 +75,14 @@ const levels = require('../levels.js').filter(level => level.surf);
       await page.clock.install();
       await page.addInitScript(() => localStorage.setItem('beach-pairs-unlock-all', 'on'));
       await page.goto(pathToFileURL(single ? path.join(temp, 'index.html') : path.resolve('index.html')).href);
-      await page.locator('#settings-button').click();
+      await page.locator('#guide-button').click(); await page.keyboard.press('Escape');
       await page.locator('#sound-switch').click();
       await page.evaluate(() => {
         window.mutedWaves = 0;
         const make = AudioContext.prototype.createBufferSource;
         AudioContext.prototype.createBufferSource = function () { window.mutedWaves++; return make.call(this); };
       });
-      await page.locator('#settings-screen [data-menu]').click();
+
       await page.locator('#select-level-button').click();
       for (let chapter = 0; chapter < 4; chapter++) await page.locator('#chapter-next').click();
       await page.locator('#level-44').click();

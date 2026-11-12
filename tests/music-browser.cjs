@@ -22,13 +22,13 @@ const { chromium } = require('./browser-support.cjs'), { createServer } = requir
         assert.ok(states.every(s => s.loop && s.volume === .22 && !s.error));
       };
       assert.ok((await audio()).every(s => s.paused));
-      await page.locator('#settings-button').click(); await playing('theme-music');
+      await page.locator('#guide-button').click(); await page.keyboard.press('Escape'); await playing('theme-music');
       await page.locator('#music-switch').click(); assert.ok((await audio()).every(s => s.paused));
       await page.locator('#sound-switch').click(); assert.ok((await audio()).every(s => s.paused));
       await page.locator('#music-switch').click(); await playing('theme-music');
       await page.evaluate(() => { const b = document.getElementById('music-switch'); b.click(); b.click(); b.click(); b.click(); });
       await playing('theme-music');
-      await page.locator('#settings-screen [data-menu]').click(); await page.locator('#select-level-button').click(); await playing('theme-music');
+       await page.locator('#select-level-button').click(); await playing('theme-music');
       await page.locator('#level-screen [data-menu]').click(); await page.locator('#start-button').click();
       await playing('level-music'); await page.getByRole('button', { name: '跳过教程', exact: true }).click();
       await page.locator('#level-music').evaluate(n => { n.currentTime = 10; });
@@ -61,8 +61,8 @@ const { chromium } = require('./browser-support.cjs'), { createServer } = requir
       assert.ok((await audio())[1].time >= beforeNext);
       assert.deepEqual(await page.evaluate(() => window.musicContinuity), { paused: 0, sought: 0 });
       await page.locator('#pause-button').click(); await page.getByRole('button', { name: '返回选关', exact: true }).click();
-      await page.locator('#level-screen [data-menu]').click(); await page.locator('#settings-button').click();
-      await page.locator('#settings-screen [data-menu]').click();
+      await page.locator('#level-screen [data-menu]').click(); await page.locator('#guide-button').click(); await page.keyboard.press('Escape');
+
       await page.locator('#select-level-button').click(); await page.locator('#level-3').click(); await playing('level-music');
       assert.ok((await audio())[1].time < 3, 'Re-entering a different level must restart its music.');
       await page.getByRole('button', { name: '我知道了', exact: true }).click();

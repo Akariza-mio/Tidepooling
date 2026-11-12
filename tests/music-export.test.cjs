@@ -3,7 +3,7 @@ const fs = require('node:fs'), path = require('node:path');
 const { buildSingleHtml } = require('../scripts/build-single.cjs');
 test('single HTML contains byte-identical MP3 tracks with no sibling audio references', () => {
   const { html, resources } = buildSingleHtml();
-  assert.equal(resources.length, 27);
+  assert.equal(resources.length, 31);
   for (const name of ['theme', 'level']) {
     const match = html.match(new RegExp(`<audio id="${name}-music" src="data:audio/mpeg;base64,([^"]+)" preload="none" loop hidden>`));
     assert.ok(match, name);

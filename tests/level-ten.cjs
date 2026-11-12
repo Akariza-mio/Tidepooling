@@ -128,8 +128,8 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('#modal-heading').innerText(), '潮水先到了一步');
     // The existing test-mode switch should also permit direct entry into level ten.
     await action('返回主菜单');
-    await page.locator('#settings-button').click();
-    await page.locator('#settings-screen [data-menu]').click();
+    await page.locator('#guide-button').click(); await page.keyboard.press('Escape');
+
     await page.locator('#select-level-button').click();
     assert.equal(await page.locator('.chapter-level:enabled').count(), 50);
     await page.locator('#level-10').click();

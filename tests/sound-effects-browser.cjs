@@ -43,17 +43,17 @@ function routeToTarget(level,state){
    await page.goto(pathToFileURL(single?path.join(directory,'index.html'):path.join(__dirname,'../index.html')).href);
    const action=name=>page.getByRole('button',{name,exact:true}).click(),tap=i=>page.locator('.tile').nth(i).click();
    const records=()=>page.evaluate(()=>[...window.effectRecords]),sines=async()=>(await records()).filter(t=>t==='sine').length;
-   assert.deepEqual(await records(),[]);await page.locator('#settings-button').click();
+   assert.deepEqual(await records(),[]);await page.locator('#guide-button').click(); await page.keyboard.press('Escape');
    await page.waitForFunction(()=>[...window.effectContexts][0]?.state==='running');assert.deepEqual(await records(),['triangle']);
    assert.equal(await page.evaluate(()=>window.effectGains[0].gain.value),1);
    assert.deepEqual(await page.locator('audio').evaluateAll(ns=>ns.map(n=>n.volume)),[.22,.22]);
    await page.locator('#music-switch').click();assert.equal(await page.locator('#music-switch').getAttribute('aria-checked'),'false');assert.equal((await records()).length,2);
    await page.locator('#sound-switch').click();const silent=await records();
-   await page.locator('#settings-screen [data-menu]').click();await page.locator('#start-button').click();await action('跳过教程');await tap(0);await tap(3);
+   await page.locator('#start-button').click();await action('跳过教程');await tap(0);await tap(3);
    assert.equal(await page.evaluate(()=>beachDiagnostics.snapshot().pairs),1);assert.deepEqual(await records(),silent);
-   await page.locator('#pause-button').click();await action('返回选关');await page.locator('#level-screen [data-menu]').click();await page.locator('#settings-button').click();
+   await page.locator('#pause-button').click();await action('返回选关');await page.locator('#level-screen [data-menu]').click();await page.locator('#guide-button').click(); await page.keyboard.press('Escape');
    await page.locator('#sound-switch').click();assert.equal((await records()).length,silent.length+1);assert.equal(await page.locator('#music-switch').getAttribute('aria-checked'),'false');
-   await page.locator('#settings-screen [data-menu]').click();await page.locator('#start-button').click();await action('跳过教程');
+   await page.locator('#start-button').click();await action('跳过教程');
    const before=await sines(),beforeFlip=await records();await tap(0);
    assert.deepEqual((await records()).slice(beforeFlip.length),['sand']);
    await page.locator('.tile').nth(0).dispatchEvent('click');assert.equal((await records()).length,beforeFlip.length+1);
@@ -73,7 +73,7 @@ function routeToTarget(level,state){
    await action('继续赶海');await page.waitForFunction(()=>[...window.effectContexts][0].state==='running');
    assert.equal(await page.locator('#level-music').evaluate(n=>n.paused),true);assert.deepEqual(errors,[]);
    console.log(`PASS ${single?'standalone offline':'source'}: distinct button/sand/match sounds, accepted flips only with no duplicate tap tone, mute, music independence, one context, voice cleanup, background suspend/resume.`);
-   await page.locator('#pause-button').click();await action('返回选关');await page.locator('#level-screen [data-menu]').click();await page.locator('#settings-button').click();await page.locator('#settings-screen [data-menu]').click();await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#select-level-button').click();await page.locator('#chapter-next').click();
+   await page.locator('#pause-button').click();await action('返回选关');await page.locator('#level-screen [data-menu]').click();await page.locator('#guide-button').click(); await page.keyboard.press('Escape');await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#select-level-button').click();await page.locator('#chapter-next').click();
    for(const id of [15,16]){
     await page.locator(`#level-${id}`).click();
     const introRecords=await records();await page.locator('.journey-cell').nth(17).dispatchEvent('click');assert.deepEqual(await records(),introRecords);

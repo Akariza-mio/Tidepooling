@@ -9,6 +9,7 @@
       this.capacity = this.level.capacity;
       this.source = null;
       this.history = [];
+      this.undoUsed = false;
       this.lastMove = null;
       this.feedback = '先选一个桶，再选择要放入的桶。';
       this.cards = this.buckets.map((bucket, index) => ({ index, value: bucket.at(-1), status: 'filled', tangled: false, grassLockedUntil: null, fog: null }));
@@ -54,9 +55,10 @@
     }
     undo(now) {
       this.update(now);
-      if (this.state !== 'playing' || !this.timerRunning || !this.history.length) return false;
+      if (!this.canUndo) return false;
       const { from, to } = this.history.pop();
       this.buckets[from].push(this.buckets[to].pop());
+      this.undoUsed = true;
       this.source = null;
       this.lastMove = null;
       this.feedback = '已撤回上一步，潮水会继续上涨。';
@@ -68,6 +70,7 @@
       this.cards.forEach((card, i) => { card.value = this.buckets[i].at(-1); card.status = this.isSorted(i) ? 'sorted' : this.buckets[i].length ? 'filled' : 'empty'; });
     }
     clearFog() { return false; }
+    get canUndo() { return this.state === 'playing' && this.timerRunning && !this.undoUsed && this.history.length > 0; }
     get sortedCount() { return this.buckets.filter((bucket, i) => this.isSorted(i)).length; }
     get totalKinds() { return new Set(this.level.layout).size; }
     get totalPairs() { return 0; }

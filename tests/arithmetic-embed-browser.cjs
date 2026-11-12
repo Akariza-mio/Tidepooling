@@ -33,7 +33,7 @@ const answers = level.rounds.map(round => ArithmeticGame.evaluate(round.target, 
       const state = () => frame.locator('#app').evaluate(() => beachDiagnostics.snapshot());
       const action = name => frame.getByRole('button', { name, exact: true }).click();
       const answer = frame.locator('#arithmetic-answer'), confirm = frame.locator('#arithmetic-submit');
-      await frame.locator('#settings-button').click(); await frame.locator('#settings-screen [data-menu]').click(); await frame.locator('#select-level-button').click();
+      await frame.locator('#guide-button').click(); await frame.keyboard.press('Escape');  await frame.locator('#select-level-button').click();
       for (let chapter = 0; chapter < 4; chapter++) await frame.locator('#chapter-next').click();
       await frame.locator('#level-46').click();
       assert.equal((await state()).duration, 90000);
@@ -45,7 +45,7 @@ const answers = level.rounds.map(round => ArithmeticGame.evaluate(round.target, 
       assert.equal((await state()).arithmetic.wrongAnswers, 1); assert.equal((await state()).arithmetic.completed, 1);
       const timeSpent = beforeWrong.remaining - (await state()).remaining;
       assert.ok(timeSpent >= 5000 && timeSpent <= 5034, 'The five-second penalty is independent of at most one pending render frame');
-      assert.match(await frame.locator('#arithmetic-feedback').innerText(), /扣除5秒/);
+      assert.match(await frame.locator('#arithmetic-feedback').innerText(), /^答错了，再算一算。$/);
       await confirm.click(); assert.equal((await state()).arithmetic.wrongAnswers, 1);
       assert.match(await frame.locator('#arithmetic-feedback').innerText(), /整数/);
       await answer.fill(String(answers[1])); await answer.press('Enter');

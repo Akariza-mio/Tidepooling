@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 test('all static runtime references exist with exact case and have no Windows-only paths', () => {
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const assets = [...html.matchAll(/(?:src|href)="([^"#]+)"/g)].map(match => match[1]).filter(value => !value.startsWith('data:'));
-  assert.equal(assets.length,27);
+  assert.equal(assets.length,31);
   for (const name of ['index.html', ...assets]) {
     assert.ok(fs.readdirSync(root).includes(name), `Missing or mismatched filename case: ${name}`);
     if (name.endsWith('.mp3')) continue;

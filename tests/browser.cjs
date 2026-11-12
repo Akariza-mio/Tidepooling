@@ -21,18 +21,19 @@ const { pathToFileURL } = require('node:url');
   await page.goto(url);
   await page.locator('#start-button').waitFor();
   assert.equal(await page.locator('#menu-screen').isVisible(), true);
-  assert.equal((await page.locator('#menu-screen').innerText()).replace(/\s+/g, ' ').trim(), '赶赶嗨嗨！ 开始游戏 选择关卡 设置');
-  assert.equal(await page.locator('#menu-screen button').count(), 3);
-  const settingsOffset = await page.locator('#settings-button').evaluate(button => {
+  assert.equal((await page.locator('#menu-screen').innerText()).replace(/\s+/g, ' ').trim(), '赶赶嗨嗨！ 开始游戏 选择关卡 成就 音乐 ON 音效 ON 图鉴');
+  assert.equal(await page.locator('#menu-screen button').count(), 6);
+  const settingsOffset = await page.locator('.menu-tools').evaluate(button => {
     const bounds = button.getBoundingClientRect();
     const menu = document.getElementById('menu-screen').getBoundingClientRect();
     return Math.abs((bounds.left + bounds.right) / 2 - (menu.left + menu.right) / 2);
   });
-  assert.ok(settingsOffset < 1, 'Settings must be horizontally centered.');
+  assert.ok(settingsOffset < 1, 'Menu tools must be horizontally centered.');
   await screenshot('01-menu.png');
-  await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.locator('#settings-screen').waitFor({ state: 'visible' });
-  await page.locator('#settings-screen [data-menu]').click();
+  await page.locator('#guide-button').click();
+  await page.locator('#guide-screen').waitFor({ state: 'visible' });
+  await page.locator('#guide-back').click();
+
   await page.locator('#select-level-button').click();
   await screenshot('02-level.png');
   await page.locator('#level-screen [data-menu]').click();

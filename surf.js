@@ -14,6 +14,8 @@
       this.waveUntil = null;
       this.waveRetreatUntil = null;
       this.waveCount = 0;
+      this.wavePairs = 0;
+      this.threePairsInWave = false;
       if (this.nextWaveAt <= this.level.surf.warning) this.startWarning();
     }
     startWarning() {
@@ -57,6 +59,7 @@
           this.waveRetreatUntil = this.waveUntil + this.level.surf.departure;
           this.nextWaveAt += this.level.surf.interval;
           this.waveCount++;
+          this.wavePairs = 0;
           this.elapsed = Math.min(this.duration + this.bonusTime, this.elapsed + this.level.surf.penalty);
           if (this.remaining <= 0) {
             this.state = 'lost';
@@ -85,7 +88,13 @@
     select(index, now) {
       this.update(now);
       if (!this.timerRunning || this.isWashed(index)) return false;
-      return super.select(index, now);
+      const before = this.pairs;
+      const accepted = super.select(index, now);
+      if (this.surfPhase === 'washing' && this.pairs > before) {
+        this.wavePairs = Math.min(3, this.wavePairs + this.pairs - before);
+        if (this.wavePairs === 3) this.threePairsInWave = true;
+      }
+      return accepted;
     }
   }
   if (typeof module !== 'undefined' && module.exports) module.exports = SurfGame;

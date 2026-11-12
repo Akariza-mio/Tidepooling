@@ -9,13 +9,17 @@ test('the fiftieth and final level has exactly two hearts and the exact five-lin
 });
 test('the tide remains still indefinitely while both heart tiles remain playable',()=>{
  const game=create(),remaining=game.remaining;assert.equal(game.timerRunning,false);assert.equal(game.totalPairs,1);
- game.update(86400000);assert.equal(game.state,'playing');assert.equal(game.elapsed,0);assert.equal(game.progress,0);assert.equal(game.remaining,remaining);
- game.setTimerRunning(true,86400000);assert.equal(game.timerRunning,false);game.update(172800000);assert.equal(game.elapsed,0);
- assert.equal(game.select(0,172800000),true);assert.equal(game.select(0,172800001),false);game.update(259200000);assert.equal(game.state,'playing');assert.equal(game.pairs,0);assert.equal(game.progress,0);
- assert.equal(game.select(1,259200000),true);assert.equal(game.state,'won');assert.equal(game.pairs,1);assert.equal(game.bonusTime,0);assert.equal(game.progress,0);assert.equal(game.failureReason,null);
+ game.update(300000);assert.equal(game.state,'playing');assert.equal(game.elapsed,0);assert.equal(game.progress,0);assert.equal(game.remaining,remaining);
+ game.setTimerRunning(true,300000);assert.equal(game.timerRunning,false);
+ assert.equal(game.select(0,300000),true);assert.equal(game.select(0,300001),false);game.update(600000);assert.equal(game.state,'playing');assert.equal(game.pairs,0);assert.equal(game.progress,0);
+ assert.equal(game.select(1,600000),true);assert.equal(game.state,'won');assert.equal(game.pairs,1);assert.equal(game.bonusTime,0);assert.equal(game.progress,0);assert.equal(game.failureReason,null);
+ game.update(86400000);assert.equal(game.state,'won');
+});
+test('passing thirty seconds never introduces a failure and a late heart match still wins',()=>{
+ const game=create();game.update(30000);assert.equal(game.state,'playing');game.update(30001);assert.equal(game.state,'playing');assert.equal(game.failureReason,null);assert.equal(game.progress,0);assert.equal(game.elapsed,0);assert.equal(game.select(0,30002),true);assert.equal(game.select(1,30002),true);assert.equal(game.state,'won');
 });
 test('pause and retry preserve the untimed ending, and a subsequent timed level still expires',()=>{
- const game=create();game.select(0,100);game.pause(200);game.update(100000);assert.equal(game.cards[0].status,'open');game.resume(200000);assert.equal(game.select(1,300000),true);assert.equal(game.state,'won');
+ const game=create();game.select(0,100);game.pause(200);game.update(100000);assert.equal(game.cards[0].status,'open');game.resume(200000);assert.equal(game.select(1,200100),true);assert.equal(game.state,'won');
  game.start(400000);assert.equal(game.timerRunning,false);assert.equal(game.pairs,0);assert.equal(game.countdownRemaining,0);assert.ok(game.cards.every(c=>c.status==='hidden'));assert.deepEqual(game.cards.map(c=>c.value),[6,6]);
  const ordinary=new Game({level:levels.find(l=>l.id===49)});ordinary.start(0);ordinary.update(3000);assert.equal(ordinary.timerRunning,true);ordinary.update(13000);assert.equal(ordinary.failureReason,'timeout');
 });

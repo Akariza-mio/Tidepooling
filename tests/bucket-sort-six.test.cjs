@@ -6,6 +6,22 @@ const solution = require('./bucket-sort-six-solution.cjs');
 const level = levels.find(level => level.id === 36);
 function create(custom=level) { const game = new BucketSort({ level:custom }); game.start(0); return game; }
 function move(game, from, to, now=0) { assert.ok(game.canMove(from,to));assert.equal(game.select(from,now),true);assert.equal(game.select(to,now),true); }
+test('exhaustive breadth-first search proves the authored single-empty layout needs at least 34 transfers', () => {
+  // Bucket positions are interchangeable under the rules and the completion condition.
+  const key = buckets => buckets.map(bucket => bucket.join(',')).sort().join('|');
+  const queue = [{ buckets: level.buckets.map(bucket => [...bucket]), depth: 0 }], seen = new Set([key(level.buckets)]);
+  let minimum = null;
+  for (let head = 0; head < queue.length; head++) {
+    const { buckets, depth } = queue[head];
+    if (buckets.every(bucket => !bucket.length || bucket.length === level.capacity && bucket.every(kind => kind === bucket[0]))) { minimum = depth; break; }
+    for (let from = 0; from < buckets.length; from++) if (buckets[from].length) for (let to = 0; to < buckets.length; to++) {
+      if (from === to || buckets[to].length >= level.capacity || buckets[to].length && buckets[to].at(-1) !== buckets[from].at(-1)) continue;
+      const next = buckets.map(bucket => [...bucket]); next[to].push(next[from].pop()); const state = key(next);
+      if (!seen.has(state)) { seen.add(state); queue.push({ buckets: next, depth: depth + 1 }); }
+    }
+  }
+  assert.equal(minimum, 34); assert.equal(level.optimalMoves, minimum); assert.equal(solution.length, minimum);
+});
 test('sixth sorting level contains six kinds of four in seven buckets with one empty, starts without an intro and keeps fifth independent', () => {
   const game=create();assert.equal(levels.length, 50);assert.equal(levels.some(level=>level.id > 50),false);
   assert.equal(level.type,'bucketSort');assert.equal(level.intro,undefined);assert.equal(level.duration,60000);assert.equal(level.capacity,4);

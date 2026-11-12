@@ -1,0 +1,68 @@
+/* A small, scrollable paper field guide with paging always in reach. */
+.guide-screen { gap: 15px; }
+.guide-screen .screen-header { flex-shrink: 0; }
+.guide-screen .screen-header h1 { margin: 0; font-size: 14px; font-weight: 500; letter-spacing: 4px; }
+.guide-book { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 13px 11px 10px; border: 2px solid #fffbed; border-radius: 24px; background: #fff8e9; box-shadow: 0 5px 0 #d7c7a8, 0 12px 30px #7d80651c, inset 0 0 0 5px #f1e6cf; }
+.guide-page { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #b5c7ad transparent; padding: 10px 13px 14px; border-radius: 13px; }
+.guide-page:focus-visible { outline: 2px solid #679b88; outline-offset: -2px; }
+.guide-art { width: 112px; height: 112px; max-width: 100%; margin: 0 auto 12px; pointer-events: none; }
+.guide-art > svg { display: block; width: 100%; height: 100%; }
+.guide-art.guide-art--arithmetic { width: 154px; }
+.guide-art.guide-art--seagrass { --guide-tile-size: 82px; width: calc(var(--guide-tile-size) * 2 + 18px); height: auto; }
+.guide-art.guide-art--buckets { width: 90px; height: 186px; padding-top: 18px; }
+.guide-sort-bucket { width: 100%; height: 100%; pointer-events: none; }
+.guide-grass-samples { display: flex; justify-content: center; align-items: flex-start; gap: 18px; }
+.guide-grass-samples figure { width: var(--guide-tile-size); min-width: 0; margin: 0; }
+.guide-demo-tile { position: relative; display: block; width: 100%; aspect-ratio: 1; isolation: isolate; border-radius: 9px; pointer-events: none; }
+.guide-demo-tile .sand-cover { border-radius: inherit; transition: none; }
+.guide-demo-tile .seagrass-cover { opacity: 1; transform: none; transition: none; }
+.guide-surf-sample { display: grid; place-items: center; height: 100%; }
+.guide-surf-sample .guide-demo-tile { width: 84%; }
+.guide-surf-water { position: absolute; inset: 0; z-index: 3; overflow: hidden; border-radius: inherit; }
+#guide-screen[hidden] .surf-band-flow { animation-play-state: paused; }
+.guide-category { margin: 0 0 7px; text-align: center; font-size: 10px; letter-spacing: 1px; color: #8b967f; }
+.guide-page h2 { margin: 0 0 22px; text-align: center; color: #3b7165; font: 500 26px/1.4 "STSong", "Songti SC", "SimSun", serif; letter-spacing: 3px; }
+.guide-page h2:focus { outline: none; }
+.guide-copy section + section { margin-top: 20px; }
+.guide-copy h3 { margin: 0 0 5px; font-size: 13px; font-weight: 600; color: #4b7e6e; }
+.guide-copy p { margin: 0; font-size: 13px; line-height: 1.95; color: #717e6c; overflow-wrap: anywhere; }
+.guide-nav { flex-shrink: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; border-top: 1px solid #e8dec7; padding: 12px 3px 2px; }
+.guide-turn { display: flex; align-items: center; justify-content: center; gap: 3px; min-width: 0; min-height: 42px; border: 1px solid #c9ba9c70; border-radius: 12px; padding: 6px 4px; background: #f6ebd7; color: #547267; font-size: 12px; white-space: nowrap; }
+.guide-turn svg { flex-shrink: 0; width: 17px; height: 17px; }
+.guide-turn:hover:not(:disabled) { background: #e7ecd9; }
+.guide-turn:disabled { opacity: .38; }
+.guide-page-count { min-width: 42px; text-align: center; color: #8c977e; font: 13px Georgia, serif; }
+.guide-pair { display: flex; align-items: center; justify-content: center; height: 100%; gap: 4px; }
+.guide-pair > svg { width: calc(50% - 2px); height: 70%; flex-shrink: 0; }
+.guide-grass-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; height: 100%; border-radius: 12px; background: #e8d9b6; border: 1px solid #c8b68d; }
+.guide-grass-grid > span { display: grid; place-items: center; min-width: 0; min-height: 0; background: #f7e7c5; border: 1px solid #d6c497; border-radius: 4px; }
+.guide-grass-grid > .is-cross { background: #d9e4c3; border-color: #9ab394; }
+.guide-grass-grid svg { width: 100%; height: 100%; }
+.guide-equations { display: flex; flex-direction: column; justify-content: center; gap: 10px; width: 154px; max-width: 100%; height: 100%; margin: auto; }
+.guide-equations > div { display: flex; align-items: center; justify-content: center; gap: 2px; color: #648875; font: 600 16px Georgia, serif; white-space: nowrap; }
+.guide-equations svg { width: 30px; height: 36px; flex-shrink: 0; }
+@media (max-height: 650px), (max-width: 370px) {
+  .guide-screen { gap: 10px; }
+  .guide-book { border-radius: 20px; padding: 10px 8px 8px; }
+  .guide-art { width: 88px; height: 88px; margin-bottom: 9px; }
+  .guide-art.guide-art--seagrass { --guide-tile-size: 68px; }
+  .guide-art.guide-art--buckets { width: 80px; height: 164px; }
+  .guide-demo-tile { border-radius: 7px; }
+  .guide-page { padding: 8px 11px 12px; }
+  .guide-page h2 { font-size: 23px; margin-bottom: 17px; }
+  .guide-copy section + section { margin-top: 16px; }
+}
+@media (orientation: landscape) and (max-height: 580px) {
+  .guide-screen { gap: 7px; }
+  .guide-screen .screen-header h1 { font-size: 12px; }
+  .guide-book { padding: 8px 6px 6px; border-radius: 17px; }
+  .guide-art { width: 68px; height: 68px; }
+  .guide-art.guide-art--seagrass { --guide-tile-size: 58px; }
+  .guide-art.guide-art--buckets { width: 68px; height: 140px; padding-top: 12px; }
+  .guide-category { font-size: 9px; }
+  .guide-page h2 { font-size: 21px; margin-bottom: 14px; }
+  .guide-nav { gap: 5px; padding-top: 8px; }
+  .guide-turn { font-size: 10px; min-height: 36px; }
+  .guide-turn svg { width: 13px; height: 13px; }
+  .guide-page-count { min-width: 34px; font-size: 11px; }
+}

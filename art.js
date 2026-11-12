@@ -53,6 +53,23 @@
       <path d="m67 87 3-5 3 5 6 1-4 4 1 6-6-3-6 3 1-6-4-4Z" fill="#e6cf92" stroke="#bcaa77" stroke-width="1.2" stroke-linejoin="round"/>
     </svg>`;
   }
+  function puzzleEmblem(suffix = '') {
+    const finds = new Map([[0, 0], [7, 1], [9, 2], [14, 4]]);
+    const cells = Array.from({ length: 16 }, (_, index) => {
+      const x = 14 + (index % 4) * 29, y = 11 + Math.floor(index / 4) * 29;
+      const kind = finds.get(index);
+      const find = kind === undefined ? '' : item(kind, `puzzle-emblem-${suffix}-${index}`)
+        .replace('class="shell-art seaside-item"', 'class="seaside-item"')
+        .replace('<svg ', `<svg x="${x}" y="${y}" width="25" height="25" `);
+      return `<rect class="puzzle-emblem-cell" x="${x}" y="${y}" width="25" height="25" rx="4" fill="${kind === undefined ? '#f7e7c5' : '#e5ebd3'}" stroke="#d6c497" stroke-width="1"/>${find}`;
+    }).join('');
+    return `<svg class="puzzle-emblem-art" viewBox="0 0 140 140" style="display:block;width:100%;height:100%" aria-hidden="true" focusable="false">
+      <ellipse cx="70" cy="133" rx="51" ry="5" fill="#ae9b6d" opacity=".16"/>
+      <rect x="8" y="5" width="124" height="124" rx="12" fill="#ede0bd" stroke="#93ac91" stroke-width="2"/>
+      <rect x="11" y="8" width="118" height="118" rx="9" fill="#fff5dc" stroke="#fffaf0" stroke-width="1.5"/>
+      ${cells}
+    </svg>`;
+  }
   function slotMachineEmblem(suffix = '') {
     const find = (x, i) => item(0, `slot-emblem-${suffix}-${i}`)
       .replace('<svg ', `<svg x="${x}" y="59" width="25" height="32" `);
@@ -76,6 +93,9 @@
   }
   function conditionFailure() {
     return '<svg class="condition-failure-art" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="m23 23 54 54m0-54L23 77" fill="none" stroke="#fff4dc" stroke-width="23" stroke-linecap="round"/><path d="m23 23 54 54m0-54L23 77" fill="none" stroke="#d9675e" stroke-width="15" stroke-linecap="round"/></svg>';
+  }
+  function perfectScore() {
+    return '<svg class="perfect-score-art" viewBox="0 0 140 140" aria-hidden="true" focusable="false"><ellipse cx="72" cy="127" rx="45" ry="6" fill="#bfab80" opacity=".17"/><g transform="rotate(-6 70 70)"><path d="M32 13h61l22 22v84a5 5 0 0 1-5 5H32a5 5 0 0 1-5-5V18a5 5 0 0 1 5-5Z" fill="#fff5dc" stroke="#b9aa87" stroke-width="2.5" stroke-linejoin="round"/><path d="M93 13v18a4 4 0 0 0 4 4h18" fill="#e9ddbd" stroke="#b9aa87" stroke-width="2.5" stroke-linejoin="round"/><path d="M39 29h29M39 97h60M39 106h48" fill="none" stroke="#cbd2b5" stroke-width="2" stroke-linecap="round"/><g transform="rotate(-5 71 65)" fill="#d35c52"><text x="71" y="75" text-anchor="middle" font-family="Georgia,serif" font-size="39" font-weight="700" font-style="italic">100</text><path d="m42 82 54-3m-47 10 40-3" fill="none" stroke="#d35c52" stroke-width="2.5" stroke-linecap="round"/></g></g></svg>';
   }
   function noticeBoard() {
     return '<svg class="notice-board-art" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="notice-board-wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f5e4bc"/><stop offset="1" stop-color="#dbc095"/></linearGradient></defs><ellipse cx="50" cy="94" rx="25" ry="3.5" fill="#c5ad7e" opacity=".2"/><path d="m45 61 1 31q5 3 10 0l-1-31" fill="#cbb18b" stroke="#b49a77" stroke-width="1.7" stroke-linejoin="round"/><path d="m49 68 1 20" stroke="#f3e3c2" stroke-width="2" stroke-linecap="round"/><g transform="rotate(-4 50 40)"><rect x="10" y="12" width="80" height="55" rx="7" fill="url(#notice-board-wood)" stroke="#b99d77" stroke-width="2"/><rect x="15" y="17" width="70" height="45" rx="4" fill="none" stroke="#fff2d5" stroke-width="1.2" opacity=".8"/><path d="M28 26v13" stroke="#cc8b70" stroke-width="4" stroke-linecap="round"/><circle cx="28" cy="47" r="2.3" fill="#cc8b70"/><path d="M43 28h30M43 39h26M43 50h20" fill="none" stroke="#8fa28a" stroke-width="3" stroke-linecap="round"/><g fill="#b79d79"><circle cx="19" cy="21" r="1.4"/><circle cx="81" cy="21" r="1.4"/><circle cx="19" cy="58" r="1.4"/><circle cx="81" cy="58" r="1.4"/></g><path d="M24 14h31M68 64h10" stroke="#fff6df" stroke-width="1.5" stroke-linecap="round" opacity=".75"/></g><path d="M36 94q13-4 28 0" fill="none" stroke="#f5e7c6" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -104,9 +124,10 @@
       footprints: '<g fill="#5c9485"><path d="M30 34c-8 2-10 12-8 21l4 19c2 8 14 6 15-1 2-9-7-15-6-24 1-6 1-16-5-15Z"/><ellipse cx="28" cy="25" rx="6" ry="8"/><circle cx="18" cy="31" r="3.4"/><circle cx="15" cy="39" r="2.8"/><path d="M66 24c8 1 11 11 10 20l-2 20c-1 8-13 8-15 1-3-8 6-16 4-24-2-6-3-16 3-17Z"/><ellipse cx="66" cy="15" rx="6" ry="8"/><circle cx="77" cy="20" r="3.4"/><circle cx="81" cy="28" r="2.8"/></g>',
       reef: '<path d="m12 73 5-25 18-12 14 3 14-18 18 13 9 40-18 10-40-1Z" fill="#9eacaa" stroke="#788f91" stroke-width="2"/><path d="m19 49 15-9 15 5 14-20 14 12m-28 8 8 29m-36 0 17-6m28 7 15-7" fill="none" stroke="#d9e0d6" stroke-width="3" stroke-linecap="round"/><path d="m38 53 4 8m30-17 4 9" stroke="#80989a" stroke-width="2" stroke-linecap="round"/>',
       pool: '<path d="M12 40c8-15 31-19 44-12s25-3 32 16-8 34-24 32-30 9-45-4S4 55 12 40Z" fill="#84b4bb" stroke="#e5e8c8" stroke-width="5"/><path d="M18 45c15-9 31 7 49-1m-41 17c12-5 24 4 37 0" stroke="#d8ede4" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M15 39c10-10 21-13 35-8" fill="none" stroke="#b8d8cb" stroke-width="3" stroke-linecap="round"/>',
-      bucket: '<path d="M22 38v-7C22 4 78 4 78 31v7" fill="none" stroke="#82a696" stroke-width="4"/><path d="m18 35 10 50q22 11 44 0l10-50Z" fill="#bbd7c3" stroke="#6e9a8d" stroke-width="2.5"/><path d="m24 43 7 36" stroke="#f0f1d8" stroke-width="4" stroke-linecap="round"/><ellipse cx="50" cy="35" rx="32" ry="8" fill="#8eb3a3" stroke="#6e9a8d" stroke-width="2.5"/><ellipse cx="50" cy="34" rx="26" ry="4" fill="#d2e1c5"/><path d="M32 85q18 7 36 0" fill="none" stroke="#e7edd3" stroke-width="2"/>'
+      bucket: '<path d="M22 38v-7C22 4 78 4 78 31v7" fill="none" stroke="#82a696" stroke-width="4"/><path d="m18 35 10 50q22 11 44 0l10-50Z" fill="#bbd7c3" stroke="#6e9a8d" stroke-width="2.5"/><path d="m24 43 7 36" stroke="#f0f1d8" stroke-width="4" stroke-linecap="round"/><ellipse cx="50" cy="35" rx="32" ry="8" fill="#8eb3a3" stroke="#6e9a8d" stroke-width="2.5"/><ellipse cx="50" cy="34" rx="26" ry="4" fill="#d2e1c5"/><path d="M32 85q18 7 36 0" fill="none" stroke="#e7edd3" stroke-width="2"/>',
+      'bucket-front': '<path d="M18 35q32 16 64 0L72 85q-22 11-44 0Z" fill="#bbd7c3" stroke="#6e9a8d" stroke-width="2.5" stroke-linejoin="round"/><path d="m24 43 7 36" stroke="#f0f1d8" stroke-width="4" stroke-linecap="round"/><path d="M32 85q18 7 36 0" fill="none" stroke="#e7edd3" stroke-width="2"/>'
     };
     return `<svg class="journey-symbol" viewBox="0 0 100 100" aria-hidden="true" focusable="false">${drawings[type] || drawings.footprints}</svg>`;
   }
-  root.BeachArt = { item, names, harvestEmblem, slotMachineEmblem, washedBucket, conditionFailure, noticeBoard, sandMatrices, moon, fog, fogField, journeySymbol };
+  root.BeachArt = { item, names, harvestEmblem, puzzleEmblem, slotMachineEmblem, washedBucket, conditionFailure, perfectScore, noticeBoard, sandMatrices, moon, fog, fogField, journeySymbol };
 })(globalThis);

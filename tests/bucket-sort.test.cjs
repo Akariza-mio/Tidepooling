@@ -43,6 +43,29 @@ test('intro and pause freeze the clock and block selecting/undo; retry resets ev
   assert.deepEqual(game.buckets,before);assert.equal(game.source,1);game.resume(200000);game.update(201000);assert.equal(game.remaining,57000);
   game.start(300000);assert.deepEqual(game.buckets,level.buckets);assert.equal(game.turns,0);assert.equal(game.history.length,0);assert.equal(game.source,null);assert.equal(game.remaining,60000);
 });
+for (const levelId of [35, 36]) test(`level ${levelId} permits only one successful undo per run, including after new moves and pause`, () => {
+  const custom = levels.find(level => level.id === levelId), game = create(custom);
+  const empty = game.buckets.length - 1;
+  const donor = levelId === 35 ? 3 : 5;
+  assert.equal(game.canUndo, false); assert.equal(game.undo(0), false); assert.equal(game.undoUsed, false);
+  move(game, 0, empty, 1000);
+  // Two recorded transfers ensure that remaining history cannot grant another undo.
+  assert.equal(game.canMove(donor, 0), true); move(game, donor, 0, 1000);
+  assert.equal(game.history.length, 2); assert.equal(game.canUndo, true);
+  game.pause(1000); assert.equal(game.canUndo, false); assert.equal(game.undo(90000), false); assert.equal(game.undoUsed, false);
+  game.resume(90000); assert.equal(game.undo(91000), true); assert.equal(game.undoUsed, true);
+  assert.equal(game.history.length, 1); assert.equal(game.canUndo, false); assert.equal(game.turns, 2); assert.equal(game.remaining, 58000);
+  const after = structuredClone(game.buckets);
+  assert.equal(game.undo(91000), false); assert.deepEqual(game.buckets, after);
+  move(game, donor, 0, 91000); assert.equal(game.history.length, 2); assert.equal(game.canUndo, false);
+  game.select(2, 91000); const selected = game.source, moved = structuredClone(game.buckets);
+  assert.equal(game.undo(91000), false); assert.equal(game.source, selected); assert.deepEqual(game.buckets, moved);
+  game.pause(91000); game.resume(100000); assert.equal(game.canUndo, false);
+  game.start(200000); assert.equal(game.undoUsed, false); assert.equal(game.canUndo, false);
+  assert.deepEqual(game.buckets, custom.buckets);
+  move(game, 0, empty, 200000); assert.equal(game.canUndo, true); assert.equal(game.undo(200000), true);
+  const reentered = create(custom); move(reentered, 0, empty); assert.equal(reentered.undo(0), true);
+});
 test('authored layout is solvable with sixteen legal individual transfers, accepting different destination buckets', () => {
   for (const swap of [false,true]) {
     const game=create();const map=i=>swap ? i===4?5:i===5?4:i : i;

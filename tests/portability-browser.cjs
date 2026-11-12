@@ -29,7 +29,7 @@ const { createServer } = require('../scripts/serve.cjs');
       await page.locator('.tile').nth(0).click();await page.locator('.tile').nth(3).click();
       assert.equal((await state()).pairs,1);
       await back();await page.locator('#level-screen [data-menu]').click();
-      await page.locator('#settings-button').click();await page.locator('#settings-screen [data-menu]').click();await page.locator('#select-level-button').click();
+      await page.locator('#guide-button').click(); await page.keyboard.press('Escape');await page.locator('#select-level-button').click();
       assert.equal(await page.locator('.chapter-level:enabled').count(),50);
       assert.equal(await page.locator('#level-50').isDisabled(),false);
       await page.locator('#level-5').click(); await action('我知道了');

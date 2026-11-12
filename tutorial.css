@@ -11,7 +11,7 @@
 .tutorial-arrow { position: absolute; width: 26px; height: 37px; top: -31px; left: calc(50% - 13px); z-index: 5; pointer-events: none; animation: tutorial-point .85s ease-in-out infinite; filter: drop-shadow(0 2px 1px #81734655); }
 .tutorial-arrow svg, .tutorial-tide-arrow { fill: #fff5bf; stroke: #628d75; stroke-width: 1.5; stroke-linejoin: round; }
 .tutorial-arrow svg { width: 100%; height: 100%; }
-.tutorial-tide-arrow { position: absolute; left: 37px; bottom: 13px; width: 30px; height: 44px; z-index: 8; pointer-events: none; animation: tutorial-point .85s ease-in-out infinite; }
+.tutorial-tide-arrow { position: absolute; left: calc(50% - 24px); bottom: 13px; width: 48px; height: 70px; z-index: 8; pointer-events: none; animation: tutorial-point .85s ease-in-out infinite; }
 .tutorial-show-tide::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 13px; z-index: 7; pointer-events: none; box-shadow: 0 -3px 8px #fff8da; }
 .is-tutorial .collection { grid-template-columns: 90px minmax(0, 1fr); min-height: 90px; margin-top: 8px; }
 .is-tutorial .harvest-bucket { width: 90px; height: 90px; }
@@ -32,4 +32,5 @@
   .is-tutorial .collection { min-height: 60px; grid-template-columns: 60px minmax(0, 1fr); margin-top: 2px; }
   .is-tutorial .harvest-bucket { width: 60px; height: 60px; }
   .tutorial-arrow { width: 20px; height: 28px; left: calc(50% - 10px); top: -24px; }
+  .tutorial-tide-arrow { width: 38px; height: 56px; left: calc(50% - 19px); }
 }

@@ -1,6 +1,5 @@
-.play-screen.is-journey { justify-content: flex-start; }
-.journey-hint { flex-shrink: 0; text-align: center; min-height: 38px; display: grid; place-items: center; margin: 12px 0; padding: 9px 12px; border: 1px solid #e7ecda80; border-radius: 14px; background: #f9f0dce8; color: #577b70; font-size: 12px; line-height: 1.7; }
-.is-journey .board-wrap { width: min(100%, var(--journey-board-size, calc(100svh - 310px))); align-self: center; margin: auto 0; flex-shrink: 0; }
+.play-screen.is-journey { justify-content: flex-start; padding-left: 14px; padding-right: 14px; }
+.is-journey .board-wrap { width: min(100%, var(--journey-board-size, calc(100svh - 250px))); align-self: center; margin: auto 0; flex-shrink: 0; }
 .is-journey .board { gap: 5px; padding: 7px; background: #d7ddbb26; }
 .tile.journey-cell { border: 1px solid #ffedc3; background: linear-gradient(145deg, #f6e3b9, #dfc58f); box-shadow: inset 0 2px 0 #fff4d3, 0 2px 2px #173e4a22; transition: box-shadow .15s; }
 .journey-cell[data-terrain="unknown"] { background: #b4c4c2; border-color: transparent; box-shadow: none; }
@@ -33,8 +32,15 @@
 .modal-card.journey-intro-card { max-height: 100%; overflow-y: auto; overscroll-behavior: contain; }
 .journey-intro-card .modal-description strong { font-weight: 700; }
 .modal-journey-art > svg { width: 100%; height: 100%; }
-.journey-result-items { position: absolute; inset: 19% 19% 37%; display: flex; align-items: center; }
-.journey-result-items svg { width: 20%; height: 100%; }
+.journey-result-items { position: absolute; inset: 0; pointer-events: none; }
+.journey-result-items svg { position: absolute; width: 34%; height: 34%; }
+.journey-result-items svg:nth-child(1) { left: 18%; top: 13%; width: 36%; height: 36%; transform: rotate(-16deg); z-index: 3; }
+.journey-result-items svg:nth-child(2) { left: 31%; top: 19%; width: 38%; height: 38%; transform: rotate(-7deg); z-index: 5; }
+.journey-result-items svg:nth-child(3) { left: 48%; top: 10%; transform: rotate(15deg); z-index: 1; }
+.journey-result-items svg:nth-child(4) { left: 36%; top: 9%; width: 32%; height: 32%; transform: rotate(9deg); z-index: 2; }
+.journey-result-items svg:nth-child(5) { left: 55%; top: 20%; transform: rotate(18deg); z-index: 4; }
+.journey-result-front { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.journey-result-front svg { display: block; width: 100%; height: 100%; }
 .journey-target { position: relative; display: flex; align-items: center; flex-shrink: 0; gap: 10px; margin-top: 8px; padding: 8px 12px; border: 1px solid #f8f1d7; border-radius: 18px; background: #fff5e3f2; box-shadow: 0 3px 0 #284f4c38; }
 .journey-target-art { width: 56px; height: 56px; display: grid; place-items: center; flex-shrink: 0; }
 .journey-target-art svg { width: 100%; height: 100%; }
@@ -51,7 +57,7 @@
 @keyframes target-shake { 0%,100% { transform: translateX(0) rotate(0); } 25% { transform: translateX(-2px) rotate(-7deg); } 75% { transform: translateX(2px) rotate(7deg); } }
 @keyframes journey-step { from { opacity: .6; scale: .8; } to { opacity: 1; scale: 1; } }
 @media (max-width: 370px), (max-height: 650px) {
-  .journey-hint { font-size: 10px; margin: 7px 0; min-height: 32px; padding: 7px; }
+  .play-screen.is-journey { padding-left: 10px; padding-right: 10px; }
   .journey-panel { padding: 10px; margin-top: 12px; }
   .journey-satchel { gap: 6px; margin-top: 6px; }
   .journey-catch { padding: 3px 2px; font-size: 9px; }
@@ -60,7 +66,6 @@
 }
 @media (orientation: landscape) and (max-height: 580px) {
   .is-journey .board { gap: 3px; padding: 4px; }
-  .journey-hint { min-height: 25px; font-size: 8px; margin: 4px 0; padding: 4px; }
   .journey-panel { padding: 6px 8px; margin-top: 7px; border-radius: 13px; }
   .journey-progress { font-size: 8px; }
   .journey-progress strong { font-size: 12px; }

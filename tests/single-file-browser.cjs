@@ -35,7 +35,7 @@ const { chromium } = require('./browser-support.cjs');
       assert.equal((await state()).pairs, 1);
       await page.locator('#pause-button').click(); await action('返回选关');
       await page.locator('#level-screen [data-menu]').click();
-      await page.locator('#settings-button').click(); await page.locator('#settings-screen [data-menu]').click(); await page.locator('#select-level-button').click();
+      await page.locator('#guide-button').click(); await page.keyboard.press('Escape');  await page.locator('#select-level-button').click();
       assert.equal(await page.locator('.chapter-level:enabled').count(), 50);
       let chapter = 1;
       for (const id of opaque ? [46, 47, 50] : Array.from({ length: 50 }, (_, i) => i + 1)) {

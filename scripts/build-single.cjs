@@ -1,6 +1,18 @@
 // Optional export tool. The generated HTML plays without Node or sibling files.
 const fs = require('node:fs');
 const path = require('node:path');
+const { randomUUID } = require('node:crypto');
+
+function refreshAchievementVersion(root = path.resolve(__dirname, '..'), revision = randomUUID()) {
+  // The shared release revision resets achievements and level wins on first load.
+  if (!/^[a-zA-Z0-9._-]+$/.test(revision)) throw new Error('Invalid achievement save revision.');
+  const file = path.join(root, 'achievements.js');
+  const source = fs.readFileSync(file, 'utf8');
+  const declaration = /const saveRevision = '[^']*';/;
+  if (!declaration.test(source)) throw new Error('Missing achievement save revision.');
+  fs.writeFileSync(file, source.replace(declaration, `const saveRevision = '${revision}';`));
+  return revision;
+}
 
 function buildSingleHtml(root = path.resolve(__dirname, '..')) {
   const scripts = [], resources = [];
@@ -43,10 +55,11 @@ function buildSingleHtml(root = path.resolve(__dirname, '..')) {
 
 if (require.main === module) {
   const output = path.resolve(process.argv[2] || path.join(__dirname, '../release/index1.html'));
+  refreshAchievementVersion();
   const { html, resources } = buildSingleHtml();
   fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, html);
   console.log(`Exported ${output}: ${resources.length} embedded resources, ${Buffer.byteLength(html)} bytes.`);
 }
 
-module.exports = { buildSingleHtml };
+module.exports = { buildSingleHtml, refreshAchievementVersion };

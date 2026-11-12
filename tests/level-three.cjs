@@ -16,12 +16,12 @@ const { pathToFileURL } = require('node:url');
     const state = () => page.evaluate(() => beachDiagnostics.snapshot());
     const layout = () => page.locator('.tile .seaside-item').evaluateAll(icons => icons.map(icon => icon.dataset.kind));
     const capture = name => process.env.BEACH_CAPTURE_PREVIEWS === '1' ? page.screenshot({ path: path.resolve(__dirname, '../preview/' + name), animations: 'disabled' }) : Promise.resolve();
-    await page.locator('#settings-button').click();
-    assert.equal(await page.locator('#settings-screen [data-menu]').count(), 1);
+    await page.locator('#guide-button').click(); await page.keyboard.press('Escape');
+    assert.equal(await page.locator('#settings-screen,#settings-button').count(), 0);
     assert.equal(await page.locator('#settings-screen .settings-return').count(), 0);
-    assert.equal(await page.getByRole('switch').count(), 3);
-    await capture('37-settings-single-return.png');
-    await page.locator('#settings-screen [data-menu]').click();
+    assert.equal(await page.getByRole('switch').count(), 2);
+    await capture('37-menu-audio-controls.png');
+
     await page.locator('#select-level-button').click();
     assert.equal(await page.locator('#level-3').isEnabled(), true);
     await page.locator('#level-3').click();

@@ -7,6 +7,8 @@
       super.start(now);
       this.completed = 0;
       this.wrongAnswers = 0;
+      this.roundWrongStreak = 0;
+      this.threeWrongInRound = false;
       this.feedback = 'ready';
     }
     update(now) {
@@ -33,12 +35,15 @@
       this.turns++;
       if (Number(text) !== ArithmeticGame.evaluate(this.round.target, this.round.values)) {
         this.wrongAnswers++;
+        this.roundWrongStreak = Math.min(3, this.roundWrongStreak + 1);
+        if (this.roundWrongStreak === 3) this.threeWrongInRound = true;
         this.feedback = 'wrong';
         this.elapsed = Math.min(this.duration + this.bonusTime, this.elapsed + this.level.wrongPenalty);
         if (this.remaining === 0) { this.state = 'lost'; this.failureReason = 'timeout'; }
         return false;
       }
       this.completed++;
+      this.roundWrongStreak = 0;
       this.feedback = 'correct';
       if (this.completed === this.totalRounds) this.state = 'won';
       return true;

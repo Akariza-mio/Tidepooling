@@ -21,6 +21,7 @@
       this.penaltyUntil = -1;
       this.wrongKind = null;
       this.feedback = '先观察五种物品和障碍的位置';
+      this.trapped = false;
       this.cards.forEach(card => { card.fog = { covered: false, until: Infinity }; });
       this.refreshVisibility();
     }
@@ -103,6 +104,18 @@
         + Math.abs(index % columns - this.position % columns) === 1;
     }
     isSpent(index) { return Boolean(this.level.noRevisit && this.visited.has(index) && index !== this.position); }
+    hasReachableTreasure() {
+      const remaining = new Set(this.level.treasures.filter(item => !this.collected.has(item.index)).map(item => item.index));
+      const queue = [this.position], seen = new Set(queue);
+      for (const at of queue) for (const next of this.walkNeighbors[at]) {
+        if (seen.has(next) || this.isSpent(next)) continue;
+        // Reaching any remaining item is enough; a different target may be drawn later.
+        if (remaining.has(next)) return true;
+        seen.add(next);
+        queue.push(next);
+      }
+      return false;
+    }
     completionRoute(firstIndex) {
       const items = this.level.treasures.filter(item => !this.collected.has(item.index));
       const itemBits = new Map(items.map((item, i) => [item.index, 1 << i]));
@@ -174,6 +187,7 @@
         }
       } else if (!this.penaltyActive) this.feedback = '注意上方目标，避开其他物品';
       this.refreshVisibility();
+      this.trapped = Boolean(this.level.noRevisit && this.state === 'playing' && this.collectedCount < this.totalTreasures && !this.hasReachableTreasure());
       return true;
     }
     refreshVisibility() {

@@ -80,10 +80,10 @@ async function win(page) {
       await page.setViewportSize(viewport); await page.clock.runFor(100);
       const fits = await page.evaluate(() => {
         const rect = id => document.getElementById(id).getBoundingClientRect();
-        const target = rect('journey-target'), hint = rect('journey-hint'), board = rect('board'), panel = rect('journey-panel'), app = rect('app');
-        return { fits: target.bottom <= hint.top && hint.bottom <= board.top && board.bottom <= panel.top && panel.bottom <= app.bottom + 1
+        const target = rect('journey-target'), board = rect('board'), panel = rect('journey-panel'), app = rect('app');
+        return { fits: target.bottom <= board.top && board.bottom <= panel.top && panel.bottom <= app.bottom + 1
           && board.left >= app.left && board.right <= app.right && panel.width <= app.width,
-          target: target.toJSON(), hint: hint.toJSON(), board: board.toJSON(), panel: panel.toJSON(), app: app.toJSON() };
+          target: target.toJSON(), board: board.toJSON(), panel: panel.toJSON(), app: app.toJSON() };
       });
       assert.equal(fits.fits, true, JSON.stringify({ viewport, ...fits }));
     }

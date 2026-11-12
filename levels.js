@@ -694,6 +694,7 @@
       duration: 60000,
       pairBonus: 0,
       capacity: 4,
+      optimalMoves: 34,
       buckets: Object.freeze([
         Object.freeze([0, 4, 1, 5]), Object.freeze([4, 1, 5, 2]),
         Object.freeze([1, 5, 2, 3]), Object.freeze([5, 2, 3, 0]),
