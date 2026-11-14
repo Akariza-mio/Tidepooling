@@ -8,7 +8,7 @@ const solution = [0,2,5,1,4,1,4,0,2,5,2,5,1,4,0,4,0,2,5,1,5,1,4,0,2];
   let browser;
   try {
     browser = await chromium.launch();
-    for (const single of [false, true]) for (const scenario of ['quick', 'late', 'zen-matching', 'zen-puzzle']) {
+    for (const single of [false, true]) for (const scenario of ['quick', 'late', 'zen-matching', 'zen-puzzle', 'zen-first-puzzle']) {
       const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', offline: true });
       const page = await context.newPage(), errors = [], external = [];
       page.on('pageerror', error => errors.push(error.message));
@@ -42,19 +42,28 @@ const solution = [0,2,5,1,4,1,4,0,2,5,2,5,1,4,0,4,0,2,5,1,5,1,4,0,2];
         await page.locator('#achievements-back').click();
       }
       await page.locator('#select-level-button').click();
-      const level = scenario === 'zen-matching' ? 2 : 6;
+      const level = scenario === 'zen-matching' ? 2 : scenario === 'zen-first-puzzle' ? 5 : 6;
       await page.locator(`#level-${level}`).click();
-      if (await page.getByRole('button', { name: '我知道了', exact: true }).isVisible()) await action('我知道了');
+      if (scenario.startsWith('zen') && await page.getByRole('button', { name: '我知道了', exact: true }).isVisible()) await action('我知道了');
       if (scenario.startsWith('zen')) {
         const duration = await page.evaluate(() => beachDiagnostics.snapshot().duration);
         await page.clock.fastForward(duration - 1);
         assert.equal((await earned()).includes('zen-mode'), false);
         await page.clock.runFor(101);
         assert.equal(await page.evaluate(() => beachDiagnostics.snapshot().state), 'lost');
-        assert.equal(await page.locator('#achievement-toast-name').innerText(), '禅模式');
-        assert.deepEqual(await earned(), ['zen-mode']);
-        assert.equal(await page.locator('#achievement-toast-icon .achievement-zen-art').count(), 1);
+        if (scenario === 'zen-matching') {
+          assert.equal(await page.locator('#achievement-toast-name').innerText(), '禅模式');
+          assert.deepEqual(await earned(), ['zen-mode']);
+          assert.equal(await page.locator('#achievement-toast-icon .achievement-zen-art').count(), 1);
+        } else {
+          assert.deepEqual(await earned(), []);
+          assert.equal(await page.locator('#achievement-toast').isVisible(), false);
+        }
       } else {
+        const beforeIntro = await page.evaluate(() => beachDiagnostics.snapshot().remaining);
+        await page.clock.fastForward(60000);
+        assert.equal(await page.evaluate(() => beachDiagnostics.snapshot().remaining), beforeIntro);
+        await action('我知道了');
         await page.clock.fastForward(1000);
         await page.locator('#pause-button').click();
         await page.clock.fastForward(90000);
@@ -67,7 +76,7 @@ const solution = [0,2,5,1,4,1,4,0,2,5,2,5,1,4,0,4,0,2,5,1,5,1,4,0,2];
           for (let i = 0; i < solution.length; i++) if (solution[i] === kind && !fixed[i]) await page.locator('.puzzle-cell').nth(i).click();
         }
         assert.equal(await page.evaluate(() => beachDiagnostics.snapshot().state), 'won');
-        assert.equal(await page.evaluate(() => beachDiagnostics.snapshot().activeTime), active);
+        assert.equal(await page.evaluate(() => beachDiagnostics.snapshot().activeTime), active + 60000);
         await page.clock.runFor(1200); // Let the normal collection/settlement finish without adding play time.
         assert.deepEqual(await earned(), scenario === 'quick' ? ['quick-search'] : []);
         if (scenario === 'quick') {

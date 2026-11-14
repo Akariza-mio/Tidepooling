@@ -5,14 +5,14 @@
   const storageKey = 'beach-pairs-achievements-v2';
   const versionKey = 'beach-pairs-achievements-version';
   const firstTutorialKey = 'beach-pairs-achievements-first-tutorial';
-  const saveRevision = 'e1cf84d0-b528-4060-a8ea-c2ae076b30d7';
+  const saveRevision = '8c32da5b-db73-43b5-8590-9adfbb2783bd';
   const definitions = Object.freeze([
     Object.freeze({ id: 'no-lever-clear', name: '反赌战士', method: '不拉一次拉杆，通关5-5', icon: 'slots', matches: game => game.state === 'won' && game.level.id === 45 && game.level.type === 'slotMachine' && game.hasSpun === false }),
     Object.freeze({ id: 'first-clear', name: '初出茅庐', method: '通关1-1', icon: 'crab', matches: game => game.state === 'won' && game.level.id === 1 }),
     Object.freeze({ id: 'flawless-clear', name: '噫！我中了！', method: '在没有配对失败的情况下通关任意一关', icon: 'trophy', matches: game => game.state === 'won' && game.totalPairs > 0 && game.pairs === game.totalPairs && game.mismatches === 0 }),
-    Object.freeze({ id: 'quick-search', name: '揣度优先搜索', method: '在30s内通关1-6', icon: 'search', matches: game => game.state === 'won' && game.level.id === 6 && Number.isFinite(game.activeTime) && game.activeTime <= 30000 }),
-    Object.freeze({ id: 'picky-eater', name: '挑食', method: '在同一关内连续配对6组相同的物品', icon: 'picky', matches: game => ['playing', 'won', 'lost'].includes(game.state) && (game.pairKinds || []).some((kind, index, kinds) => index >= 5 && kinds.slice(index - 5, index + 1).every(value => value === kind)) }),
-    Object.freeze({ id: 'zen-mode', name: '禅模式', method: '在涨潮时仍未完成任何一组配对', icon: 'zen', matches: game => game.state === 'lost' && game.failureReason === 'timeout' && game.pairs === 0 }),
+    Object.freeze({ id: 'quick-search', name: '揣度优先搜索', method: '在30s内通关1-6', icon: 'search', matches: game => game.state === 'won' && game.level.id === 6 && Number.isFinite(game.activeTime) && game.activeTime - (game.playStartedAt ?? 0) >= 0 && game.activeTime - (game.playStartedAt ?? 0) <= 30000 }),
+    Object.freeze({ id: 'picky-eater', name: '挑食', method: '在同一关内连续配对6组相同的物品', icon: 'picky', matches: game => ['playing', 'won', 'lost'].includes(game.state) && game.totalPairs > 0 && (game.pairKinds || []).some((kind, index, kinds) => index >= 5 && kinds.slice(index - 5, index + 1).every(value => value === kind)) }),
+    Object.freeze({ id: 'zen-mode', name: '禅模式', method: '在涨潮时仍未完成任何一组配对', icon: 'zen', matches: game => game.state === 'lost' && game.failureReason === 'timeout' && game.totalPairs > 0 && game.pairs === 0 }),
     Object.freeze({ id: 'first-tutorial-skip', name: '我只是点错了', method: '在首次进入1-1时跳过教程', icon: 'fast-forward', matches: () => false }),
     Object.freeze({ id: 'last-second-clear', name: '力挽狂澜', method: '在关卡的最后3s内通关', icon: 'clock', matches: game => game.state === 'won' && !game.level.untimed && (game.winRemaining ?? game.remaining) > 0 && (game.winRemaining ?? game.remaining) <= 3000 }),
     Object.freeze({ id: 'quick-fog-search', name: '眼疾手快', method: '在20s内通关2-5', icon: 'eye', matches: game => game.state === 'won' && game.level.id === 15 && game.level.type === 'fogJourney' && Number.isFinite(game.activeTime) && game.activeTime - game.previewElapsed >= 0 && game.activeTime - game.previewElapsed <= 20000 }),

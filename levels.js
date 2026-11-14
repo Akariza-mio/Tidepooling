@@ -935,7 +935,7 @@
       id: 49,
       rows: 6,
       columns: 6,
-      duration: 10000,
+      duration: 15000,
       pairBonus: 2000,
       startCountdown: 3000,
       layout: Object.freeze([

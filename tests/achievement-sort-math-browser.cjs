@@ -1,3 +1,4 @@
+const enterArithmeticAnswer = require('./arithmetic-keypad.cjs');
 // Actual optimal sorting and timed arithmetic. No screenshots or user-profile writes.
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os'), assert = require('node:assert/strict');
 const { pathToFileURL } = require('node:url'), { chromium } = require('./browser-support.cjs');
@@ -35,12 +36,12 @@ const answers = mathLevel.rounds.map(round => MathGame.evaluate(round.target, ro
         }
       } else {
         const input = page.locator('#arithmetic-answer'), submit = page.locator('#arithmetic-submit');
-        await input.fill('999'); await submit.click();
-        for (const answer of answers.slice(0, 9)) { await input.fill(String(answer)); await submit.click(); }
+        await enterArithmeticAnswer(page, '999'); await submit.click();
+        for (const answer of answers.slice(0, 9)) { await enterArithmeticAnswer(page, String(answer)); await submit.click(); }
         assert.equal((await state()).arithmetic.completed, 9);
         await page.locator('#pause-button').click(); await page.clock.fastForward(90000); await action('继续赶海');
         const time = scenario === 'books' ? 30000 : 30001; await page.clock.fastForward(time);
-        await input.fill(String(answers.at(-1))); await submit.click();
+        await enterArithmeticAnswer(page, String(answers.at(-1))); await submit.click();
         assert.equal((await state()).state, 'won'); assert.equal((await state()).activeTime, time);
         await page.clock.runFor(1200);
         assert.equal((await earned()).includes('open-book'), scenario === 'books');

@@ -21,5 +21,5 @@ test('passing thirty seconds never introduces a failure and a late heart match s
 test('pause and retry preserve the untimed ending, and a subsequent timed level still expires',()=>{
  const game=create();game.select(0,100);game.pause(200);game.update(100000);assert.equal(game.cards[0].status,'open');game.resume(200000);assert.equal(game.select(1,200100),true);assert.equal(game.state,'won');
  game.start(400000);assert.equal(game.timerRunning,false);assert.equal(game.pairs,0);assert.equal(game.countdownRemaining,0);assert.ok(game.cards.every(c=>c.status==='hidden'));assert.deepEqual(game.cards.map(c=>c.value),[6,6]);
- const ordinary=new Game({level:levels.find(l=>l.id===49)});ordinary.start(0);ordinary.update(3000);assert.equal(ordinary.timerRunning,true);ordinary.update(13000);assert.equal(ordinary.failureReason,'timeout');
+ const ordinary=new Game({level:levels.find(l=>l.id===49)});ordinary.start(0);ordinary.update(ordinary.level.startCountdown);assert.equal(ordinary.timerRunning,true);ordinary.update(ordinary.level.startCountdown+ordinary.duration);assert.equal(ordinary.failureReason,'timeout');
 });

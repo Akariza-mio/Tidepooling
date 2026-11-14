@@ -647,13 +647,13 @@
         actions: [{ text: '我知道了', run: beginTimedGame }] });
     } else if (isJourney()) {
       $('journey-panel').querySelector('p').textContent = game.level.noRevisit
-        ? '点击相邻格移动 · 走过的灰格不可再踩'
-        : '点击上下左右相邻格子移动 · 礁石和潮池不可通过';
+        ? '点击相邻格移动 · 障碍所在处不可通过 · 走过的灰格不可再踩'
+        : '点击上下左右相邻格子移动 · 障碍所在处不可通过';
       $('journey-satchel').innerHTML = game.level.treasures.map((item, i) => `<span class="journey-catch" data-index="${item.index}">${BeachArt.item(item.kind, 'journey-bag-' + i)}<span>${BeachArt.names[item.kind]}</span><b aria-hidden="true">✓</b></span>`).join('');
       syncJourney();
       refreshBucketTarget();
       openModal({ eyebrow: '', heading: '挑战！', art: 'journey',
-        description: game.level.noRevisit ? '这次走过的格子将不能重复踏入' : '请在一定时间内寻找并拾起与屏幕上方展示对应的物品\n如若超时，物品会刷新，潮水会大幅上涨\n在游戏开始前，你可以暂时查看五种物品和障碍的位置\n随后雾会弥漫整个海滩，你的能见度会大大下降\n在涨潮前拾起全部物品，即可通关！\n注意：如果不小心拾起了与需求不符的物品，会直接失败！',
+        description: game.level.noRevisit ? '这次走过的格子将不能重复踏入' : '请在一定时间内寻找并拾起与屏幕上方展示对应的物品\n如若超时，物品会刷新，潮水会大幅上涨\n在游戏开始前，你可以暂时查看五种物品和障碍的位置\n随后雾会弥漫整个海滩，你的能见度会大大下降\n点击相邻格子移动，在涨潮前拾起全部物品，即可通关！\n注意：如果不小心拾起了与需求不符的物品，会直接失败！',
         emphasizeLastLine: !game.level.noRevisit,
         actions: [{ text: '我知道了', run: () => { closeModal(false); game.beginPreview(performance.now()); syncGame(); } }] });
     } else if (game.level.intro === 'doubleSurf') {
@@ -1508,16 +1508,9 @@
     if (isArithmetic()) {
       openModal({ eyebrow: '',
         heading: won ? '挑战成功！' : '潮水先到了一步',
-        description: won ? '你在涨潮前答出了所有题目！' : `这次完成了 ${game.completed} / ${game.totalRounds} 轮。\n再理一理公式，重新挑战吧。`,
+        description: won ? '你在涨潮前答出了所有题目！' : `这次完成了 ${game.completed} / ${game.totalRounds} 轮。\n记住这次的答案，重新挑战吧。`,
         art: won ? 'perfect-score' : 'washed-bucket', result: true,
         actions: [{ text: won ? '下一关' : '重新挑战', run: won ? goToNextLevel : startGame }, { text: '返回选关', run: () => showScreen('level') }, { text: '返回主菜单', run: () => showScreen('menu') }] });
-      return;
-    }
-    if (isSlotMachine() && !won) {
-      openModal({ eyebrow: '', heading: '潮水先到了一步',
-        description: `这次配好了${game.collectedCount} / ${game.totalItems}件收获。\n再试试你的手气吧。`,
-        art: 'washed-bucket', result: true,
-        actions: [{ text: '重新挑战', run: startGame }, { text: '返回选关', run: () => showScreen('level') }, { text: '返回主菜单', run: () => showScreen('menu') }] });
       return;
     }
     if (isBucketSort()) {
@@ -1722,11 +1715,6 @@
   }
   // Hosted previews can allow scripts while forbidding native form submission.
   $('arithmetic-submit').addEventListener('click', submitArithmeticAnswer);
-  $('arithmetic-answer').addEventListener('keydown', event => {
-    if (event.key !== 'Enter' || event.isComposing) return;
-    event.preventDefault();
-    if (!event.repeat) $('arithmetic-submit').click();
-  });
   $('slot-lever').addEventListener('click', () => {
     if (modalOpen || !isSlotMachine()) return;
     if (game.spin(performance.now())) playEffect('lever');

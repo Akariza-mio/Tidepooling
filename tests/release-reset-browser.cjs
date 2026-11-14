@@ -1,3 +1,4 @@
+const enterArithmeticAnswer = require('./arithmetic-keypad.cjs');
 // A published revision resets both kinds of progress once; ordinary reloads preserve play.
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),assert=require('node:assert/strict');
 const {pathToFileURL}=require('node:url'),{chromium}=require('./browser-support.cjs');
@@ -29,7 +30,7 @@ const answers=level.rounds.map(r=>MathGame.evaluate(r.target,r.values));
    assert.equal(await page.locator('.chapter-level.is-completed').count(),0);
    assert.deepEqual(await page.locator('.chapter-progress').allTextContents(),Array(5).fill('已通关 0 / 10'));
    for(let i=0;i<4;i++)await page.locator('#chapter-next').click();await page.locator('#level-46').click();
-   for(const answer of answers){await page.locator('#arithmetic-answer').fill(String(answer));await page.locator('#arithmetic-submit').click();}
+   for(const answer of answers){await enterArithmeticAnswer(page, String(answer));await page.locator('#arithmetic-submit').click();}
    await page.clock.runFor(1200);assert.equal(await page.locator('#modal-heading').innerText(),'挑战成功！');
    assert.equal(await page.locator('#modal-description').innerText(),'你在涨潮前答出了所有题目！');
    assert.equal(await page.locator('#modal-eyebrow').textContent(),'');assert.equal(await page.locator('#modal-eyebrow').isHidden(),true);
@@ -50,6 +51,7 @@ const answers=level.rounds.map(r=>MathGame.evaluate(r.target,r.values));
    for(let i=0;i<4;i++)await page.locator('#chapter-next').click();await page.locator('#level-46').click();
    await page.clock.fastForward(90000);await page.clock.runFor(100);
    assert.equal(await page.locator('#modal-heading').innerText(),'潮水先到了一步');
+   assert.equal(await page.locator('#modal-description').innerText(),'这次完成了 0 / 10 轮。\n记住这次的答案，重新挑战吧。');
    assert.equal(await page.locator('#modal-eyebrow').textContent(),'');assert.equal(await page.locator('#modal-eyebrow').isHidden(),true);
    assert.equal(await page.locator('#modal-art .washed-bucket-art').count(),1);
    assert.deepEqual(errors,[]);await context.close();

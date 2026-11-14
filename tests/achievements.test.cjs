@@ -149,7 +149,7 @@ test('six consecutive successful pairs of the same kind award mid-run; another k
   assert.equal(a.record(run), false); assert.equal(new Achievements(a.storage).earned.has('picky-eater'), true);
 });
 
-test('zen awards only on a zero-pair tide timeout, including minigames, never merely entering or other failures', () => {
+test('zen awards only on a pairing level with zero pairs at tide timeout, never minigames, entry or other failures', () => {
   const Game = require('../core.js');
   for (const paired of [false, true]) {
     const a = new Achievements(storage()), run = new Game(); run.start(0); assert.equal(a.record(run), false);
@@ -157,7 +157,7 @@ test('zen awards only on a zero-pair tide timeout, including minigames, never me
     run.update(run.duration); a.record(run); assert.equal(a.earned.has('zen-mode'), !paired);
   }
   const run = new (require('../puzzle.js'))({ level: require('../levels.js').find(l => l.id === 5) }); run.start(0); run.update(run.duration);
-  const a = new Achievements(storage()); a.record(run); assert.equal(a.earned.has('zen-mode'), true);
+  const a = new Achievements(storage()); a.record(run); assert.equal(a.earned.has('zen-mode'), false);
   for (const failureReason of ['conditions', 'wrongTarget']) {
     const a = new Achievements(storage()); a.record({ level, state: 'lost', failureReason, pairs: 0 }); assert.equal(a.earned.size, 0);
   }

@@ -9,7 +9,6 @@
 .arithmetic-progress .is-done { background: #659e8d; }
 .arithmetic-progress .is-current { background: #e1b16b; }
 .arithmetic-paper { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; padding: 14px 12px; border: 1px solid #fff8e7; border-radius: 18px; background: #fff7e8e8; box-shadow: 0 4px 0 #c5b69045; }
-.arithmetic-note { margin: 0 0 8px; text-align: center; font-size: 11px; color: #8b977e; }
 .arithmetic-clues { display: flex; flex-direction: column; gap: 7px; }
 .arithmetic-equation { display: flex; justify-content: center; align-items: center; gap: 7px; min-height: 49px; font: 26px Georgia,serif; color: #446b64; white-space: nowrap; }
 .arithmetic-item { flex: none; display: inline-flex; width: 45px; height: 45px; align-items: center; justify-content: center; }
@@ -33,7 +32,6 @@
  .play-screen.is-arithmetic { gap: 7px; }
  .arithmetic-panel { gap: 8px; }
  .arithmetic-paper { padding: 9px 8px; }
- .arithmetic-note { font-size: 10px; margin-bottom: 5px; }
  .arithmetic-clues { gap: 2px; }
  .arithmetic-equation { min-height: 36px; font-size: 22px; gap: 5px; }
  .arithmetic-item { width: 34px; height: 34px; }

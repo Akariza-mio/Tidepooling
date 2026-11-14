@@ -1,3 +1,4 @@
+const enterArithmeticAnswer = require('./arithmetic-keypad.cjs');
 // File/HTTP arithmetic and mode transitions; no screenshots or user-profile writes.
 const {chromium}=require('./browser-support.cjs'),assert=require('node:assert/strict'),path=require('node:path');
 const {pathToFileURL}=require('node:url'),{createServer}=require('../scripts/serve.cjs');
@@ -11,9 +12,9 @@ const answers=level.rounds.map(r=>ArithmeticGame.evaluate(r.target,r.values));
    const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),page=await context.newPage(),errors=[],external=[];
    page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url())&&new URL(r.url()).hostname!=='127.0.0.1')external.push(r.url());});
    await page.clock.install({time:new Date('2026-11-04T00:00:00Z')});await page.clock.pauseAt(new Date('2026-11-04T00:00:01Z'));
-   await page.addInitScript(testing=>{localStorage.setItem('beach-pairs-completed-levels','[45]');if(testing)localStorage.setItem('beach-pairs-unlock-all','on');},testing);
+   await page.addInitScript(({testing,revision})=>{localStorage.setItem('beach-pairs-progress-version',revision);localStorage.setItem('beach-pairs-completed-levels','[45]');if(testing)localStorage.setItem('beach-pairs-unlock-all','on');},{testing,revision:require('../achievements.js').revision});
    await page.goto(url);const state=()=>page.evaluate(()=>beachDiagnostics.snapshot()),action=name=>page.getByRole('button',{name,exact:true}).click(),input=page.locator('#arithmetic-answer'),submit=page.locator('#arithmetic-submit');
-   const solve=async number=>{await input.fill(String(number));await input.press('Enter');};
+   const solve=async number=>{await enterArithmeticAnswer(page, String(number));await submit.click();};
    const ready=async()=>{assert.equal((await state()).modalOpen,false);assert.equal((await state()).timerRunning,true);assert.equal(await page.locator('#arithmetic-panel h2').count(),0);};
    const restart=async()=>{await page.locator('#pause-button').click();await action('重新开始');assert.equal((await state()).remaining,90000);await ready();};
    await page.locator('#select-level-button').click();for(let i=0;i<4;i++)await page.locator('#chapter-next').click();assert.equal(await page.locator('#chapter-5 .chapter-level:enabled').count(),10);assert.equal(await page.locator('#level-50').isDisabled(),false);
@@ -23,6 +24,12 @@ const answers=level.rounds.map(r=>ArithmeticGame.evaluate(r.target,r.values));
    }
    let snap=await state();assert.equal(snap.levelId,46);assert.equal(snap.mode,'arithmetic');assert.equal(snap.duration,90000);assert.equal(snap.arithmetic.total,10);assert.equal(snap.arithmetic.completed,0);assert.equal(snap.modalOpen,false);
    await ready();await page.clock.runFor(1000);assert.ok((await state()).remaining<90000);await restart();
+   assert.equal(await input.evaluate(n=>n.readOnly),true);assert.equal(await input.getAttribute('inputmode'),'none');
+   await input.focus();await page.keyboard.type('123');await page.keyboard.insertText('45');await page.keyboard.press('Backspace');await page.keyboard.press('Enter');
+   assert.equal(await input.inputValue(),'');assert.equal((await state()).arithmetic.completed,0);
+   await enterArithmeticAnswer(page,'1234');assert.equal(await input.inputValue(),'123');
+   await input.focus();await page.keyboard.press('Backspace');await page.keyboard.insertText('9');assert.equal(await input.inputValue(),'123');
+   await page.locator('.arithmetic-key[data-value="clear"]').click();
    assert.equal(await page.locator('.tile').count(),0);assert.equal(await page.locator('.board-wrap').isVisible(),false);assert.equal(await page.locator('.collection').isVisible(),false);assert.equal(await page.locator('#slot-machine-panel').isVisible(),false);
    assert.equal(await page.locator('#arithmetic-clues .arithmetic-equation').count(),1);assert.equal(await page.locator('.arithmetic-key').count(),12);assert.match(await page.locator('#arithmetic-question').innerText(),/= \?/);
    await submit.click();assert.match(await page.locator('#arithmetic-feedback').innerText(),/整数/);assert.equal((await state()).arithmetic.completed,0);assert.equal((await state()).remaining,90000);
@@ -30,7 +37,7 @@ const answers=level.rounds.map(r=>ArithmeticGame.evaluate(r.target,r.values));
    await page.clock.runFor(1200);const before=(await state()).remaining;await page.locator('.arithmetic-key[data-value="5"]').click();assert.equal(await input.inputValue(),'5');await submit.click();assert.equal((await state()).arithmetic.completed,1);assert.equal((await state()).arithmetic.round,2);assert.ok((await state()).remaining<=before&&(await state()).remaining>=before-34);assert.equal((await state()).bonusTime,0);assert.equal(await input.inputValue(),'');
    await submit.dispatchEvent('click');assert.equal((await state()).arithmetic.completed,1);
    await page.locator('.arithmetic-key[data-value="2"]').click();await page.locator('.arithmetic-key[data-value="3"]').click();await page.locator('.arithmetic-key[data-value="delete"]').click();assert.equal(await input.inputValue(),'2');await page.locator('.arithmetic-key[data-value="clear"]').click();assert.equal(await input.inputValue(),'');
-   await input.fill('8');await page.locator('#pause-button').click();assert.match(await page.locator('#modal-description').innerText(),/已完成 1 \/ 10 轮/);const paused=await state();await page.clock.fastForward(30000);assert.equal((await state()).remaining,paused.remaining);assert.equal((await state()).arithmetic.completed,1);await action('继续赶海');assert.equal(await input.inputValue(),'8');
+   await enterArithmeticAnswer(page, '8');await page.locator('#pause-button').click();assert.match(await page.locator('#modal-description').innerText(),/已完成 1 \/ 10 轮/);const paused=await state();await page.clock.fastForward(30000);assert.equal((await state()).remaining,paused.remaining);assert.equal((await state()).arithmetic.completed,1);await action('继续赶海');assert.equal(await input.inputValue(),'8');
    await restart();assert.equal((await state()).arithmetic.completed,0);assert.equal((await state()).arithmetic.wrongAnswers,0);assert.equal((await state()).remaining,90000);assert.equal(await input.inputValue(),'');
    for(let i=0;i<9;i++){assert.equal((await state()).arithmetic.round,i+1);await solve(answers[i]);assert.equal((await state()).arithmetic.completed,i+1);}
    assert.equal((await state()).state,'playing');assert.equal(await page.locator('#arithmetic-clues .arithmetic-equation').count(),3);assert.match(await page.locator('#arithmetic-question').innerText(),/\(/);assert.match(await page.locator('#arithmetic-question').innerText(),/×/);
@@ -40,10 +47,10 @@ const answers=level.rounds.map(r=>ArithmeticGame.evaluate(r.target,r.values));
    }
    await page.setViewportSize({width:390,height:844});await solve(answers[9]);assert.equal((await state()).state,'won');assert.equal((await state()).arithmetic.completed,10);await page.clock.runFor(1000);assert.equal(await page.locator('#modal-heading').innerText(),'挑战成功！');assert.equal(await page.evaluate(()=>localStorage.getItem('beach-pairs-completed-levels')),'[45,46]');
    await action('下一关');assert.equal((await state()).levelId,47);assert.equal(await page.locator('#modal-conditions').innerText(),'配对失败会使物品位置互换');await action('我知道了');await page.locator('#pause-button').click();await action('返回选关');assert.equal(await page.locator('#level-50').isDisabled(),false);
-   await page.locator('#level-46').click();await ready();await page.clock.fastForward(85000);await solve(9);assert.equal((await state()).failureReason,'timeout');assert.equal((await state()).remaining,0);assert.equal((await state()).arithmetic.wrongAnswers,1);assert.equal((await state()).arithmetic.completed,0);await action('重新挑战');await ready();assert.equal((await state()).remaining,90000);
+   await page.locator('#level-46').click();await ready();await page.clock.fastForward(85000);await solve(9);assert.equal((await state()).failureReason,'timeout');assert.equal((await state()).remaining,0);assert.equal((await state()).arithmetic.wrongAnswers,1);assert.equal((await state()).arithmetic.completed,0);assert.equal(await page.locator('#modal-description').innerText(),'这次完成了 0 / 10 轮。\n记住这次的答案，重新挑战吧。');await action('重新挑战');await ready();assert.equal((await state()).remaining,90000);
    await page.locator('#pause-button').click();await action('返回选关');await page.locator('#level-46').click();await ready();for(const answer of answers)await solve(answer);await page.clock.runFor(1000);await action('下一关');await action('我知道了');assert.equal((await state()).arithmetic,null);assert.equal(await page.locator('#arithmetic-panel').isVisible(),false);assert.equal(await page.locator('.tile').count(),36);assert.equal(await page.locator('.board-wrap').isVisible(),true);
    const ids=await page.locator('#board [id],#arithmetic-panel [id]').evaluateAll(ns=>ns.map(n=>n.id));assert.equal(ids.length,new Set(ids).size);assert.deepEqual(errors,[]);assert.deepEqual(external,[]);await context.close();
   }
-  console.log('PASS: arithmetic file/HTTP, fifth→sixth→seventh, ten rounds and operators, five-second wrong-answer penalty and immediate penalty timeout, invalid retries, keypad/keyboard, no extra time, direct timed entry/pause/retry/timeout, five viewports, victory/progress isolation and return to matching. No screenshots.');
+  console.log('PASS: arithmetic file/HTTP, fifth→sixth→seventh, ten rounds and operators, five-second wrong-answer penalty and immediate penalty timeout, invalid retries, read-only answer and keypad input, no extra time, direct timed entry/pause/retry/timeout, five viewports, victory/progress isolation and return to matching. No screenshots.');
  }finally{if(browser)await browser.close();server.closeAllConnections();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});

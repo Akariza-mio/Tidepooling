@@ -1,3 +1,4 @@
+const enterArithmeticAnswer = require('./arithmetic-keypad.cjs');
 // Real streak events and the hidden ending waiting milestone. No screenshots.
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os'), assert = require('node:assert/strict');
 const { pathToFileURL } = require('node:url'), { chromium } = require('./browser-support.cjs');
@@ -46,7 +47,7 @@ const { pathToFileURL } = require('node:url'), { chromium } = require('./browser
         assert.deepEqual(await page.locator('#achievement-toast-icon .seaside-item').evaluateAll(items => items.map(item => Number(item.getAttribute('y')))), [5,42,82]);
       } else if (scenario === 'math') {
         for (let i = 0; i < 3; i++) {
-          await page.locator('#arithmetic-answer').fill('999'); await page.locator('#arithmetic-submit').click();
+          await enterArithmeticAnswer(page, '999'); await page.locator('#arithmetic-submit').click();
           assert.equal((await earned()).includes('beyond-syllabus'), i === 2); assert.equal((await state()).arithmetic.completed, 0);
         }
         assert.equal((await state()).remaining, 75000); assert.equal(await page.locator('#achievement-toast-name').innerText(), '超纲');
