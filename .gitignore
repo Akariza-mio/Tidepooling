@@ -1,15 +1,9 @@
-# 打包验证产生的解压副本
-/.verification/
-
-# 自动生成的截图和美术预览
-/preview/
-
-# 游戏发行压缩包
 /release/
-/concepts/
-
-# Optional local development dependencies and macOS metadata
+/scripts/
 /node_modules/
+/图片/
+/test/
+赶赶嗨嗨！游戏封面.png
+
 .DS_Store
 npm-debug.log*
-图片/
