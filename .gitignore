@@ -1,9 +1,11 @@
-/release/
-/scripts/
-/node_modules/
 /图片/
-/test/
-赶赶嗨嗨！游戏封面.png
-
+/tests/
 .DS_Store
 npm-debug.log*
+
+# Root-level development documents, metadata, and game cover (kept locally)
+/赶赶嗨嗨！游戏封面.png
+/AGENTS.md
+/AGENT交接.md
+/游戏需求.md
+/package.json
