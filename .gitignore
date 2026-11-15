@@ -2,8 +2,6 @@
 /tests/
 .DS_Store
 npm-debug.log*
-
-# Root-level development documents, metadata, and game cover (kept locally)
 /赶赶嗨嗨！游戏封面.png
 /AGENTS.md
 /AGENT交接.md
